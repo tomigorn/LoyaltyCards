@@ -5,6 +5,8 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LoyaltyCards.Server", "LoyaltyCards.Server\LoyaltyCards.Server.csproj", "{941E8BD2-0CBA-4775-8FDB-7F1A1E7ED107}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LoyaltyCards.Client", "LoyaltyCards.Client\LoyaltyCards.Client.csproj", "{0E0FA3CA-CD4C-49CA-9012-8081AF5D1947}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,18 @@ Global
 		{941E8BD2-0CBA-4775-8FDB-7F1A1E7ED107}.Release|x64.Build.0 = Release|Any CPU
 		{941E8BD2-0CBA-4775-8FDB-7F1A1E7ED107}.Release|x86.ActiveCfg = Release|Any CPU
 		{941E8BD2-0CBA-4775-8FDB-7F1A1E7ED107}.Release|x86.Build.0 = Release|Any CPU
+		{0E0FA3CA-CD4C-49CA-9012-8081AF5D1947}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E0FA3CA-CD4C-49CA-9012-8081AF5D1947}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E0FA3CA-CD4C-49CA-9012-8081AF5D1947}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{0E0FA3CA-CD4C-49CA-9012-8081AF5D1947}.Debug|x64.Build.0 = Debug|Any CPU
+		{0E0FA3CA-CD4C-49CA-9012-8081AF5D1947}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{0E0FA3CA-CD4C-49CA-9012-8081AF5D1947}.Debug|x86.Build.0 = Debug|Any CPU
+		{0E0FA3CA-CD4C-49CA-9012-8081AF5D1947}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E0FA3CA-CD4C-49CA-9012-8081AF5D1947}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E0FA3CA-CD4C-49CA-9012-8081AF5D1947}.Release|x64.ActiveCfg = Release|Any CPU
+		{0E0FA3CA-CD4C-49CA-9012-8081AF5D1947}.Release|x64.Build.0 = Release|Any CPU
+		{0E0FA3CA-CD4C-49CA-9012-8081AF5D1947}.Release|x86.ActiveCfg = Release|Any CPU
+		{0E0FA3CA-CD4C-49CA-9012-8081AF5D1947}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
