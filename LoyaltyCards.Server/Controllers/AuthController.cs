@@ -52,10 +52,14 @@ namespace LoyaltyCards.Server.Controllers
         {
             var user = _context.AppUsers.FirstOrDefault(u =>
                 u.Email == request.Email);
+            if (user == null)
+            {
+                return Unauthorized("Invalid username or password");
+            }
 
             var verifiedHashedPasswordResult = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, request.Password);
 
-            if (user == null || verifiedHashedPasswordResult!=PasswordVerificationResult.Success)
+            if (verifiedHashedPasswordResult != PasswordVerificationResult.Success)
             {
                 return Unauthorized("Invalid username or password");
             }
