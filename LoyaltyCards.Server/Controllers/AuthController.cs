@@ -27,7 +27,7 @@ namespace LoyaltyCards.Server.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register(RegisterUserDto dto)
+        public async Task<IActionResult> Register(UserRegisterDTO dto)
         {
             var existingUser = await _context.AppUsers.FirstOrDefaultAsync(u => u.Email == dto.Email);
             if (existingUser != null)
@@ -48,7 +48,7 @@ namespace LoyaltyCards.Server.Controllers
         }
 
         [HttpPost("login")]
-        public IActionResult Login([FromBody] UserLoginRequest request)
+        public IActionResult Login([FromBody] UserLoginDTO request)
         {
             var user = _context.AppUsers.FirstOrDefault(u =>
                 u.Email == request.Email);
