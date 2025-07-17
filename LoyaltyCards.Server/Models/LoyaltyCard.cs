@@ -15,7 +15,12 @@ namespace LoyaltyCards.Server.Models
 
         [Required]
         public string EncryptedCardNumber { get; set; } = string.Empty;
+        public string CardNonce { get; set; }
+        public string CardTag { get; set; }
+
         public string? EncryptedPin { get; set; }
+        public string? PinNonce { get; set; }
+        public string? PinTag { get; set; }
 
         [Required]
         public int AppUserId { get; set; }

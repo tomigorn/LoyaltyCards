@@ -9,5 +9,7 @@ namespace LoyaltyCards.Server.Data
 
         public DbSet<AppUser> AppUsers { get; set; }
         public DbSet<LoyaltyCard> LoyaltyCards { get; set; }
+        public DbSet<UserEncryptionKey> UserEncryptionKeys { get; set; } = null!;
+
     }
 }

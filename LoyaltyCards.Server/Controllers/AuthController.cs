@@ -40,8 +40,18 @@ namespace LoyaltyCards.Server.Controllers
                 Email = dto.Email
             };
             user.PasswordHash = _passwordHasher.HashPassword(user, dto.Password);
-
             _context.AppUsers.Add(user);
+            await _context.SaveChangesAsync();
+
+            var salt = RandomNumberGenerator.GetBytes(16);
+
+            var encryptionKey = new UserEncryptionKey
+            {
+                AppUser = user,
+                Salt = salt
+            };
+
+            _context.UserEncryptionKeys.Add(encryptionKey);
             await _context.SaveChangesAsync();
 
             return Ok("User registered successfully");

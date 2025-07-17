@@ -2,6 +2,7 @@
 using LoyaltyCards.Server.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -9,9 +10,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LoyaltyCards.Server.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250717221957_AddUserEncryptionAndCardEncryption")]
+    partial class AddUserEncryptionAndCardEncryption
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.7");
@@ -99,8 +102,7 @@ namespace LoyaltyCards.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AppUserId")
-                        .IsUnique();
+                    b.HasIndex("AppUserId");
 
                     b.ToTable("UserEncryptionKeys");
                 });
@@ -119,8 +121,8 @@ namespace LoyaltyCards.Server.Migrations
             modelBuilder.Entity("LoyaltyCards.Server.Models.UserEncryptionKey", b =>
                 {
                     b.HasOne("LoyaltyCards.Server.Models.AppUser", "AppUser")
-                        .WithOne("UserEncryptionKey")
-                        .HasForeignKey("LoyaltyCards.Server.Models.UserEncryptionKey", "AppUserId")
+                        .WithMany()
+                        .HasForeignKey("AppUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -130,9 +132,6 @@ namespace LoyaltyCards.Server.Migrations
             modelBuilder.Entity("LoyaltyCards.Server.Models.AppUser", b =>
                 {
                     b.Navigation("LoyaltyCards");
-
-                    b.Navigation("UserEncryptionKey")
-                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }
