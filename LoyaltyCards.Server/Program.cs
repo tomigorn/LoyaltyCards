@@ -1,6 +1,8 @@
 ﻿using LoyaltyCards.Server.Data;
+using LoyaltyCards.Server.Helpers;
 using LoyaltyCards.Server.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -57,20 +59,7 @@ builder.Services.AddSwaggerGen(c =>
         Description = "Enter your JWT token in this format: Bearer {your token here}"
     });
 
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            Array.Empty<string>()
-        }
-    });
+    c.OperationFilter<AuthorizeCheckOperationFilter>();
 });
 
 builder.Services.AddAuthorization();
