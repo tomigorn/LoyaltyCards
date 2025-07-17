@@ -64,7 +64,7 @@ namespace LoyaltyCards.Server.Controllers
                 return Unauthorized("Invalid username or password");
             }
 
-            var token = JwtHelper.GenerateToken(user.Email, _jwtSettings);
+            var token = JwtHelper.GenerateToken(user.Id, user.Email, _jwtSettings);
             return Ok(new { token });
         }
 

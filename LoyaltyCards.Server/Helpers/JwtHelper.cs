@@ -8,7 +8,7 @@ namespace LoyaltyCards.Server.Helpers
 {
     public static class JwtHelper
     {
-        public static string GenerateToken(string username, JwtSettings jwtSettings)
+        public static string GenerateToken(int userId, string username, JwtSettings jwtSettings)
         {
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Key));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -16,6 +16,7 @@ namespace LoyaltyCards.Server.Helpers
 
             var claims = new[]
             {
+                new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
                 new Claim(ClaimTypes.Name, username)
             };
 
