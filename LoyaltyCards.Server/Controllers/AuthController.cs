@@ -2,6 +2,7 @@
 using LoyaltyCards.Server.DTOs;
 using LoyaltyCards.Server.Helpers;
 using LoyaltyCards.Server.Models;
+using LoyaltyCards.Server.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -18,12 +19,14 @@ namespace LoyaltyCards.Server.Controllers
         private readonly AppDbContext _context;
         private readonly JwtSettings _jwtSettings;
         private readonly PasswordHasher<AppUser> _passwordHasher;
+        private readonly IKeyCacheService _keyCacheService;
 
-        public AuthController(AppDbContext context, IOptions<JwtSettings> jwtOptions)
+        public AuthController(AppDbContext context, IOptions<JwtSettings> jwtOptions, IKeyCacheService keyCacheService)
         {
             _context = context;
             _jwtSettings = jwtOptions.Value;
             _passwordHasher = new PasswordHasher<AppUser>();
+            _keyCacheService = keyCacheService;
         }
 
         [HttpPost("register")]
@@ -58,23 +61,32 @@ namespace LoyaltyCards.Server.Controllers
         }
 
         [HttpPost("login")]
-        public IActionResult Login([FromBody] UserLoginDTO request)
+        public async Task<IActionResult> Login([FromBody] UserLoginDTO request)
         {
-            var user = _context.AppUsers.FirstOrDefault(u =>
-                u.Email == request.Email);
+            var user = await _context.AppUsers.FirstOrDefaultAsync(u => u.Email == request.Email);
             if (user == null)
             {
                 return Unauthorized("Invalid username or password");
             }
 
             var verifiedHashedPasswordResult = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, request.Password);
-
             if (verifiedHashedPasswordResult != PasswordVerificationResult.Success)
             {
                 return Unauthorized("Invalid username or password");
             }
 
+            var encryption = await _context.UserEncryptionKeys.FirstOrDefaultAsync(e => e.AppUserId == user.Id);
+            if (encryption == null)
+            {
+                return Unauthorized("Encryption info not found");
+            }
+
+            var key = AesEncryptionHelper.DeriveKey(request.Password, encryption.Salt);
+
+            _keyCacheService.StoreKey(user.Id, key);
+
             var token = JwtHelper.GenerateToken(user.Id, user.Email, _jwtSettings);
+
             return Ok(new { token });
         }
 

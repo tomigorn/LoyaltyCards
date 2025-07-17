@@ -1,6 +1,7 @@
 ﻿using LoyaltyCards.Server.Data;
 using LoyaltyCards.Server.Helpers;
 using LoyaltyCards.Server.Models;
+using LoyaltyCards.Server.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
@@ -63,6 +64,9 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 builder.Services.AddAuthorization();
+
+builder.Services.AddMemoryCache();
+builder.Services.AddSingleton<IKeyCacheService, KeyCacheService>();
 
 var app = builder.Build();
 

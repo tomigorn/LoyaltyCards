@@ -2,6 +2,7 @@
 using LoyaltyCards.Server.DTOs;
 using LoyaltyCards.Server.Helpers;
 using LoyaltyCards.Server.Models;
+using LoyaltyCards.Server.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -16,9 +17,11 @@ namespace LoyaltyCards.Server.Controllers
     public class LoyaltyCardController : ControllerBase
     {
         private readonly AppDbContext _context;
-        public LoyaltyCardController(AppDbContext context)
+        private readonly IKeyCacheService _keyCacheService;
+        public LoyaltyCardController(AppDbContext context, IKeyCacheService keyCacheService)
         {
             _context = context;
+            _keyCacheService = keyCacheService;
         }
 
         private int GetUserId() =>
@@ -64,22 +67,16 @@ namespace LoyaltyCards.Server.Controllers
             return Ok("New card saved.");
         }
 
-        [HttpPost("GetCards")]
-        public async Task<IActionResult> GetCards([FromBody] GetCardsRequest request)
+        [HttpGet("GetCards")]
+        public async Task<IActionResult> GetCards()
         {
-            int appUserId = GetUserId();
+            var userId = GetUserId();
 
-            var user = await _context.AppUsers
-                .Include(u => u.UserEncryptionKey)
-                .SingleOrDefaultAsync(u => u.Id == appUserId);
-
-            if (user == null)
-                return Unauthorized("User not found");
-
-            var key = AesEncryptionHelper.DeriveKey(request.UserPassword, user.UserEncryptionKey.Salt);
+            if (!_keyCacheService.TryGetKey(userId, out var key))
+                return Unauthorized("Encryption key not unlocked. Please unlock with password first.");
 
             var cards = await _context.LoyaltyCards
-                .Where(c => c.AppUserId == appUserId)
+                .Where(c => c.AppUserId == userId)
                 .ToListAsync();
 
             var result = new List<LoyaltyCardReadDTO>();
@@ -117,7 +114,7 @@ namespace LoyaltyCards.Server.Controllers
                 }
                 catch
                 {
-                    return BadRequest("Decryption failed. Wrong password?");
+                    return BadRequest("Decryption failed. Possibly wrong encryption key.");
                 }
 
                 result.Add(dto);
@@ -125,6 +122,5 @@ namespace LoyaltyCards.Server.Controllers
 
             return Ok(result);
         }
-
     }
 }
