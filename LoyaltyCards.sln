@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LoyaltyCards.Server", "Loya
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LoyaltyCards.Client", "LoyaltyCards.Client\LoyaltyCards.Client.csproj", "{0E0FA3CA-CD4C-49CA-9012-8081AF5D1947}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LoyaltyCards.Shared", "LoyaltyCards.Shared\LoyaltyCards.Shared.csproj", "{FAB01817-FACF-47E3-BB07-633E22C6967F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
