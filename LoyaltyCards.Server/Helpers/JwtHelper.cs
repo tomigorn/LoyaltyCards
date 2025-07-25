@@ -17,29 +17,36 @@ using System.Text;
 /// On future requests, the client sends the token.
 /// The server verifies the token's signature and extracts the user info from the payload to authorize the actions without needing to query the DB every time.
 /// </summary>
-    public static class JwtHelper
+public static class JwtHelper
+{
+    public static Guid? GetUserIdFromRequest(HttpContext context)
     {
-        public static string GenerateToken(int userId, string username, JwtSettings jwtSettings)
+        var identity = context.User.Identity as ClaimsIdentity;
+        var userIdClaim = identity?.FindFirst(ClaimTypes.NameIdentifier);
+        if (userIdClaim == null)
+            return null;
+
+        return Guid.TryParse(userIdClaim.Value, out var guid) ? guid : null;
+    }
+
+    public static string GenerateToken(Guid userId, string email, JwtSettings settings)
+    {
+        var claims = new[]
         {
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Key));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
+            new Claim(ClaimTypes.Email, email)
+        };
 
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(settings.Key));
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            var claims = new[]
-            {
-                new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
-                new Claim(ClaimTypes.Name, username)
-            };
+        var token = new JwtSecurityToken(
+            issuer: settings.Issuer,
+            audience: settings.Audience,
+            claims: claims,
+            expires: DateTime.UtcNow.AddMinutes(settings.ExpiryMinutes),
+            signingCredentials: creds);
 
-            var token = new JwtSecurityToken(
-                issuer: jwtSettings.Issuer,
-                audience: jwtSettings.Audience,
-                claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(jwtSettings.ExpiryMinutes),
-                signingCredentials: creds
-            );
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
-        }
+        return new JwtSecurityTokenHandler().WriteToken(token);
     }
 }
