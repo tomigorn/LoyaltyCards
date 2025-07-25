@@ -1,5 +1,6 @@
 ﻿@page "/register"
 @using System.ComponentModel.DataAnnotations
+@using LoyaltyCards.Shared
 
 <h3>Register</h3>
 
@@ -34,16 +35,32 @@
     </div>
 </div>
 
+@inject HttpClient Http
+@inject NavigationManager Navigation
+
 @code {
     private RegisterModel registerModel = new();
+    private string errorMessage = "";
 
-    private void HandleRegister()
+    private async Task HandleRegister()
     {
-        Console.WriteLine($"Register Email: {registerModel.Email}");
-
-        if (registerModel.Password != registerModel.ConfirmPassword)
+        try
         {
-            Console.WriteLine("Passwords do not match.");
+            var response = await Http.PostAsJsonAsync("api/auth/register", registerModel);
+
+            if (response.IsSuccessStatusCode)
+            {
+                Navigation.NavigateTo("/login");
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                errorMessage = error;
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "An error occurred: " + ex.Message;
         }
     }
 
@@ -54,7 +71,7 @@
         public string Email { get; set; }
 
         [Required]
-        [MinLength(6)]
+        [PasswordComplexity]
         public string Password { get; set; }
 
         [Required]
@@ -62,3 +79,4 @@
         public string ConfirmPassword { get; set; }
     }
 }
+
