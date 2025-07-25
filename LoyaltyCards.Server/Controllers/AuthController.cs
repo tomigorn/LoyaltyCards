@@ -32,6 +32,15 @@ namespace LoyaltyCards.Server.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register(UserRegisterDTO dto)
         {
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage);
+
+                return BadRequest(string.Join(" ", errors));
+            }
+
             var existingUser = await _context.AppUsers.FirstOrDefaultAsync(u => u.Email == dto.Email);
             if (existingUser != null)
             {
