@@ -11,5 +11,14 @@ namespace LoyaltyCards.Server.Data
         public DbSet<LoyaltyCard> LoyaltyCards { get; set; }
         public DbSet<UserEncryptionKey> UserEncryptionKeys { get; set; } = null!;
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<AppUser>()
+                .HasOne(u => u.UserEncryptionKey)
+                .WithOne(k => k.AppUser)
+                .HasForeignKey<UserEncryptionKey>(k => k.AppUserId);
+        }
     }
 }
