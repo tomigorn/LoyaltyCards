@@ -3,6 +3,16 @@ using System.Text;
 
 namespace LoyaltyCards.Server.Helpers
 {
+    /// <summary>
+    /// AES = Advanced Encryption Standard
+    /// Is a symmetric encryption algorithm.
+    /// 
+    /// - Generate encryption keys/derive keys from user passwords
+    /// - Encrypt plaintext sensitive data
+    /// - Decrypt ciphertext back to sensitive plaintext
+    /// - Handle initialization vectors (IVs), padding, and other AES-specific details
+    /// - Ensure cryptographic operations are done securely and correctly
+    /// </summary>
     public static class AesEncryptionHelper
     {
         public static byte[] DeriveKey(string password, byte[] salt)
