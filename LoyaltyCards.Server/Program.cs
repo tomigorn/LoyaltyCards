@@ -59,8 +59,6 @@ builder.Services.AddSwaggerGen(c =>
         In = ParameterLocation.Header,
         Description = "Enter your JWT token in this format: Bearer {your token here}"
     });
-
-    c.OperationFilter<AuthorizeCheckOperationFilter>();
 });
 
 builder.Services.AddAuthorization();
