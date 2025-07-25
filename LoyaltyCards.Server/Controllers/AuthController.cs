@@ -47,13 +47,11 @@ namespace LoyaltyCards.Server.Controllers
             await _context.SaveChangesAsync();
 
             var salt = RandomNumberGenerator.GetBytes(16);
-
             var encryptionKey = new UserEncryptionKey
             {
                 AppUser = user,
                 Salt = salt
             };
-
             _context.UserEncryptionKeys.Add(encryptionKey);
             await _context.SaveChangesAsync();
 
@@ -89,6 +87,19 @@ namespace LoyaltyCards.Server.Controllers
 
             return Ok(new { token });
         }
+
+        [HttpPost("logout")]
+        public IActionResult Logout()
+        {
+            var userId = JwtHelper.GetUserIdFromRequest(HttpContext);
+            if (userId != null)
+            {
+                _keyCacheService.RemoveKey(userId.Value);
+            }
+
+            return Ok("Logged out successfully.");
+        }
+
 
     }
 }
