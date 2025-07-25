@@ -43,6 +43,18 @@ Global
 		{0E0FA3CA-CD4C-49CA-9012-8081AF5D1947}.Release|x64.Build.0 = Release|Any CPU
 		{0E0FA3CA-CD4C-49CA-9012-8081AF5D1947}.Release|x86.ActiveCfg = Release|Any CPU
 		{0E0FA3CA-CD4C-49CA-9012-8081AF5D1947}.Release|x86.Build.0 = Release|Any CPU
+		{FAB01817-FACF-47E3-BB07-633E22C6967F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FAB01817-FACF-47E3-BB07-633E22C6967F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FAB01817-FACF-47E3-BB07-633E22C6967F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{FAB01817-FACF-47E3-BB07-633E22C6967F}.Debug|x64.Build.0 = Debug|Any CPU
+		{FAB01817-FACF-47E3-BB07-633E22C6967F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{FAB01817-FACF-47E3-BB07-633E22C6967F}.Debug|x86.Build.0 = Debug|Any CPU
+		{FAB01817-FACF-47E3-BB07-633E22C6967F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FAB01817-FACF-47E3-BB07-633E22C6967F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FAB01817-FACF-47E3-BB07-633E22C6967F}.Release|x64.ActiveCfg = Release|Any CPU
+		{FAB01817-FACF-47E3-BB07-633E22C6967F}.Release|x64.Build.0 = Release|Any CPU
+		{FAB01817-FACF-47E3-BB07-633E22C6967F}.Release|x86.ActiveCfg = Release|Any CPU
+		{FAB01817-FACF-47E3-BB07-633E22C6967F}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
