@@ -2,8 +2,8 @@
 {
     public interface IKeyCacheService
     {
-        void StoreKey(int userId, byte[] key);
-        bool TryGetKey(int userId, out byte[]? key);
-        void RemoveKey(int userId);
+        void StoreKey(Guid userId, byte[] key);
+        bool TryGetKey(Guid userId, out byte[] key);
+        void RemoveKey(Guid userId);
     }
 }

@@ -24,8 +24,8 @@ namespace LoyaltyCards.Server.Controllers
             _keyCacheService = keyCacheService;
         }
 
-        private int GetUserId() =>
-            int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        private Guid GetUserId() =>
+            Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
         [HttpPost("CreateCard")]
         public async Task<IActionResult> CreateCard(LoyaltyCardCreateDTO dto)

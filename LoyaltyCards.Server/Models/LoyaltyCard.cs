@@ -23,7 +23,7 @@ namespace LoyaltyCards.Server.Models
         public string? PinTag { get; set; }
 
         [Required]
-        public int AppUserId { get; set; }
+        public Guid AppUserId { get; set; }
         public AppUser? AppUser { get; set; }
     }
 }

@@ -2,10 +2,10 @@
 {
     public class UserEncryptionKey
     {
-        public int Id { get; set; }
-        public int AppUserId { get; set; }
-        public byte[] Salt { get; set; }
+        public Guid Id { get; set; }
+        public Guid AppUserId { get; set; }
+        public byte[] Salt { get; set; } = null!;
 
-        public AppUser AppUser { get; set; }
+        public AppUser AppUser { get; set; } = null!;
     }
 }
