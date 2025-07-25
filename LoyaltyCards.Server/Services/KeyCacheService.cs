@@ -1,31 +1,46 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-using System;
+﻿using LoyaltyCards.Server.Services;
 
-namespace LoyaltyCards.Server.Services
+public class KeyCacheService : IKeyCacheService
 {
-    public class KeyCacheService : IKeyCacheService
+    private class CachedKey
     {
-        private readonly IMemoryCache _cache;
-        private readonly TimeSpan _cacheDuration = TimeSpan.FromMinutes(15);
+        public byte[] Key { get; set; }
+        public DateTime ExpiresAt { get; set; }
+    }
 
-        public KeyCacheService(IMemoryCache cache)
+    private readonly Dictionary<Guid, CachedKey> _keys = new();
+    private readonly TimeSpan _timeout = TimeSpan.FromMinutes(30);
+
+    public void StoreKey(Guid userId, byte[] key)
+    {
+        _keys[userId] = new CachedKey
         {
-            _cache = cache;
+            Key = key,
+            ExpiresAt = DateTime.UtcNow.Add(_timeout)
+        };
+    }
+
+    public bool TryGetKey(Guid userId, out byte[] key)
+    {
+        key = null;
+
+        if (_keys.TryGetValue(userId, out var cachedKey))
+        {
+            if (DateTime.UtcNow <= cachedKey.ExpiresAt)
+            {
+                cachedKey.ExpiresAt = DateTime.UtcNow.Add(_timeout);
+                key = cachedKey.Key;
+                return true;
+            }
+
+            _keys.Remove(userId);
         }
 
-        public void StoreKey(int userId, byte[] key)
-        {
-            _cache.Set(userId, key, _cacheDuration);
-        }
+        return false;
+    }
 
-        public bool TryGetKey(int userId, out byte[]? key)
-        {
-            return _cache.TryGetValue(userId, out key);
-        }
-
-        public void RemoveKey(int userId)
-        {
-            _cache.Remove(userId);
-        }
+    public void RemoveKey(Guid userId)
+    {
+        _keys.Remove(userId);
     }
 }
