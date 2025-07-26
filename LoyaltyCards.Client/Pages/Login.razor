@@ -1,5 +1,6 @@
 ﻿@page "/login"
 @using System.ComponentModel.DataAnnotations
+@using LoyaltyCards.Client.Services
 
 <h3>Login</h3>
 
@@ -23,6 +24,11 @@
         </div>
     </EditForm>
 
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger mt-3">@errorMessage</div>
+    }
+
     <div class="text-center mt-3">
         <span>Don't have an account?</span>
         <a href="/register" class="btn btn-link">Register</a>
@@ -30,12 +36,26 @@
 
 </div>
 
+@inject IApiService Api
+@inject NavigationManager Navigation
+
 @code {
     private LoginModel loginModel = new();
+    private string errorMessage = "";
 
-    private void HandleLogin()
+    private async Task HandleLogin()
     {
-        Console.WriteLine($"Email: {loginModel.Email}, Password: {loginModel.Password}");
+        errorMessage = "";
+
+        var success = await Api.PostAsync("api/auth/login", loginModel);
+        if (success)
+        {
+            Navigation.NavigateTo("/");
+        }
+        else
+        {
+            errorMessage = "Login failed. Please check your credentials.";
+        }
     }
 
     public class LoginModel
