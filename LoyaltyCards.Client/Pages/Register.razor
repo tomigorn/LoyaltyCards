@@ -1,5 +1,6 @@
 ﻿@page "/register"
 @using System.ComponentModel.DataAnnotations
+@using LoyaltyCards.Client.Services
 @using LoyaltyCards.Shared
 
 <h3>Register</h3>
@@ -29,13 +30,18 @@
         </div>
     </EditForm>
 
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger">@errorMessage</div>
+    }
+
     <div class="text-center mt-3">
         <span>Already have an account?</span>
         <a href="/login" class="btn btn-link">Login</a>
     </div>
 </div>
 
-@inject HttpClient Http
+@inject IApiService Api
 @inject NavigationManager Navigation
 
 @code {
@@ -44,23 +50,17 @@
 
     private async Task HandleRegister()
     {
-        try
-        {
-            var response = await Http.PostAsJsonAsync("api/auth/register", registerModel);
+        errorMessage = "";
 
-            if (response.IsSuccessStatusCode)
-            {
-                Navigation.NavigateTo("/login");
-            }
-            else
-            {
-                var error = await response.Content.ReadAsStringAsync();
-                errorMessage = error;
-            }
-        }
-        catch (Exception ex)
+        var success = await Api.PostAsync("api/auth/register", registerModel);
+
+        if (success)
         {
-            errorMessage = "An error occurred: " + ex.Message;
+            Navigation.NavigateTo("/login");
+        }
+        else
+        {
+            errorMessage = "Registration failed. Please check your input or try again.";
         }
     }
 
