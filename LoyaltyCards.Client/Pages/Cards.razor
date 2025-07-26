@@ -1,0 +1,75 @@
+﻿@page "/cards"
+
+<h3>My Cards</h3>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <button class="btn btn-primary btn-lg" @onclick="AddCard" title="Add Card">
+        <span style="font-size: 1.5em;">&#43;</span>
+    </button>
+
+    <button class="btn btn-secondary" @onclick="ToggleEditMode">
+        @if (IsEditing)
+        {
+            <span>Done</span>
+        }
+        else
+        {
+            <span>Edit</span>
+        }
+    </button>
+</div>
+
+@if (cardList.Count == 0)
+{
+    <p>No cards yet. Click the + button to add one!</p>
+}
+else
+{
+    <ul class="list-group">
+        @foreach (var card in cardList)
+        {
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                @card.Title
+                @if (IsEditing)
+                {
+                    <!-- TODO add delete buttons -->
+                }
+            </li>
+        }
+    </ul>
+}
+
+@code {
+    private List<CardModel> cardList = new();
+
+    private bool IsEditing = false;
+
+    public class CardModel
+    {
+        public int Id { get; set; }
+        public string Title { get; set; }
+        public DateTime DateAdded { get; set; }
+    }
+
+    protected override void OnInitialized()
+    {
+        cardList.Add(new CardModel { Id = 1, Title = "Example Card 1", DateAdded = DateTime.Now.AddDays(-2) });
+        cardList.Add(new CardModel { Id = 2, Title = "Example Card 2", DateAdded = DateTime.Now.AddDays(-1) });
+    }
+
+    private void AddCard()
+    {
+        var newCard = new CardModel
+        {
+            Id = cardList.Count + 1,
+            Title = $"New Card {cardList.Count + 1}",
+            DateAdded = DateTime.Now
+        };
+        cardList.Add(newCard);
+    }
+
+    private void ToggleEditMode()
+    {
+        IsEditing = !IsEditing;
+    }
+}
