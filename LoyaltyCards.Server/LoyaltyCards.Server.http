@@ -1,6 +1,0 @@
-@LoyaltyCards.Server_HostAddress = http://localhost:5129
-
-GET {{LoyaltyCards.Server_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
