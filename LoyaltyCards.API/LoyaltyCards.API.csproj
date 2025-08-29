@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="../LoyaltyCards.Application/LoyaltyCards.Application.csproj" />
     <ProjectReference Include="../LoyaltyCards.Infrastructure/LoyaltyCards.Infrastructure.csproj" />
   </ItemGroup>
 

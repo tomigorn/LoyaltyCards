@@ -1,4 +1,5 @@
 using LoyaltyCards.API.DTO;
+using LoyaltyCards.Application.Users;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LoyaltyCards.API.Controllers
@@ -7,17 +8,45 @@ namespace LoyaltyCards.API.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        [HttpPost("register")]
-        public IActionResult Register([FromBody] RegisterRequest request)
+        private readonly UserRegistrationService _userRegistrationService;
+        
+        public AuthController(UserRegistrationService userRegistrationService)
         {
-            return Ok();
+            _userRegistrationService = userRegistrationService;
+        }
+
+        [HttpPost("register")]
+        public IActionResult Register([FromBody] RegisterRequestDto request)
+        {
+            try
+            {
+                if (request.Password != request.ConfirmPassword)
+                    return BadRequest("Password and Confirm Password do not match.");
+
+                _userRegistrationService.Register(request.Email, request.Password);
+
+                return Ok("User registered successfully");
+            }
+            catch (Exception ex)
+            {
+                // Return error message (simplified)
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPost("login")]
-        public IActionResult Login([FromBody] LoginRequest request)
+        public IActionResult Login([FromBody] LoginRequestDto request)
         {
-            return Ok();
+            try
+            {
+                _userRegistrationService.Login(request.Email, request.Password);
+                
+                return Ok("User logged in successfully");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
-
     }
 }

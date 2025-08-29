@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace LoyaltyCards.Infrastructure.Migrations
 {
-    [DbContext(typeof(LoyaltyCardsDbContext))]
-    [Migration("20250814145547_InitialCreate")]
+    [DbContext(typeof(AppDbContext))]
+    [Migration("20250829154953_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -38,6 +38,9 @@ namespace LoyaltyCards.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
 
                     b.ToTable("Users");
                 });
