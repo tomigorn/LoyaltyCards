@@ -1,0 +1,17 @@
+# Please refer https://aka.ms/HTTPSinContainer on how to setup an https developer certificate for your ASP.NET Core service.
+
+services:
+  loyaltycardsapi:
+    image: loyaltycardsapi
+    build:
+      context: .
+      dockerfile: LoyaltyCards.API/Dockerfile
+      args:
+        - configuration=Debug
+    ports:
+      - 5015:5015
+      - 7157:7157
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    volumes:
+      - ~/.vsdbg:/remote_debugger:rw
