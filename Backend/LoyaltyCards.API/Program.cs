@@ -6,6 +6,18 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+// CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("DevCors", policy =>
+        policy
+            .AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod());
+});
+
+// SqLite: DB Connection
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -20,22 +32,26 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Apply migrations at startup
+// SqLite: Apply migrations at startup
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.Migrate();
 }
 
-// Configure the HTTP request pipeline.
+// Development environment specific things 
 if (app.Environment.IsDevelopment())
 {
+    // Swagger
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// CORS
+app.UseCors("DevCors");
 
+// HTTPS only, API Authorization needed
+app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
