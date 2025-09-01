@@ -26,9 +26,12 @@ builder.Services.AddScoped<UserRegistrationService>();
 
 builder.Services.AddControllers();
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+// Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// health check
+builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 
@@ -46,6 +49,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+// API health check
+app.MapHealthChecks("/health");
 
 // CORS
 app.UseCors("DevCors");
