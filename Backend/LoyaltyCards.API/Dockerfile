@@ -1,13 +1,16 @@
 # Base runtime image
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+FROM --platform=$TARGETPLATFORM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
 EXPOSE 5000
 ENV ASPNETCORE_URLS=http://+:5000
 
 # Build stage
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM --platform=$TARGETPLATFORM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 COPY ["LoyaltyCards.API/LoyaltyCards.API.csproj", "LoyaltyCards.API/"]
+COPY ["LoyaltyCards.Application/LoyaltyCards.Application.csproj", "LoyaltyCards.Application/"]
+COPY ["LoyaltyCards.Domain/LoyaltyCards.Domain.csproj", "LoyaltyCards.Domain/"]
+COPY ["LoyaltyCards.Infrastructure/LoyaltyCards.Infrastructure.csproj", "LoyaltyCards.Infrastructure/"]
 RUN dotnet restore "LoyaltyCards.API/LoyaltyCards.API.csproj"
 COPY . .
 WORKDIR "/src/LoyaltyCards.API"
