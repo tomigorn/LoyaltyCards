@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'api_config.dart';
 
 void main() {
   runApp(const MyApp());
@@ -55,7 +56,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final url = Uri.parse("http://localhost:5000/health");
+  final url = ApiConfig.healthEndpoint();
 
   String _status = "Not checked yet";
   int _counter = 0;
@@ -68,6 +69,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     try {
       final response = await http.get(url);
+      await Future.delayed(const Duration(milliseconds: 100));
 
       if (response.statusCode == 200) {
         setState(() {
