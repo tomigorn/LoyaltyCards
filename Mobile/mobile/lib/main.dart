@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'api_config.dart';
 
 Future<void> main() async {
-  await dotenv.load(fileName: ".env");
+  await dotenv.load(fileName: "lib/.env.prod");
   runApp(const MyApp());
 }
 
