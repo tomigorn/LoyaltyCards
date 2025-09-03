@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'api_config.dart';
 
-void main() {
+Future<void> main() async {
+  await dotenv.load(fileName: ".env");
   runApp(const MyApp());
 }
 
@@ -64,7 +66,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> _incrementCounter() async {
     setState(() {
       _counter++;
-      _status = "Checking..."; // show some feedback while waiting
+      _status = "Checking...";
     });
 
     try {

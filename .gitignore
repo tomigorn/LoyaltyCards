@@ -286,3 +286,7 @@ obj/
 *.db-shm
 *.db-wal
 *.db
+
+# Ignore environment variable files
+.env.prod
+*.env
