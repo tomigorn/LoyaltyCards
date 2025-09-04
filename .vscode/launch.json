@@ -5,11 +5,11 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Flutter Release on Device",
+            "name": "Flutter Debug on Device",
             "request": "launch",
             "type": "dart",
             "program": "Mobile/mobile/lib/main.dart",
-            "flutterMode": "release"
+            "flutterMode": "debug"
         }
     ]
 }
