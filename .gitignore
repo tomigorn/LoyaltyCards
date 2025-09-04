@@ -289,4 +289,5 @@ obj/
 
 # Ignore environment variable files
 .env.prod
+.env.dev
 *.env
