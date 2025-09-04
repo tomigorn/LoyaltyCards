@@ -4,7 +4,7 @@ import 'screens/login_screen.dart';
 
 Future<void> main() async {
   const bool isRelease = bool.fromEnvironment('dart.vm.product');
-  await dotenv.load(fileName: isRelease ? "lib/.env.prod" : "lib/.env");
+  await dotenv.load(fileName: isRelease ? "lib/.env.prod" : "lib/.env.dev");
   runApp(const MyApp());
 }
 
