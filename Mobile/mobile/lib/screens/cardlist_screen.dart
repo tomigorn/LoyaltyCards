@@ -38,10 +38,7 @@ class _CardListPageState extends State<CardListPage> {
             children: [
               Text(
                 'Sort by',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 16),
               ListTile(
@@ -93,6 +90,27 @@ class _CardListPageState extends State<CardListPage> {
           title: Text('Profile'),
           content: Text('Profile menu would go here'),
           actions: [
+            TextButton.icon(
+              onPressed: () {
+                Navigator.pop(context);
+                // TODO: Implement settings
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text('Settings clicked')));
+              },
+              icon: Icon(Icons.settings),
+              label: Text('Settings'),
+            ),
+            TextButton.icon(
+              onPressed: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text('Logout clicked')));
+              },
+              icon: Icon(Icons.logout),
+              label: Text('Logout'),
+            ),
             TextButton(
               onPressed: () => Navigator.pop(context),
               child: Text('Close'),
@@ -112,10 +130,7 @@ class _CardListPageState extends State<CardListPage> {
         elevation: 1,
         title: Text(
           'Cards',
-          style: TextStyle(
-            color: Colors.black87,
-            fontWeight: FontWeight.w600,
-          ),
+          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w600),
         ),
         actions: [
           Padding(
@@ -125,11 +140,7 @@ class _CardListPageState extends State<CardListPage> {
               child: CircleAvatar(
                 radius: 18,
                 backgroundColor: Colors.blue[100],
-                child: Icon(
-                  Icons.person,
-                  color: Colors.blue[700],
-                  size: 20,
-                ),
+                child: Icon(Icons.person, color: Colors.blue[700], size: 20),
               ),
             ),
           ),
@@ -147,10 +158,7 @@ class _CardListPageState extends State<CardListPage> {
               children: [
                 Text(
                   '${imageUrls.length} items',
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 14,
-                  ),
+                  style: TextStyle(color: Colors.grey[600], fontSize: 14),
                 ),
                 ElevatedButton.icon(
                   onPressed: _showSortOptions,
@@ -180,7 +188,7 @@ class _CardListPageState extends State<CardListPage> {
                   crossAxisCount: 2,
                   crossAxisSpacing: 12,
                   mainAxisSpacing: 12,
-                  childAspectRatio: 3/2, // This gives us the 3:2 ratio
+                  childAspectRatio: 3 / 2, // This gives us the 3:2 ratio
                 ),
                 itemCount: imageUrls.length,
                 itemBuilder: (context, index) {
@@ -193,16 +201,18 @@ class _CardListPageState extends State<CardListPage> {
                     child: Container(
                       child: Image.network(
                         imageUrls[index],
-                        fit: BoxFit.cover, // This crops the image to fit the container
+                        fit: BoxFit
+                            .cover, // This crops the image to fit the container
                         loadingBuilder: (context, child, loadingProgress) {
                           if (loadingProgress == null) return child;
                           return Container(
                             color: Colors.grey[200],
                             child: Center(
                               child: CircularProgressIndicator(
-                                value: loadingProgress.expectedTotalBytes != null
+                                value:
+                                    loadingProgress.expectedTotalBytes != null
                                     ? loadingProgress.cumulativeBytesLoaded /
-                                        loadingProgress.expectedTotalBytes!
+                                          loadingProgress.expectedTotalBytes!
                                     : null,
                               ),
                             ),
