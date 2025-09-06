@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import 'package:email_validator/email_validator.dart';
 import 'register_screen.dart';
+import 'cardlist_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -32,6 +33,13 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (success && mounted) {
       // Navigate to main app screen
+      // Navigate to card list screen and remove all previous routes
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => CardListPage()),
+        (route) => false, // This removes all previous routes
+      );
+
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Login successful')));
