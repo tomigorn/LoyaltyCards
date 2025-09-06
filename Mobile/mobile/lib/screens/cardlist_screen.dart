@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'login_screen.dart';
 
 class CardListPage extends StatefulWidget {
   @override
@@ -101,12 +102,14 @@ class _CardListPageState extends State<CardListPage> {
               icon: Icon(Icons.settings),
               label: Text('Settings'),
             ),
-            TextButton.icon(
+            TextButton.icon( // Logout button TODO: Implement logout functionality
               onPressed: () {
                 Navigator.pop(context);
-                ScaffoldMessenger.of(
+                Navigator.pushAndRemoveUntil(
                   context,
-                ).showSnackBar(SnackBar(content: Text('Logout clicked')));
+                  MaterialPageRoute(builder: (context) => LoginScreen()),
+                  (route) => false,
+                );
               },
               icon: Icon(Icons.logout),
               label: Text('Logout'),
