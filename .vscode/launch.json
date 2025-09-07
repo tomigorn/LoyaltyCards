@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": ".NET API Debug",
+            "name": "API Debug",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
@@ -26,11 +26,34 @@
             }
         },
         {
-            "name": "Flutter Debug on Device",
+            "name": "Flutter Emulator",
             "request": "launch",
             "type": "dart",
             "program": "Mobile/mobile/lib/main.dart",
+            "args": [
+                "--dart-define=ENV=dev"
+            ],
             "flutterMode": "debug"
+        },
+        {
+            "name": "Flutter Physical",
+            "request": "launch",
+            "type": "dart",
+            "program": "Mobile/mobile/lib/main.dart",
+            "args": [
+                "--dart-define=ENV=int"
+            ],
+            "flutterMode": "debug"
+        },
+        {
+            "name": "Flutter Production",
+            "request": "launch",
+            "type": "dart",
+            "program": "Mobile/mobile/lib/main.dart",
+            "args": [
+                "--dart-define=ENV=prod"
+            ],
+            "flutterMode": "release"
         }
     ]
 }
