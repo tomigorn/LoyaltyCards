@@ -17,12 +17,22 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   final _authService = AuthService();
   bool _isLoading = false;
+  bool _showValidation = false;
   RegistrationValidationRules? _validationRules;
+  String? _loginError;
+  bool _isPasswordVisible = false;
 
   @override
   void initState() {
     super.initState();
     _loadValidationRules();
+    _emailController.addListener(_onEmailChanged);
+  }
+
+  void _onEmailChanged() {
+    if (_showValidation) {
+      _formKey.currentState?.validate();
+    }
   }
 
   Future<void> _loadValidationRules() async {
@@ -44,70 +54,34 @@ class _LoginScreenState extends State<LoginScreen> {
     return null;
   }
 
-  String? _validatePassword(String? value) {
-    if (_validationRules == null) return null;
-
-    final rules = _validationRules!.password;
-
-    if (value == null || value.isEmpty) {
-      return 'Password is required';
-    }
-
-    if (value.length < rules.minLength) {
-      return rules.errorMessages['tooShort']!
-          .replaceAll('{0}', rules.minLength.toString());
-    }
-
-    if (rules.requireUppercase && !value.contains(RegExp(r'[A-Z]'))) {
-      return rules.errorMessages['missingUppercase'];
-    }
-
-    if (rules.requireLowercase && !value.contains(RegExp(r'[a-z]'))) {
-      return rules.errorMessages['missingLowercase'];
-    }
-
-    if (rules.requireDigits && !value.contains(RegExp(r'[0-9]'))) {
-      return rules.errorMessages['missingDigit'];
-    }
-
-    if (rules.requireSpecialCharacters &&
-        !value.contains(RegExp('[${rules.specialCharacters}]'))) {
-      return rules.errorMessages['missingSpecial']!
-          .replaceAll('{0}', rules.specialCharacters);
-    }
-
-    return null;
-  }
-
   Future<void> _login() async {
+    setState(() {
+      _showValidation = true;
+      _loginError = null; // Clear any previous error
+    });
+
     if (!_formKey.currentState!.validate()) {
       return;
     }
     setState(() => _isLoading = true);
 
-    final success = await _authService.login(
-      _emailController.text,
-      _passwordController.text,
-    );
-
-    setState(() => _isLoading = false);
-
-    if (success && mounted) {
-      // Navigate to main app screen
-      // Navigate to card list screen and remove all previous routes
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => CardListPage()),
-        (route) => false, // This removes all previous routes
+    try {
+      final success = await _authService.login(
+        _emailController.text,
+        _passwordController.text,
       );
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Login successful')));
-    } else if (mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Login failed')));
+      if (success && mounted) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => CardListPage()),
+          (route) => false,
+        );
+      }
+    } catch (e) {
+      setState(() => _loginError = e.toString());
+    } finally {
+      setState(() => _isLoading = false);
     }
   }
 
@@ -138,22 +112,51 @@ class _LoginScreenState extends State<LoginScreen> {
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
+                    errorStyle: const TextStyle(
+                      color: Colors.red,
+                      fontSize: 12,
+                    ),
                   ),
                   validator: _validateEmail,
+                  autovalidateMode: _showValidation
+                      ? AutovalidateMode.always
+                      : AutovalidateMode.disabled,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _passwordController,
-                  obscureText: true,
+                  obscureText: !_isPasswordVisible,
                   decoration: InputDecoration(
                     hintText: 'Password',
                     prefixIcon: const Icon(Icons.lock_outline),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                        color: Colors.grey,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _isPasswordVisible = !_isPasswordVisible;
+                        });
+                      },
+                    ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  validator: _validatePassword,
                 ),
+                if (_loginError != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Text(
+                      _loginError!,
+                      style: const TextStyle(
+                        color: Colors.red,
+                        fontSize: 12,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
                 const SizedBox(height: 24),
                 ElevatedButton(
                   onPressed: _isLoading ? null : _login,
@@ -195,6 +198,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   void dispose() {
+    _emailController.removeListener(_onEmailChanged);
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();

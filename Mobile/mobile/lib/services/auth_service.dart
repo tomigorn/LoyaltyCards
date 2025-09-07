@@ -8,16 +8,27 @@ class AuthService {
       final response = await http.post(
         ApiConfig.loginEndpoint(),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(LoginRequest(
-          email: email,
-          password: password,
-        ).toJson()),
+        body: json.encode({
+          'email': email,
+          'password': password,
+        }),
       );
 
-      return response.statusCode == 200;
+      if (response.statusCode == 200) {
+        return true;
+      }
+
+      // Parse the JSON response and extract just the message
+      final error = json.decode(response.body);
+      throw error['message'] ?? 'Login failed';
     } catch (e) {
-      print('Login error: $e');
-      return false;
+      if (e is FormatException) {
+        throw 'Login failed: Invalid response from server';
+      }
+      if (e is String) {
+        throw e;
+      }
+      throw e.toString();
     }
   }
 
