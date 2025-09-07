@@ -47,6 +47,14 @@ namespace LoyaltyCards.API.Controllers
             {
                 return BadRequest(ex.Message);
             }
+}
+
+        [HttpPost("logout")]
+        public IActionResult Logout()
+        {
+            // This is just for API completeness
+            // The client should discard the token
+            return Ok(new { message = "Logged out successfully" });
         }
     }
 }
