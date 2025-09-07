@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'login_screen.dart';
+import '../widgets/custom_app_bar.dart';
 
 class CardListPage extends StatefulWidget {
   @override
@@ -82,73 +82,11 @@ class _CardListPageState extends State<CardListPage> {
     );
   }
 
-  void _onProfileTap() {
-    // Handle profile icon tap
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Profile'),
-          content: Text('Profile menu would go here'),
-          actions: [
-            TextButton.icon(
-              onPressed: () {
-                Navigator.pop(context);
-                // TODO: Implement settings
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(SnackBar(content: Text('Settings clicked')));
-              },
-              icon: Icon(Icons.settings),
-              label: Text('Settings'),
-            ),
-            TextButton.icon( // Logout button TODO: Implement logout functionality
-              onPressed: () {
-                Navigator.pop(context);
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => LoginScreen()),
-                  (route) => false,
-                );
-              },
-              icon: Icon(Icons.logout),
-              label: Text('Logout'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('Close'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[50],
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 1,
-        title: Text(
-          'Cards',
-          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w600),
-        ),
-        actions: [
-          Padding(
-            padding: EdgeInsets.only(right: 16),
-            child: GestureDetector(
-              onTap: _onProfileTap,
-              child: CircleAvatar(
-                radius: 18,
-                backgroundColor: Colors.blue[100],
-                child: Icon(Icons.person, color: Colors.blue[700], size: 20),
-              ),
-            ),
-          ),
-        ],
-      ),
+      appBar: CustomAppBar(title: 'Cards'),
       body: Column(
         children: [
           // Sort button section
