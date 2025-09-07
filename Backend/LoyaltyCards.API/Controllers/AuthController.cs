@@ -39,15 +39,18 @@ namespace LoyaltyCards.API.Controllers
         {
             try
             {
-                _userRegistrationService.Login(request.Email, request.Password);
-                
-                return Ok("User logged in successfully");
+                var token = _userRegistrationService.Login(
+                    request.Email, 
+                    request.Password, 
+                    request.RememberMe
+                );
+                return Ok(new { token });
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new { message = ex.Message });
             }
-}
+        }
 
         [HttpPost("logout")]
         public IActionResult Logout()
