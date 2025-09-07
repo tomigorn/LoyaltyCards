@@ -12,16 +12,14 @@ public class RegistrationValidationRules
     {
         try
         {
-            var basePath = AppDomain.CurrentDomain.BaseDirectory;
-            var projectRoot = Path.GetFullPath(Path.Combine(basePath, "../../../../../"));
-            var filePath = Path.Combine(projectRoot, "Shared", "validation-rules.json");
+            var assembly = typeof(RegistrationValidationRules).Assembly;
+            using var stream = assembly.GetManifestResourceStream("LoyaltyCards.Application.validation-rules.json");
 
-            Console.WriteLine($"Looking for validation rules at: {filePath}");
+            if (stream == null)
+                throw new FileNotFoundException("Embedded validation rules file not found");
 
-            if (!File.Exists(filePath))
-                throw new FileNotFoundException($"Validation rules file not found at: {filePath}");
-
-            var json = File.ReadAllText(filePath);
+            using var reader = new StreamReader(stream);
+            var json = reader.ReadToEnd();
             Console.WriteLine($"Loaded JSON: {json}");
 
             var options = new JsonSerializerOptions
