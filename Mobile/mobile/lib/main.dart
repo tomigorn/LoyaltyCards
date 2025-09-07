@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'screens/login_screen.dart';
+import 'api_config.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-  const bool isRelease = bool.fromEnvironment('dart.vm.product');
-  await dotenv.load(fileName: isRelease ? "lib/.env.prod" : "lib/.env.dev");
+  
+  // Get environment from --dart-define or default to 'dev'
+  final environment = const String.fromEnvironment('ENV', defaultValue: 'dev');
+  await ApiConfig.load(environment);
+  
   runApp(const MyApp());
 }
 

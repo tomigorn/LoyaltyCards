@@ -1,16 +1,21 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ApiConfig {
-  static Uri get baseUrl {
+  // Remove trailing slash if present from baseUrl
+  static String get baseUrl {
     final url = dotenv.env['API_BASE_URL'] ?? 'http://localhost:5000';
-    return Uri.parse(url);
+    return url.endsWith('/') ? url.substring(0, url.length - 1) : url;
+  }
+  
+  static Future<void> load(String environment) async {
+    await dotenv.load(fileName: 'lib/.env.$environment');
   }
 
-  // Endpoints
-  static Uri healthEndpoint() => baseUrl.replace(path: '/health');
-  static Uri loginEndpoint() => baseUrl.replace(path: '/api/Auth/login');
-  static Uri registerEndpoint() => baseUrl.replace(path: '/api/Auth/register');
-  static Uri validationRulesEndpoint() => baseUrl.replace(path: '/api/Validation/rules');
+  // Endpoints with single slashes
+  static Uri healthEndpoint() => Uri.parse('$baseUrl/health');
+  static Uri loginEndpoint() => Uri.parse('$baseUrl/api/Auth/login');
+  static Uri registerEndpoint() => Uri.parse('$baseUrl/api/Auth/register');
+  static Uri validationRulesEndpoint() => Uri.parse('$baseUrl/api/Validation/rules');
 }
 
 // Request models
