@@ -1,0 +1,53 @@
+version: '3'
+
+dotenv: ['.env']
+
+# Global variables
+vars:
+  VERSION:
+    sh: powershell -NoProfile -Command "(Select-Xml -Path '../Directory.Build.props' -XPath '/Project/PropertyGroup/Version').Node.'#text'"
+  COMPOSE_PROJECT_NAME: '{{.PROJECT_BASE_NAME}}-app'
+
+tasks:
+  version:
+    desc: Show current version
+    cmds:
+      - echo Current version is {{.VERSION}}
+
+  test-connection:
+    desc: Test connection to Raspberry Pi
+    cmds:
+      - echo "Testing connection to {{.PI_HOST}}..."
+      - ssh {{.PI_USER}}@{{.PI_HOST}} "echo Connection successful"
+
+  deploy:
+    desc: Build and deploy the application to Raspberry Pi
+    cmds:
+      - echo "=== Starting deployment v{{.VERSION}} ==="
+      - task: test-connection
+      - docker login -u {{.DOCKER_HUB_USERNAME}} -p {{.DOCKER_HUB_TOKEN}}
+      - docker buildx create --use
+      - docker buildx build --platform linux/arm64 
+          -t {{.DOCKER_HUB_USERNAME}}/loyaltycardsbackend:{{.VERSION}} 
+          -t {{.DOCKER_HUB_USERNAME}}/loyaltycardsbackend:latest 
+          -f ../LoyaltyCards.API/Dockerfile 
+          --push 
+          ..
+      - task: deploy-to-pi
+      - docker logout
+      - echo "=== Deployment v{{.VERSION}} complete ==="
+
+  deploy-to-pi:
+    # internal: true
+    cmds:
+      - echo "Copying docker-compose.yaml to Raspberry Pi..."
+      - scp docker-compose.yaml {{.PI_USER}}@{{.PI_HOST}}:~/docker-compose.yaml
+      - ssh {{.PI_USER}}@{{.PI_HOST}} "
+          export COMPOSE_PROJECT_NAME={{.COMPOSE_PROJECT_NAME}} &&
+          export PROJECT_BASE_NAME={{.PROJECT_BASE_NAME}} &&
+          export VERSION={{.VERSION}} &&
+          export DOCKER_HUB_USERNAME={{.DOCKER_HUB_USERNAME}} &&
+          docker pull {{.DOCKER_HUB_USERNAME}}/loyaltycardsbackend:{{.VERSION}} &&
+          docker compose down || true &&
+          docker compose up -d
+        "

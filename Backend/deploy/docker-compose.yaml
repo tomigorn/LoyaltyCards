@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  loyaltycardsbackend:
+    image: ${DOCKER_HUB_USERNAME}/loyaltycardsbackend:${VERSION}
+    container_name: ${PROJECT_BASE_NAME}-backend
+    ports:
+      - "5000:5000"
+    volumes:
+      - /data/loyaltycards:/app/Data
+    restart: unless-stopped
