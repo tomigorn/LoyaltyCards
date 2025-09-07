@@ -1,11 +1,38 @@
+using System.Text;
 using LoyaltyCards.Application.Users;
 using LoyaltyCards.Infrastructure.Persistence;
-using Microsoft.AspNetCore.Identity;
+using LoyaltyCards.Infrastructure.Security;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+// Add JWT configuration
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"]))
+        };
+    });
+
+// Add JWT service
+builder.Services.AddScoped<JwtTokenService>(provider => new JwtTokenService(
+    builder.Configuration["Jwt:Secret"],
+    builder.Configuration["Jwt:Issuer"],
+    builder.Configuration["Jwt:Audience"]
+));
 
 // CORS
 builder.Services.AddCors(options =>
@@ -58,6 +85,7 @@ app.UseCors("DevCors");
 
 // HTTPS only, API Authorization needed
 app.UseHttpsRedirection();
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
