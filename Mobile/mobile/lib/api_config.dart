@@ -10,6 +10,7 @@ class ApiConfig {
   static Uri healthEndpoint() => baseUrl.replace(path: '/health');
   static Uri loginEndpoint() => baseUrl.replace(path: '/api/Auth/login');
   static Uri registerEndpoint() => baseUrl.replace(path: '/api/Auth/register');
+  static Uri validationRulesEndpoint() => baseUrl.replace(path: '/api/Validation/rules');
 }
 
 // Request models
