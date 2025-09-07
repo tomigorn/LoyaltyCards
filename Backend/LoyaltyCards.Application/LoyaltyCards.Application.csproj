@@ -16,9 +16,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\..\Shared\validation-rules.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <EmbeddedResource Include="..\Shared\validation-rules.json">
+      <LogicalName>LoyaltyCards.Application.validation-rules.json</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
 
 </Project>
