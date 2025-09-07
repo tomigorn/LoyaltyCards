@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
-import 'package:email_validator/email_validator.dart';
+import '../services/registration_validation_service.dart';
 import 'register_screen.dart';
-import 'cardlist_screen.dart';
+import 'card_list_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -17,6 +17,67 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   final _authService = AuthService();
   bool _isLoading = false;
+  RegistrationValidationRules? _validationRules;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadValidationRules();
+  }
+
+  Future<void> _loadValidationRules() async {
+    _validationRules = await RegistrationValidationRules.instance;
+    setState(() {});
+  }
+
+  String? _validateEmail(String? value) {
+    if (_validationRules == null) return null;
+
+    if (value == null || value.isEmpty) {
+      return _validationRules!.email.errorMessages['required'];
+    }
+
+    if (!RegExp(_validationRules!.email.pattern).hasMatch(value)) {
+      return _validationRules!.email.errorMessages['invalid'];
+    }
+
+    return null;
+  }
+
+  String? _validatePassword(String? value) {
+    if (_validationRules == null) return null;
+
+    final rules = _validationRules!.password;
+
+    if (value == null || value.isEmpty) {
+      return 'Password is required';
+    }
+
+    if (value.length < rules.minLength) {
+      return rules.errorMessages['tooShort']!
+          .replaceAll('{0}', rules.minLength.toString());
+    }
+
+    if (rules.requireUppercase && !value.contains(RegExp(r'[A-Z]'))) {
+      return rules.errorMessages['missingUppercase'];
+    }
+
+    if (rules.requireLowercase && !value.contains(RegExp(r'[a-z]'))) {
+      return rules.errorMessages['missingLowercase'];
+    }
+
+    if (rules.requireDigits && !value.contains(RegExp(r'[0-9]'))) {
+      return rules.errorMessages['missingDigit'];
+    }
+
+    if (rules.requireSpecialCharacters &&
+        !value.contains(RegExp('[${rules.specialCharacters}]'))) {
+      return rules.errorMessages['missingSpecial']!
+          .replaceAll('{0}', rules.specialCharacters);
+    }
+
+    return null;
+  }
 
   Future<void> _login() async {
     if (!_formKey.currentState!.validate()) {
@@ -78,15 +139,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return '1 Enter a valid email';
-                    }
-                    if (!EmailValidator.validate(value)) {
-                      return '2 Enter a valid email';
-                    }
-                    return null;
-                  },
+                  validator: _validateEmail,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
@@ -99,6 +152,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
+                  validator: _validatePassword,
                 ),
                 const SizedBox(height: 24),
                 ElevatedButton(
