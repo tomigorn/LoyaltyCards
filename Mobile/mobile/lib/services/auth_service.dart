@@ -26,17 +26,30 @@ class AuthService {
       final response = await http.post(
         ApiConfig.registerEndpoint(),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(RegisterRequest(
-          email: email,
-          password: password,
-          confirmPassword: confirmPassword,
-        ).toJson()),
+        body: json.encode({
+          'email': email,
+          'password': password,
+          'confirmPassword': confirmPassword,
+        }),
       );
 
-      return response.statusCode == 200;
+      if (response.statusCode == 200) {
+        return true;
+      }
+
+      // Try to parse as JSON first, fallback to plain text if that fails
+      try {
+        final error = json.decode(response.body)['message'] ?? 'Registration failed';
+        throw error;
+      } catch (e) {
+        // If JSON parsing fails, use the response body directly
+        throw response.body;
+      }
     } catch (e) {
-      print('Registration error: $e');
-      return false;
+      if (e is String) {
+        throw e;
+      }
+      throw 'Registration failed: ${e.toString()}';
     }
   }
 }
