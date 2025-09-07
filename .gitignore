@@ -291,3 +291,6 @@ obj/
 .env.prod
 .env.dev
 *.env
+
+# ignore appsettings files that may contain sensitive data
+appsettings.*.json
