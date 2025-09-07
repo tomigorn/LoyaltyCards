@@ -1,5 +1,6 @@
 services:
   loyaltycardsapi:
+    container_name: loyaltycardsapi
     image: loyaltycardsapi
     build:
       context: .
