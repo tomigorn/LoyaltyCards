@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:email_validator/email_validator.dart';
 import '../services/auth_service.dart';
 import '../services/registration_validation_service.dart';
 
