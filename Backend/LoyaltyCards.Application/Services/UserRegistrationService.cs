@@ -2,7 +2,6 @@ using System;
 using LoyaltyCards.Domain.Entities;
 using LoyaltyCards.Infrastructure.Persistence;
 using LoyaltyCards.Infrastructure.Security;
-using Microsoft.EntityFrameworkCore;
 
 namespace LoyaltyCards.Application.Users;
 
@@ -10,11 +9,13 @@ public class UserRegistrationService
 {
     private readonly PasswordHasher _hasher;
     private readonly UserRepository _repository;
+    private readonly JwtTokenService _tokenService;
 
-    public UserRegistrationService(UserRepository repository)
+    public UserRegistrationService(UserRepository repository, JwtTokenService tokenService)
     {
         _hasher = new PasswordHasher();
         _repository = repository;
+        _tokenService = tokenService;
     }
 
     public void Register(string email, string password)
@@ -35,7 +36,7 @@ public class UserRegistrationService
         _repository.Save(user);
     }
 
-    public void Login(string email, string password)
+    public string Login(string email, string password, bool rememberMe = false)
     {
         var user = _repository.GetByEmail(email);
         if (user == null)
@@ -45,5 +46,6 @@ public class UserRegistrationService
         if (!valid)
             throw new Exception("Invalid email or password.");
 
+        return _tokenService.GenerateToken(user, rememberMe);
     }
 }
