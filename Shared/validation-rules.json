@@ -1,0 +1,23 @@
+{
+  "password": {
+    "minLength": 10,
+    "requireUppercase": true,
+    "requireLowercase": true,
+    "requireDigits": true,
+    "requireSpecialCharacters": true,
+    "specialCharacters": "!@#$%^&*(),.?\":{}|<>",
+    "errorMessages": {
+      "tooShort": "Password must be at least {0} characters",
+      "missingLowercase": "Password must contain at least one lowercase letter",
+      "missingUppercase": "Password must contain at least one uppercase letter",
+      "missingDigit": "Password must contain at least one number",
+      "missingSpecial": "Password must contain at least one special character from: {0}"
+    }
+  },
+  "email": {
+    "pattern": "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$",
+    "errorMessages": {
+      "invalid": "Please enter a valid email address"
+    }
+  }
+}
