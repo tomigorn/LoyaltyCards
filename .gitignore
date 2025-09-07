@@ -288,8 +288,9 @@ obj/
 *.db
 
 # Ignore environment variable files
-.env.prod
 .env.dev
+.env.int
+.env.prod
 *.env
 
 # ignore appsettings files that may contain sensitive data
