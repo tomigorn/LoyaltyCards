@@ -1,9 +1,12 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LoyaltyCards.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class LoyaltyCardController : ControllerBase
     {
         private readonly LoyaltyCardService _loyaltyCardService;
@@ -18,13 +21,20 @@ namespace LoyaltyCards.API.Controllers
         {
             try
             {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (userId == null)
+                {
+                    return Unauthorized();
+                }
+                var userGuid = Guid.Parse(userId);
+
                 var storeName = request.StoreName ?? request.Nickname;
 
                 _loyaltyCardService.CreateCard(
-                    request.Nickname, 
-                    storeName, 
-                    request.BarcodeNumber, 
-                    Guid.Parse("C57DA98B-6764-4DC9-910C-1FF95F3D6512")
+                    request.Nickname,
+                    storeName,
+                    request.BarcodeNumber,
+                    userGuid
                 );
 
                 return Ok("Loyalty card created successfully");
@@ -35,6 +45,6 @@ namespace LoyaltyCards.API.Controllers
             }
         }
 
-        // Additional endpoints (Get, Update, Delete) can be added here
+        // TODO: Additional endpoints (Get, Update, Delete) can be added here
     }
 }
