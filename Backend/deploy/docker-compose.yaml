@@ -7,5 +7,5 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      - /data/loyaltycards:/app/Data
+      - ${DATA_VOLUME_PATH}:/app/Data
     restart: unless-stopped
