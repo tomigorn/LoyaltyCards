@@ -1,6 +1,28 @@
-@LoyaltyCards.API_HostAddress = http://localhost:5015
+@host = https://localhost:7157
+@contentType = application/json
 
-GET {{LoyaltyCards.API_HostAddress}}/weatherforecast/
-Accept: application/json
+### Health Check (to test connection)
+GET {{host}}/health
+Accept: {{contentType}}
 
-###
+### Get validation rules
+GET {{host}}/api/Validation/rules
+Accept: {{contentType}}
+
+### Register new user
+POST {{host}}/api/Auth/register
+Content-Type: {{contentType}}
+
+{
+    "email": "test@example.com",
+    "password": "YourPassword123!"
+}
+
+### Login
+POST {{host}}/api/Auth/login
+Content-Type: {{contentType}}
+
+{
+    "email": "test@example.com",
+    "password": "YourPassword123!"
+}
