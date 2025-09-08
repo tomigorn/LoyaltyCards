@@ -20,7 +20,9 @@ public class LoyaltyCardRepository
 
     public IEnumerable<LoyaltyCard> GetByUserId(Guid userId)
     {
-        return _context.LoyaltyCards.Where(c => c.UserId == userId).ToList();
+        return _context.LoyaltyCards
+            .Where(c => c.UserId == userId)
+            .ToList();
     }
 
     public void Update(LoyaltyCard card)
