@@ -7,29 +7,46 @@ services:
     volumes:
       - type: volume
         source: loyaltycards_data
-        target: /app/Data    # Capital 'D' to match the Dockerfile
+        target: /app/Data # Capital 'D' to match the Dockerfile
         volume:
           nocopy: true
     restart: always
 
-  sqlitebrowser:
-    image: lscr.io/linuxserver/sqlitebrowser:latest
-    container_name: ${PROJECT_BASE_NAME}-sqlitebrowser
+  cloudbeaver:
+    image: dbeaver/cloudbeaver:latest
+    container_name: ${PROJECT_BASE_NAME}-cloudbeaver
     environment:
-      - PUID=1000
-      - PGID=1000
       - TZ=Europe/Zurich
     ports:
-      - "3001:3001"  # Web UI port
+      - "8978:8978"
     volumes:
       - type: volume
         source: loyaltycards_data
-        target: /data
+        target: /opt/cloudbeaver/workspace/GlobalConfiguration/.data/sqlite
         read_only: true
-      - ./certs:/config/ssl:ro  # Read-only access to SSL certificates
+      - cloudbeaver_workspace:/opt/cloudbeaver/workspace
     restart: always
+
+  # sqlitebrowser:
+  #   image: lscr.io/linuxserver/sqlitebrowser:latest
+  #   container_name: ${PROJECT_BASE_NAME}-sqlitebrowser
+  #   environment:
+  #     - PUID=1000
+  #     - PGID=1000
+  #     - TZ=Europe/Zurich
+  #   ports:
+  #     - "3001:3001"  # Web UI port
+  #   volumes:
+  #     - type: volume
+  #       source: loyaltycards_data
+  #       target: /data
+  #       read_only: true
+  #     - ./certs:/config/ssl:ro  # Read-only access to SSL certificates
+  #   restart: always
 
 volumes:
   loyaltycards_data:
     name: ${COMPOSE_PROJECT_NAME}_loyaltycards_data
     external: true
+  cloudbeaver_workspace:
+    name: ${COMPOSE_PROJECT_NAME}_cloudbeaver_workspace

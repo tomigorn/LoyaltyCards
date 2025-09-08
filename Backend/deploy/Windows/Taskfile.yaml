@@ -1,12 +1,13 @@
 version: '3'
 
-dotenv: ['.env']
+dotenv: ['../.env']
 
 # Global variables
 vars:
   VERSION:
-    sh: grep -o '<Version>.*</Version>' ../Directory.Build.props | sed 's/<Version>\(.*\)<\/Version>/\1/'
+    sh: powershell -NoProfile -Command "(Select-Xml -Path '../../Directory.Build.props' -XPath '/Project/PropertyGroup/Version').Node.'#text'"
   COMPOSE_PROJECT_NAME: '{{.PROJECT_BASE_NAME}}-app'
+  REMOTE_DIR: '~/docker/development/loyalty-cards-app'
 
 tasks:
   version:
@@ -30,20 +31,22 @@ tasks:
       - docker buildx build --platform linux/arm64 
           -t {{.DOCKER_HUB_USERNAME}}/loyaltycardsbackend:{{.VERSION}} 
           -t {{.DOCKER_HUB_USERNAME}}/loyaltycardsbackend:latest 
-          -f ../LoyaltyCards.API/Dockerfile 
+          -f ../../LoyaltyCards.API/Dockerfile 
           --push 
-          ..
+          ../..
       - task: deploy-to-pi
       - docker logout
       - echo "=== Deployment v{{.VERSION}} complete ==="
 
   deploy-to-pi:
     cmds:
-      - echo "Copying docker-compose.yaml & .env to Raspberry Pi..."
-      - scp .env {{.PI_USER}}@{{.PI_HOST}}:~/docker/development/loyalty-cards-app/.env
-      - scp docker-compose.yaml {{.PI_USER}}@{{.PI_HOST}}:~/docker/development/loyalty-cards-app/docker-compose.yaml
-      - ssh {{.PI_USER}}@{{.PI_HOST}} "
-          cd ~/docker/development/loyalty-cards-app &&
+      - echo "Copying files to {{.PI_USER}}@{{.PI_HOST}}:{{.REMOTE_DIR}}"
+      - ssh {{.PI_USER}}@{{.PI_HOST}} "mkdir -p {{.REMOTE_DIR}}"
+      - scp ../.env {{.PI_USER}}@{{.PI_HOST}}:{{.REMOTE_DIR}}/.env
+      - scp ../docker-compose.yaml {{.PI_USER}}@{{.PI_HOST}}:{{.REMOTE_DIR}}/docker-compose.yaml
+      - |
+        ssh {{.PI_USER}}@{{.PI_HOST}} "
+          cd {{.REMOTE_DIR}} &&
           export COMPOSE_PROJECT_NAME={{.COMPOSE_PROJECT_NAME}} &&
           export PROJECT_BASE_NAME={{.PROJECT_BASE_NAME}} &&
           export VERSION={{.VERSION}} &&
