@@ -50,6 +50,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<UserRegistrationService>();
+builder.Services.AddScoped<LoyaltyCardRepository>();
+builder.Services.AddScoped<LoyaltyCardService>();
 
 builder.Services.AddControllers();
 
