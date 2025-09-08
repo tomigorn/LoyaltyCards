@@ -16,7 +16,7 @@ public class LoyaltyCardService
         {
             Id = Guid.NewGuid(),
             Nickname = nickname,
-            StoreName = storeName,
+            StoreName = storeName ?? nickname,
             BarcodeNumber = barcodeNumber,
             UserId = userId,
             CreationDate = DateTime.UtcNow
