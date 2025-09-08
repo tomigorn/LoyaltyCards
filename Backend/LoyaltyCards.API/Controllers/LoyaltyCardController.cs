@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using LoyaltyCards.API.DTO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -38,6 +39,31 @@ namespace LoyaltyCards.API.Controllers
                 );
 
                 return Ok("Loyalty card created successfully");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("getAllLoyaltyCards")]
+        public IActionResult GetAllLoyaltyCards()
+        {
+            try
+            {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (userId == null)
+                {
+                    return Unauthorized();
+                }
+                var userGuid = Guid.Parse(userId);
+
+                var cards = _loyaltyCardService.GetAllCards(userGuid);
+                return Ok(new LoyaltyCardListResponseDto
+                {
+                    TotalCount = cards.Count(),
+                    Cards = cards
+                });
             }
             catch (Exception ex)
             {
