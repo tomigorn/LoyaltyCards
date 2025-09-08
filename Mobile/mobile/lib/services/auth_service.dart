@@ -12,6 +12,11 @@ class AuthService {
           'email': email,
           'password': password,
         }),
+      ).timeout(  
+        const Duration(seconds: 5),
+        onTimeout: () {
+          throw 'Login failed: Request timed out';
+        },
       );
 
       if (response.statusCode == 200) {
@@ -42,6 +47,11 @@ class AuthService {
           'password': password,
           'confirmPassword': confirmPassword,
         }),
+      ).timeout(  
+        const Duration(seconds: 5),
+        onTimeout: () {
+          throw 'Registration failed: Request timed out';
+        },
       );
 
       if (response.statusCode == 200) {
