@@ -82,6 +82,83 @@ class _CardListPageState extends State<CardListPage> {
     );
   }
 
+  void _showAddCardForm() {
+    final _formKey = GlobalKey<FormState>();
+    String nickname = '';
+    String storeName = '';
+    String barcodeNumber = '';
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Add New Card'),
+          content: Form(
+            key: _formKey,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextFormField(
+                    decoration: InputDecoration(
+                      labelText: 'Nickname',
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter a nickname';
+                      }
+                      return null;
+                    },
+                    onSaved: (value) {
+                      nickname = value ?? '';
+                    },
+                  ),
+                  SizedBox(height: 16),
+                  TextFormField(
+                    decoration: InputDecoration(
+                      labelText: 'Store Name',
+                    ),
+                    onSaved: (value) {
+                      storeName = value ?? '';
+                    },
+                  ),
+                  SizedBox(height: 16),
+                  TextFormField(
+                    decoration: InputDecoration(
+                      labelText: 'Barcode Number',
+                    ),
+                    onSaved: (value) {
+                      barcodeNumber = value ?? '';
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (_formKey.currentState!.validate()) {
+                  _formKey.currentState!.save();
+                  // TODO: Handle saving the card
+                  print('Saving card: $nickname, $storeName, $barcodeNumber');
+                  Navigator.of(context).pop();
+                }
+              },
+              child: Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -177,6 +254,10 @@ class _CardListPageState extends State<CardListPage> {
             ),
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _showAddCardForm,
+        child: Icon(Icons.add),
       ),
     );
   }
