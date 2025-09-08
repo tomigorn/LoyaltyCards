@@ -26,12 +26,22 @@
             }
         },
         {
-            "name": "Flutter Emulator",
+            "name": "Flutter Emulator DEV",
             "request": "launch",
             "type": "dart",
             "program": "Mobile/mobile/lib/main.dart",
             "args": [
                 "--dart-define=ENV=dev"
+            ],
+            "flutterMode": "debug"
+        },
+        {
+            "name": "Flutter Emulator INT",
+            "request": "launch",
+            "type": "dart",
+            "program": "Mobile/mobile/lib/main.dart",
+            "args": [
+                "--dart-define=ENV=int"
             ],
             "flutterMode": "debug"
         },
