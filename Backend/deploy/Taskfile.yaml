@@ -38,7 +38,7 @@ tasks:
       - echo "=== Deployment v{{.VERSION}} complete ==="
 
   deploy-to-pi:
-    # internal: true
+    internal: true
     cmds:
       - echo "Copying docker-compose.yaml to Raspberry Pi..."
       - scp docker-compose.yaml {{.PI_USER}}@{{.PI_HOST}}:~/docker-compose.yaml
