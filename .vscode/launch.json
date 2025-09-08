@@ -64,6 +64,28 @@
                 "--dart-define=ENV=prod"
             ],
             "flutterMode": "release"
+        },
+        {
+            "name": "Flutter Linux INT",
+            "request": "launch",
+            "type": "dart",
+            "program": "Mobile/mobile/lib/main.dart",
+            "args": [
+                "--dart-define=ENV=int"
+            ],
+            "flutterMode": "debug",
+            "deviceId": "linux"
+        },
+        {
+            "name": "Flutter Linux DEV",
+            "request": "launch",
+            "type": "dart",
+            "program": "Mobile/mobile/lib/main.dart",
+            "args": [
+                "--dart-define=ENV=dev"
+            ],
+            "flutterMode": "debug",
+            "deviceId": "linux"
         }
     ]
 }
