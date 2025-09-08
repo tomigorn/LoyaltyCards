@@ -16,7 +16,7 @@ namespace LoyaltyCards.API.Controllers
             _loyaltyCardService = loyaltyCardService;
         }
 
-        [HttpPost]
+        [HttpPost("createLoyaltyCard")]
         public IActionResult CreateLoyaltyCard([FromBody] LoyaltyCardRequestDto request)
         {
             try
