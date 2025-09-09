@@ -1,0 +1,87 @@
+version: '3'
+
+# .env file
+dotenv: ['../secrets/.env']
+
+# Global variables
+vars:
+  COMPOSE_PROJECT_NAME: '{{.PROJECT_BASE_NAME}}-app'
+  BACKEND_SOURCE_DIR: '../source/LoyaltyCards/Backend'
+  DOCKER_DEPLOYMENT_DIR: '/home/pi/docker/development/loyalty-cards-app'
+  VERSION:
+    sh: grep -o '<Version>.*</Version>' {{.BACKEND_SOURCE_DIR}}/Directory.Build.props | sed 's/<Version>\(.*\)<\/Version>/\1/'
+  START_TIME:
+        sh: date +%s > /tmp/deploy_start_time && cat /tmp/deploy_start_time
+
+# Tasks
+tasks:
+  git-pull:
+    desc: Pull latest changes from git
+    cmds:
+      - |
+        cd ../source/LoyaltyCards &&
+        git fetch origin main &&
+        git reset --hard origin/main &&
+        git pull origin main
+
+  copy-secrets:
+    desc: Copy secrets to source directory
+    cmds:
+      - cp ../secrets/appsettings.Production.json {{.BACKEND_SOURCE_DIR}}/LoyaltyCards.API/appsettings.Production.json
+
+  version:
+    desc: Show current version
+    cmds:
+      - echo Current version is {{.VERSION}}
+
+  build-and-push-docker-image:
+    desc: Build and push Docker image to Docker Hub
+    cmds:
+      - echo "Building Docker image version {{.VERSION}}"
+      - docker login -u {{.DOCKER_HUB_USERNAME}} -p {{.DOCKER_HUB_TOKEN}}
+      - docker buildx create --use
+      - docker buildx build --platform linux/arm64 
+          -t {{.DOCKER_HUB_USERNAME}}/loyaltycardsbackend:{{.VERSION}} 
+          -t {{.DOCKER_HUB_USERNAME}}/loyaltycardsbackend:latest 
+          -f {{.BACKEND_SOURCE_DIR}}/LoyaltyCards.API/Dockerfile 
+          --push 
+          {{.BACKEND_SOURCE_DIR}}
+      - docker logout
+      - echo "Docker image version {{.VERSION}} built and pushed successfully"
+
+  deploy-on-pi:
+    desc: Deploy application on RaspberryPi
+    cmds:
+      - cp {{.BACKEND_SOURCE_DIR}}/deploy/docker-compose.yaml {{.DOCKER_DEPLOYMENT_DIR}}/docker-compose.yaml
+      - cp ../secrets/.env {{.DOCKER_DEPLOYMENT_DIR}}/.env
+      - |
+        cd {{.DOCKER_DEPLOYMENT_DIR}} &&
+          export COMPOSE_PROJECT_NAME={{.COMPOSE_PROJECT_NAME}} &&
+          export PROJECT_BASE_NAME={{.PROJECT_BASE_NAME}} &&
+          export VERSION={{.VERSION}} &&
+          export DOCKER_HUB_USERNAME={{.DOCKER_HUB_USERNAME}} &&
+          docker pull {{.DOCKER_HUB_USERNAME}}/loyaltycardsbackend:{{.VERSION}} &&
+          docker compose down --volumes=false || true &&
+          docker compose up -d
+      - echo "Docker Container deployed successfully"
+
+  time-tracking:
+    desc: Show deployment time
+    cmds:
+      - echo "Deployment started at $(cat /tmp/deploy_start_time)"
+      - echo "Deployment ended at $(date +%s)"
+      - |
+        echo "Total deployment time: $(($(date +%s) - $(cat /tmp/deploy_start_time))) seconds"
+      - rm /tmp/deploy_start_time
+
+  # pull, build docker, push docker, pull docker and deploy
+  deploy:
+    desc: Full deployment process
+    cmds:
+      - task: git-pull
+      - task: copy-secrets
+      - task: version
+      - task: build-and-push-docker-image
+      - task: deploy-on-pi
+      - task: time-tracking
+ 
