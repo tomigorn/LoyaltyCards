@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../screens/login_screen.dart';
 import '../services/auth_service.dart'; // Import AuthService
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
