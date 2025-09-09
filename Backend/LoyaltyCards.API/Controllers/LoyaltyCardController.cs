@@ -68,7 +68,7 @@ namespace LoyaltyCards.API.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
-        
+
         [HttpPut("updateLoyaltyCard/{id}")]
         public IActionResult UpdateLoyaltyCard(Guid id, [FromBody] LoyaltyCardRequestDto request)
         {
@@ -80,7 +80,7 @@ namespace LoyaltyCards.API.Controllers
                     return Unauthorized();
                 }
                 var userGuid = Guid.Parse(userId);
-        
+
                 _loyaltyCardService.UpdateCard(
                     id,
                     request.Nickname,
@@ -88,7 +88,7 @@ namespace LoyaltyCards.API.Controllers
                     request.BarcodeNumber,
                     userGuid
                 );
-        
+
                 return Ok("Loyalty card updated successfully");
             }
             catch (KeyNotFoundException)
@@ -104,7 +104,34 @@ namespace LoyaltyCards.API.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
-        
-        // ...existing code...
+
+        [HttpDelete("deleteLoyaltyCard/{id}")]
+        public IActionResult DeleteLoyaltyCard(Guid id)
+        {
+            try
+            {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (userId == null)
+                {
+                    return Unauthorized();
+                }
+                var userGuid = Guid.Parse(userId);
+
+                _loyaltyCardService.DeleteCard(id, userGuid);
+                return Ok("Loyalty card deleted successfully");
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound("Loyalty card not found");
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Forbid("You don't have permission to delete this card");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
     }
 }

@@ -55,3 +55,8 @@ authorization: {{authToken}}
     "storeName": "revert back to reality Store",
     "barcodeNumber": "----------------------"
 }
+
+### Delete Loyalty Card by ID
+DELETE {{host}}/api/LoyaltyCard/deleteLoyaltyCard/d6b1c7f9-efb2-461a-a146-ecb561314b3c
+Accept: {{contentType}}
+authorization: {{authToken}}

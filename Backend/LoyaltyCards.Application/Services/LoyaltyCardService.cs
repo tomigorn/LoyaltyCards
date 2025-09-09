@@ -42,6 +42,17 @@ public class LoyaltyCardService
         _repository.Save(card);
     }
 
+    public void DeleteCard(Guid cardId, Guid userId)
+    {
+        var card = _repository.GetById(cardId);
+        if (card == null || card.UserId != userId)
+        {
+            throw new Exception("Loyalty card not found or access denied");
+        }
+
+        _repository.Delete(cardId);
+    }
+
     public void UpdateCard(Guid cardId, string nickname, string? storeName, string barcodeNumber, Guid userId)
     {
         var card = _repository.GetById(cardId);
