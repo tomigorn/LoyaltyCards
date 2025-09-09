@@ -69,15 +69,22 @@ class LoyaltyCardService {
     return Map<String, dynamic>.from(jsonDecode(res.body));
   }
 
-  // PUT /api/LoyaltyCard/updateLoyaltyCard
-  // payload should include id and fields to update
-  static Future<Map<String, dynamic>> update(Map<String, dynamic> payload, {String? token}) async {
-    final uri = Uri.parse('${ApiConfig.baseUrl}/api/LoyaltyCard/updateLoyaltyCard');
-    final res = await http.put(uri, headers: _headers(token), body: jsonEncode(payload));
-    if (res.statusCode != 200) {
-      throw Exception('Failed to update loyalty card: ${res.statusCode} ${res.body}');
+  // PUT /api/LoyaltyCard/updateLoyaltyCard/{id}
+  // payload should NOT include id
+  static Future<bool> update(String id, Map<String, dynamic> payload, {String? token}) async {
+    final uri = Uri.parse('${ApiConfig.baseUrl}/api/LoyaltyCard/updateLoyaltyCard/$id');
+    final res = await http
+        .put(uri, headers: _headers(token), body: jsonEncode(payload))
+        .timeout(
+          const Duration(seconds: 10),
+          onTimeout: () => throw TimeoutException('Request timed out after 10 seconds'),
+        );
+
+    if (res.statusCode == 200) {
+      return true;
     }
-    return Map<String, dynamic>.from(jsonDecode(res.body));
+
+    throw Exception('Failed to update loyalty card: ${res.statusCode} ${res.body}');
   }
 
   // DELETE /api/LoyaltyCard/deleteLoyaltyCard/{id}

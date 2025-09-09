@@ -194,6 +194,124 @@ class _CardListPageState extends State<CardListPage> {
     );
   }
 
+  void _showCardDetails(Map<String, dynamic> card) {
+    final nicknameController = TextEditingController(text: card['nickname'] ?? '');
+    final storeNameController = TextEditingController(text: card['storeName'] ?? '');
+    final barcodeController = TextEditingController(text: card['barcodeNumber'] ?? '');
+    bool isEditing = false;
+    bool isSaving = false;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(builder: (context, setDialogState) {
+          return AlertDialog(
+            title: Text(isEditing ? 'Edit Card' : 'Card Details'),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (!isEditing) ...[
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text('Nickname', style: TextStyle(fontWeight: FontWeight.bold)),
+                    ),
+                    SizedBox(height: 4),
+                    Align(alignment: Alignment.centerLeft, child: Text(card['nickname'] ?? '')),
+                    SizedBox(height: 12),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text('Store Name', style: TextStyle(fontWeight: FontWeight.bold)),
+                    ),
+                    SizedBox(height: 4),
+                    Align(alignment: Alignment.centerLeft, child: Text(card['storeName'] ?? '')),
+                    SizedBox(height: 12),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text('Barcode', style: TextStyle(fontWeight: FontWeight.bold)),
+                    ),
+                    SizedBox(height: 4),
+                    Align(alignment: Alignment.centerLeft, child: Text(card['barcodeNumber'] ?? '')),
+                  ] else ...[
+                    TextField(
+                      controller: nicknameController,
+                      decoration: InputDecoration(labelText: 'Nickname'),
+                    ),
+                    SizedBox(height: 12),
+                    TextField(
+                      controller: storeNameController,
+                      decoration: InputDecoration(labelText: 'Store Name'),
+                    ),
+                    SizedBox(height: 12),
+                    TextField(
+                      controller: barcodeController,
+                      decoration: InputDecoration(labelText: 'Barcode Number'),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: isSaving ? null : () => Navigator.of(context).pop(),
+                child: Text('Close'),
+              ),
+              if (!isEditing)
+                TextButton(
+                  onPressed: isSaving ? null : () => setDialogState(() => isEditing = true),
+                  child: Text('Edit'),
+                ),
+              if (isEditing)
+                TextButton(
+                  onPressed: isSaving
+                      ? null
+                      : () => setDialogState(() {
+                            isEditing = false;
+                          }),
+                  child: Text('Cancel'),
+                ),
+              if (isEditing)
+                ElevatedButton(
+                  onPressed: isSaving
+                      ? null
+                      : () async {
+                          final nickname = nicknameController.text.trim();
+                          if (nickname.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Nickname is required')));
+                            return;
+                          }
+                          setDialogState(() => isSaving = true);
+                          final payload = {
+                            'nickname': nickname,
+                            'storeName': storeNameController.text.trim(),
+                            'barcodeNumber': barcodeController.text.trim(),
+                          };
+                          try {
+                            final token = await AuthService().getToken();
+                            await LoyaltyCardService.update(card['id'].toString(), payload, token: token);
+                            Navigator.of(context).pop();
+                            await _loadCards();
+                            ScaffoldMessenger.of(this.context).showSnackBar(
+                              SnackBar(content: Text('Card updated')),
+                            );
+                          } catch (e) {
+                            setDialogState(() => isSaving = false);
+                            ScaffoldMessenger.of(this.context)
+                                .showSnackBar(SnackBar(content: Text('Failed to update: $e')));
+                          }
+                        },
+                  child: isSaving
+                      ? SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                      : Text('Save'),
+                ),
+            ],
+          );
+        });
+      },
+    );
+  }
+
   String _displayName(Map<String, dynamic> c) {
     return (c['nickname'] ?? c['title'] ?? c['storeName'] ?? c['id'] ?? 'Card')
         .toString();
@@ -255,7 +373,7 @@ class _CardListPageState extends State<CardListPage> {
                             final card = cards[index];
                             return GestureDetector(
                               onTap: () {
-                                // TODO: navigate to detail/edit
+                                _showCardDetails(card);
                               },
                               child: Card(
                                 elevation: 2,
