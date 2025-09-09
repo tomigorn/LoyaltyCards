@@ -70,18 +70,18 @@ tasks:
     cmds:
       - echo "Building Docker image version $(cat /tmp/deploy_version)"
       - echo "{{.DOCKER_HUB_TOKEN}}" | docker login -u {{.DOCKER_HUB_USERNAME}} --password-stdin
-      - docker buildx create --use
+      - docker buildx create --name {{.PROJECT_BASE_NAME}}-builder --use
       - |
         VERSION=$(cat /tmp/deploy_version)
         if [ "{{.MANUAL_VERSION_PICKED}}" = "false" ]; then
-          docker buildx build --platform linux/arm64 \
+          docker buildx build --builder {{.PROJECT_BASE_NAME}}-builder --platform linux/arm64 \
             -t {{.DOCKER_HUB_USERNAME}}/loyaltycardsbackend:$VERSION \
             -t {{.DOCKER_HUB_USERNAME}}/loyaltycardsbackend:latest \
             -f {{.BACKEND_SOURCE_DIR}}/LoyaltyCards.API/Dockerfile \
             --push \
             {{.BACKEND_SOURCE_DIR}}
         else
-          docker buildx build --platform linux/arm64 \
+          docker buildx build --builder {{.PROJECT_BASE_NAME}}-builder --platform linux/arm64 \
             -t {{.DOCKER_HUB_USERNAME}}/loyaltycardsbackend:$VERSION \
             -f {{.BACKEND_SOURCE_DIR}}/LoyaltyCards.API/Dockerfile \
             --push \
@@ -107,6 +107,13 @@ tasks:
           docker compose up -d
       - echo "Docker Container deployed successfully"
 
+  docker-cleanup:
+    desc: Remove only the buildx builder used for builds
+    cmds:
+      - echo "Removing buildx builder {{.COMPOSE_PROJECT_NAME}}-builder if it exists..."
+      - docker buildx rm {{.COMPOSE_PROJECT_NAME}}-builder || true
+      - echo "Buildx builder cleanup complete."
+
   time-tracking:
     desc: Show deployment time
     cmds:
@@ -126,4 +133,5 @@ tasks:
       - task: checkout-version
       - task: build-and-push-docker-image
       - task: deploy-on-pi
+      - task: docker-cleanup
       - task: time-tracking
