@@ -6,7 +6,8 @@ dotenv: ['/home/pi/Documents/development/LoyaltyCards/secrets/.env']
 # Global variables
 vars:
   COMPOSE_PROJECT_NAME: '{{.PROJECT_BASE_NAME}}-app'
-  BACKEND_SOURCE_DIR: '~/Documents/development/LoyaltyCards/source/LoyaltyCards/Backend'
+  BACKEND_DEPLOY_DIR: '/home/pi/Documents/development/LoyaltyCards'
+  BACKEND_SOURCE_DIR: '{{.BACKEND_DEPLOY_DIR}}/source/LoyaltyCards/Backend'
   DOCKER_DEPLOYMENT_DIR: '/home/pi/docker/development/loyalty-cards-app'
   VERSION:
     sh: grep -o '<Version>.*</Version>' {{.BACKEND_SOURCE_DIR}}/Directory.Build.props | sed 's/<Version>\(.*\)<\/Version>/\1/'
@@ -19,7 +20,7 @@ tasks:
     desc: Pull latest changes from git
     cmds:
       - |
-        cd ~/Documents/development/LoyaltyCards/source/LoyaltyCards &&
+        cd {{.BACKEND_DEPLOY_DIR}}/source/LoyaltyCards &&
         git fetch origin main &&
         git reset --hard origin/main &&
         git pull origin main
@@ -27,7 +28,7 @@ tasks:
   copy-secrets:
     desc: Copy secrets to source directory
     cmds:
-      - cp ~/Documents/development/LoyaltyCards/secrets/appsettings.Production.json {{.BACKEND_SOURCE_DIR}}/LoyaltyCards.API/appsettings.Production.json
+      - cp {{.BACKEND_DEPLOY_DIR}}/secrets/appsettings.Production.json {{.BACKEND_SOURCE_DIR}}/LoyaltyCards.API/appsettings.Production.json
 
   version:
     desc: Show current version
@@ -53,7 +54,7 @@ tasks:
     desc: Deploy application on RaspberryPi
     cmds:
       - cp {{.BACKEND_SOURCE_DIR}}/deploy/docker-compose.yaml {{.DOCKER_DEPLOYMENT_DIR}}/docker-compose.yaml
-      - cp ~/Documents/development/LoyaltyCards/secrets/.env {{.DOCKER_DEPLOYMENT_DIR}}/.env
+      - cp {{.BACKEND_DEPLOY_DIR}}/secrets/.env {{.DOCKER_DEPLOYMENT_DIR}}/.env
       - |
         cd {{.DOCKER_DEPLOYMENT_DIR}} &&
           export COMPOSE_PROJECT_NAME={{.COMPOSE_PROJECT_NAME}} &&
