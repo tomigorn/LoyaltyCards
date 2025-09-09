@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../api_config.dart';
@@ -41,14 +42,21 @@ class LoyaltyCardService {
   }
 
   // POST /api/LoyaltyCard/createLoyaltyCard
-  // payload is a Map matching backend DTO (e.g. { "title": "...", "points": 0, ... })
-  static Future<Map<String, dynamic>> create(Map<String, dynamic> payload, {String? token}) async {
+  // payload is a Map matching backend DTO
+  static Future<bool> create(Map<String, dynamic> payload, {String? token}) async {
     final uri = Uri.parse('${ApiConfig.baseUrl}/api/LoyaltyCard/createLoyaltyCard');
-    final res = await http.post(uri, headers: _headers(token), body: jsonEncode(payload));
-    if (res.statusCode != 200 && res.statusCode != 201) {
-      throw Exception('Failed to create loyalty card: ${res.statusCode} ${res.body}');
+    final res = await http
+        .post(uri, headers: _headers(token), body: jsonEncode(payload))
+        .timeout(
+          const Duration(seconds: 10),
+          onTimeout: () => throw TimeoutException('Request timed out after 10 seconds'),
+        );
+
+    if (res.statusCode == 200 || res.statusCode == 201) {
+      return true;
     }
-    return Map<String, dynamic>.from(jsonDecode(res.body));
+
+    throw Exception('Failed to create loyalty card: ${res.statusCode} ${res.body}');
   }
 
   // GET /api/LoyaltyCard/getLoyaltyCard/{id}

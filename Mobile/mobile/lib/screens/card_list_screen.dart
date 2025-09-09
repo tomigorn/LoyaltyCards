@@ -98,77 +98,98 @@ class _CardListPageState extends State<CardListPage> {
 
   void _showAddCardForm() {
     final _formKey = GlobalKey<FormState>();
-    String nickname = '';
-    String storeName = '';
-    String barcodeNumber = '';
+    final nicknameController = TextEditingController();
+    final storeNameController = TextEditingController();
+    final barcodeController = TextEditingController();
+    bool isSaving = false;
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Add New Card'),
-          content: Form(
-            key: _formKey,
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextFormField(
-                    decoration: InputDecoration(
-                      labelText: 'Nickname',
+        return StatefulBuilder(builder: (context, setDialogState) {
+          return AlertDialog(
+            title: Text('Add New Card'),
+            content: Form(
+              key: _formKey,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextFormField(
+                      controller: nicknameController,
+                      decoration: InputDecoration(
+                        labelText: 'Nickname',
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter a nickname';
+                        }
+                        return null;
+                      },
                     ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter a nickname';
-                      }
-                      return null;
-                    },
-                    onSaved: (value) {
-                      nickname = value ?? '';
-                    },
-                  ),
-                  SizedBox(height: 16),
-                  TextFormField(
-                    decoration: InputDecoration(
-                      labelText: 'Store Name',
+                    SizedBox(height: 16),
+                    TextFormField(
+                      controller: storeNameController,
+                      decoration: InputDecoration(
+                        labelText: 'Store Name',
+                      ),
                     ),
-                    onSaved: (value) {
-                      storeName = value ?? '';
-                    },
-                  ),
-                  SizedBox(height: 16),
-                  TextFormField(
-                    decoration: InputDecoration(
-                      labelText: 'Barcode Number',
+                    SizedBox(height: 16),
+                    TextFormField(
+                      controller: barcodeController,
+                      decoration: InputDecoration(
+                        labelText: 'Barcode Number',
+                      ),
                     ),
-                    onSaved: (value) {
-                      barcodeNumber = value ?? '';
-                    },
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                if (_formKey.currentState!.validate()) {
-                  _formKey.currentState!.save();
-                  // TODO: Handle saving the card
-                  print('Saving card: $nickname, $storeName, $barcodeNumber');
-                  Navigator.of(context).pop();
-                }
-              },
-              child: Text('Save'),
-            ),
-          ],
-        );
+            actions: [
+              TextButton(
+                onPressed: isSaving ? null : () => Navigator.of(context).pop(),
+                child: Text('Cancel'),
+              ),
+              ElevatedButton(
+                onPressed: isSaving
+                    ? null
+                    : () async {
+                        if (!_formKey.currentState!.validate()) return;
+
+                        // start saving
+                        setDialogState(() => isSaving = true);
+                        final payload = {
+                          'nickname': nicknameController.text.trim(),
+                          'storeName': storeNameController.text.trim(),
+                          'barcodeNumber': barcodeController.text.trim(),
+                        };
+
+                        try {
+                          final token = await AuthService().getToken();
+                          await LoyaltyCardService.create(payload, token: token);
+                          Navigator.of(context).pop(); // close dialog
+                          await _loadCards(); // reload list
+                          ScaffoldMessenger.of(this.context).showSnackBar(
+                            SnackBar(content: Text('Card saved')),
+                          );
+                        } catch (e) {
+                          setDialogState(() => isSaving = false);
+                          ScaffoldMessenger.of(this.context).showSnackBar(
+                            SnackBar(content: Text('Failed to save card: $e')),
+                          );
+                        }
+                      },
+                child: isSaving
+                    ? SizedBox(
+                        height: 16,
+                        width: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : Text('Save'),
+              ),
+            ],
+          );
+        });
       },
     );
   }
