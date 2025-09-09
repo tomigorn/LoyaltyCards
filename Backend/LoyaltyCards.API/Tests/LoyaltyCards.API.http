@@ -1,5 +1,6 @@
-@host = https://localhost:7157
-@contentType = application/json
+@host={{$dotenv host}}
+@contentType={{$dotenv contentType}}
+@authToken={{$dotenv authToken}}
 
 ### Health Check (to test connection)
 GET {{host}}/health
@@ -15,7 +16,8 @@ Content-Type: {{contentType}}
 
 {
     "email": "test@example.com",
-    "password": "YourPassword123!"
+    "password": "YourPassword123!",
+    "confirmPassword": "YourPassword123!"
 }
 
 ### Login
@@ -25,4 +27,31 @@ Content-Type: {{contentType}}
 {
     "email": "test@example.com",
     "password": "YourPassword123!"
+}
+
+### Create Loyalty Card
+POST {{host}}/api/LoyaltyCard/createLoyaltyCard
+content-type: {{contentType}}
+authorization: {{authToken}}
+
+{
+    "nickname": "Kunsthaus Zürich Loyalty Card",
+    "storeName": "Kunsthaus Zürich",
+    "barcodeNumber": "123456789012"
+}
+
+### Get all Loyalty Cards
+GET {{host}}/api/LoyaltyCard/getAllLoyaltyCards
+Accept: {{contentType}}
+authorization: {{authToken}}
+
+### Update Loyalty Card by ID
+PUT {{host}}/api/LoyaltyCard/updateLoyaltyCard/d6b1c7f9-efb2-461a-a146-ecb561314b3c
+content-type: {{contentType}}
+authorization: {{authToken}}
+
+{
+    "nickname": "ORIGINAL FOR SURE Loyalty Card",
+    "storeName": "revert back to reality Store",
+    "barcodeNumber": "----------------------"
 }
