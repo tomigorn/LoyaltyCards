@@ -25,6 +25,11 @@ public class LoyaltyCardRepository
             .ToList();
     }
 
+    public LoyaltyCard? GetById(Guid id)
+    {
+        return _context.LoyaltyCards.Find(id);
+    }
+
     public void Update(LoyaltyCard card)
     {
         _context.LoyaltyCards.Update(card);

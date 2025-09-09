@@ -68,7 +68,43 @@ namespace LoyaltyCards.API.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
-
-        // TODO: Additional endpoints (Get, Update, Delete) can be added here
+        
+        [HttpPut("updateLoyaltyCard/{id}")]
+        public IActionResult UpdateLoyaltyCard(Guid id, [FromBody] LoyaltyCardRequestDto request)
+        {
+            try
+            {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (userId == null)
+                {
+                    return Unauthorized();
+                }
+                var userGuid = Guid.Parse(userId);
+        
+                _loyaltyCardService.UpdateCard(
+                    id,
+                    request.Nickname,
+                    request.StoreName,
+                    request.BarcodeNumber,
+                    userGuid
+                );
+        
+                return Ok("Loyalty card updated successfully");
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound("Loyalty card not found");
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Forbid("You don't have permission to update this card");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+        
+        // ...existing code...
     }
 }
