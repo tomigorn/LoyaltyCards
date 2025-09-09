@@ -1,12 +1,12 @@
 version: '3'
 
 # .env file
-dotenv: ['../secrets/.env']
+dotenv: ['/home/pi/Documents/development/LoyaltyCards/secrets/.env']
 
 # Global variables
 vars:
   COMPOSE_PROJECT_NAME: '{{.PROJECT_BASE_NAME}}-app'
-  BACKEND_SOURCE_DIR: '../source/LoyaltyCards/Backend'
+  BACKEND_SOURCE_DIR: '~/Documents/development/LoyaltyCards/source/LoyaltyCards/Backend'
   DOCKER_DEPLOYMENT_DIR: '/home/pi/docker/development/loyalty-cards-app'
   VERSION:
     sh: grep -o '<Version>.*</Version>' {{.BACKEND_SOURCE_DIR}}/Directory.Build.props | sed 's/<Version>\(.*\)<\/Version>/\1/'
@@ -19,7 +19,7 @@ tasks:
     desc: Pull latest changes from git
     cmds:
       - |
-        cd ../source/LoyaltyCards &&
+        cd ~/Documents/development/LoyaltyCards/source/LoyaltyCards &&
         git fetch origin main &&
         git reset --hard origin/main &&
         git pull origin main
@@ -27,7 +27,7 @@ tasks:
   copy-secrets:
     desc: Copy secrets to source directory
     cmds:
-      - cp ../secrets/appsettings.Production.json {{.BACKEND_SOURCE_DIR}}/LoyaltyCards.API/appsettings.Production.json
+      - cp ~/Documents/development/LoyaltyCards/secrets/appsettings.Production.json {{.BACKEND_SOURCE_DIR}}/LoyaltyCards.API/appsettings.Production.json
 
   version:
     desc: Show current version
@@ -38,7 +38,7 @@ tasks:
     desc: Build and push Docker image to Docker Hub
     cmds:
       - echo "Building Docker image version {{.VERSION}}"
-      - docker login -u {{.DOCKER_HUB_USERNAME}} -p {{.DOCKER_HUB_TOKEN}}
+      - echo "{{.DOCKER_HUB_TOKEN}}" | docker login -u {{.DOCKER_HUB_USERNAME}} --password-stdin
       - docker buildx create --use
       - docker buildx build --platform linux/arm64 
           -t {{.DOCKER_HUB_USERNAME}}/loyaltycardsbackend:{{.VERSION}} 
@@ -53,7 +53,7 @@ tasks:
     desc: Deploy application on RaspberryPi
     cmds:
       - cp {{.BACKEND_SOURCE_DIR}}/deploy/docker-compose.yaml {{.DOCKER_DEPLOYMENT_DIR}}/docker-compose.yaml
-      - cp ../secrets/.env {{.DOCKER_DEPLOYMENT_DIR}}/.env
+      - cp ~/Documents/development/LoyaltyCards/secrets/.env {{.DOCKER_DEPLOYMENT_DIR}}/.env
       - |
         cd {{.DOCKER_DEPLOYMENT_DIR}} &&
           export COMPOSE_PROJECT_NAME={{.COMPOSE_PROJECT_NAME}} &&
@@ -84,4 +84,3 @@ tasks:
       - task: build-and-push-docker-image
       - task: deploy-on-pi
       - task: time-tracking
- 
