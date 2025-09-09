@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widgets/custom_app_bar.dart';
+import '../services/loyalty_card_service.dart';
+import '../services/auth_service.dart';
 
 class CardListPage extends StatefulWidget {
   @override
@@ -7,26 +9,41 @@ class CardListPage extends StatefulWidget {
 }
 
 class _CardListPageState extends State<CardListPage> {
-  // Sample image URLs - replace with your actual data
-  List<String> imageUrls = [
-    'https://picsum.photos/300/450?random=1',
-    'https://picsum.photos/300/450?random=2',
-    'https://picsum.photos/300/450?random=3',
-    'https://picsum.photos/300/450?random=4',
-    'https://picsum.photos/300/450?random=5',
-    'https://picsum.photos/300/450?random=6',
-    'https://picsum.photos/300/450?random=7',
-    'https://picsum.photos/300/450?random=8',
-    'https://picsum.photos/300/450?random=9',
-    'https://picsum.photos/300/450?random=10',
-    'https://picsum.photos/300/450?random=11',
-    'https://picsum.photos/300/450?random=12',
-    'https://picsum.photos/300/450?random=13',
-    'https://picsum.photos/300/450?random=14',
-    'https://picsum.photos/300/450?random=15',
-  ];
+  List<Map<String, dynamic>> cards = [];
+  bool isLoading = true;
+  String? error;
 
-  String sortOrder = 'Default';
+  @override
+  void initState() {
+    super.initState();
+    _loadCards();
+  }
+
+  Future<void> _loadCards() async {
+    setState(() {
+      isLoading = true;
+      error = null;
+    });
+
+    try {
+      final token = await AuthService().getToken();
+      final result = await LoyaltyCardService.getAll(token: token);
+      setState(() {
+        cards = result;
+      });
+    } catch (e) {
+      setState(() {
+        error = e.toString();
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to load cards: $e')),
+      );
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
   void _showSortOptions() {
     showModalBottomSheet(
@@ -47,7 +64,6 @@ class _CardListPageState extends State<CardListPage> {
                 title: Text('Default'),
                 onTap: () {
                   setState(() {
-                    sortOrder = 'Default';
                     // Add your sorting logic here
                   });
                   Navigator.pop(context);
@@ -58,7 +74,6 @@ class _CardListPageState extends State<CardListPage> {
                 title: Text('Alphabetical'),
                 onTap: () {
                   setState(() {
-                    sortOrder = 'Alphabetical';
                     // Add your sorting logic here
                   });
                   Navigator.pop(context);
@@ -69,7 +84,6 @@ class _CardListPageState extends State<CardListPage> {
                 title: Text('Date Added'),
                 onTap: () {
                   setState(() {
-                    sortOrder = 'Date Added';
                     // Add your sorting logic here
                   });
                   Navigator.pop(context);
@@ -159,6 +173,11 @@ class _CardListPageState extends State<CardListPage> {
     );
   }
 
+  String _displayName(Map<String, dynamic> c) {
+    return (c['nickname'] ?? c['title'] ?? c['storeName'] ?? c['id'] ?? 'Card')
+        .toString();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -166,7 +185,6 @@ class _CardListPageState extends State<CardListPage> {
       appBar: CustomAppBar(title: 'Cards'),
       body: Column(
         children: [
-          // Sort button section
           Container(
             width: double.infinity,
             padding: EdgeInsets.all(16),
@@ -175,13 +193,13 @@ class _CardListPageState extends State<CardListPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '${imageUrls.length} items',
+                  '${cards.length} items',
                   style: TextStyle(color: Colors.grey[600], fontSize: 14),
                 ),
                 ElevatedButton.icon(
                   onPressed: _showSortOptions,
                   icon: Icon(Icons.sort, size: 18),
-                  label: Text('Sort: $sortOrder'),
+                  label: Text('Sort'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: Colors.black87,
@@ -195,63 +213,58 @@ class _CardListPageState extends State<CardListPage> {
               ],
             ),
           ),
-          // Scrollable card list
           Expanded(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.all(16),
-              child: GridView.builder(
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
-                  childAspectRatio: 3 / 2, // This gives us the 3:2 ratio
-                ),
-                itemCount: imageUrls.length,
-                itemBuilder: (context, index) {
-                  return Card(
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    clipBehavior: Clip.antiAlias,
-                    child: Container(
-                      child: Image.network(
-                        imageUrls[index],
-                        fit: BoxFit
-                            .cover, // This crops the image to fit the container
-                        loadingBuilder: (context, child, loadingProgress) {
-                          if (loadingProgress == null) return child;
-                          return Container(
-                            color: Colors.grey[200],
-                            child: Center(
-                              child: CircularProgressIndicator(
-                                value:
-                                    loadingProgress.expectedTotalBytes != null
-                                    ? loadingProgress.cumulativeBytesLoaded /
-                                          loadingProgress.expectedTotalBytes!
-                                    : null,
+            child: isLoading
+                ? Center(child: CircularProgressIndicator())
+                : error != null
+                    ? Center(child: Text('Error: $error'))
+                    : RefreshIndicator(
+                        onRefresh: _loadCards,
+                        child: GridView.builder(
+                          padding: EdgeInsets.all(16),
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 12,
+                            mainAxisSpacing: 12,
+                            childAspectRatio: 3 / 2,
+                          ),
+                          itemCount: cards.length,
+                          itemBuilder: (context, index) {
+                            final card = cards[index];
+                            return GestureDetector(
+                              onTap: () {
+                                // TODO: navigate to detail/edit
+                              },
+                              child: Card(
+                                elevation: 2,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                clipBehavior: Clip.antiAlias,
+                                child: Container(
+                                  color: Colors.green[600],
+                                  alignment: Alignment.center,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(12.0),
+                                    child: Text(
+                                      _displayName(card),
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      maxLines: 3,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ),
                               ),
-                            ),
-                          );
-                        },
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
-                            color: Colors.grey[200],
-                            child: Icon(
-                              Icons.error_outline,
-                              color: Colors.grey[400],
-                              size: 40,
-                            ),
-                          );
-                        },
+                            );
+                          },
+                        ),
                       ),
-                    ),
-                  );
-                },
-              ),
-            ),
           ),
         ],
       ),
