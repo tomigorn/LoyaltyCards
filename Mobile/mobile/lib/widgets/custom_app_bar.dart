@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../screens/login_screen.dart';
+import '../services/auth_service.dart'; // Import AuthService
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -31,11 +32,13 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               label: Text('Settings'),
             ),
             TextButton.icon(
-              onPressed: () {
+              onPressed: () async {
+                final authService = AuthService();
+                await authService.logout();
                 Navigator.pop(context);
-                Navigator.pushAndRemoveUntil(
+                Navigator.pushNamedAndRemoveUntil(
                   context,
-                  MaterialPageRoute(builder: (context) => LoginScreen()),
+                  '/login',
                   (route) => false,
                 );
               },

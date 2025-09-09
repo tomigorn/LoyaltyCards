@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:mobile/screens/card_list_screen.dart';
+import 'package:mobile/services/auth_service.dart';
 import 'screens/login_screen.dart';
 import 'api_config.dart';
 import 'package:flutter/foundation.dart';
@@ -22,11 +24,16 @@ Future<void> main() async {
   final environment = const String.fromEnvironment('ENV', defaultValue: 'dev');
   await ApiConfig.load(environment);
 
-  runApp(const MyApp());
+  final authService = AuthService();
+  final isLoggedIn = await authService.isLoggedIn();
+
+  runApp(MyApp(initialRoute: isLoggedIn ? '/cards' : '/login'));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final String initialRoute;
+
+  const MyApp({super.key, required this.initialRoute});
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +43,11 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const LoginScreen(),
+      initialRoute: initialRoute,
+      routes: {
+        '/login': (context) => const LoginScreen(),
+        '/cards': (context) => CardListPage(),
+      },
     );
   }
 }
