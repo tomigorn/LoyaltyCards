@@ -86,6 +86,28 @@
             ],
             "flutterMode": "debug",
             "deviceId": "linux"
+        },
+        {
+            "name": "Flutter Windows DEV",
+            "request": "launch",
+            "type": "dart",
+            "program": "Mobile/mobile/lib/main.dart",
+            "args": [
+                "--dart-define=ENV=dev"
+            ],
+            "flutterMode": "debug",
+            "deviceId": "windows"
+        },
+        {
+            "name": "Flutter Windows INT",
+            "request": "launch",
+            "type": "dart",
+            "program": "Mobile/mobile/lib/main.dart",
+            "args": [
+                "--dart-define=ENV=int"
+            ],
+            "flutterMode": "debug",
+            "deviceId": "windows"
         }
     ]
 }
