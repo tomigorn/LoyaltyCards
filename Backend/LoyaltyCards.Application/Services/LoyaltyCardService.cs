@@ -27,7 +27,7 @@ public class LoyaltyCardService
         return cards;
     }
 
-    public void CreateCard(string nickname, string storeName, string barcodeNumber, Guid userId)
+    public void CreateCard(string nickname, string? storeName, string barcodeNumber, Guid userId)
     {
         var card = new LoyaltyCard
         {

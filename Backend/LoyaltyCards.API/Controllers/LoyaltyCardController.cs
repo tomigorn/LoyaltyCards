@@ -29,11 +29,9 @@ namespace LoyaltyCards.API.Controllers
                 }
                 var userGuid = Guid.Parse(userId);
 
-                var storeName = request.StoreName ?? request.Nickname;
-
                 _loyaltyCardService.CreateCard(
                     request.Nickname,
-                    storeName,
+                    request.StoreName,
                     request.BarcodeNumber,
                     userGuid
                 );
