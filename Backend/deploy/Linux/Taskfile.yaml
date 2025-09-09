@@ -5,12 +5,12 @@ dotenv: ['/home/pi/Documents/development/LoyaltyCards/secrets/.env']
 
 # Global variables
 vars:
+  MANUAL_VERSION_PICKED: 'false'
+  MANUAL_VERSION: '0.1.3'
   COMPOSE_PROJECT_NAME: '{{.PROJECT_BASE_NAME}}-app'
   BACKEND_DEPLOY_DIR: '/home/pi/Documents/development/LoyaltyCards'
   BACKEND_SOURCE_DIR: '{{.BACKEND_DEPLOY_DIR}}/source/LoyaltyCards/Backend'
   DOCKER_DEPLOYMENT_DIR: '/home/pi/docker/development/loyalty-cards-app'
-  VERSION:
-    sh: grep -o '<Version>.*</Version>' {{.BACKEND_SOURCE_DIR}}/Directory.Build.props | sed 's/<Version>\(.*\)<\/Version>/\1/'
   START_TIME:
         sh: date +%s > /tmp/deploy_start_time && cat /tmp/deploy_start_time
 
@@ -22,33 +22,73 @@ tasks:
       - |
         cd {{.BACKEND_DEPLOY_DIR}}/source/LoyaltyCards &&
         git fetch origin main &&
+        git checkout main &&
         git reset --hard origin/main &&
-        git pull origin main
+        git pull origin main &&
+        git pull --tags
+
+  specify-version:
+    desc: Specify version for deployment
+    cmds:
+      - |
+        cd {{.BACKEND_SOURCE_DIR}}
+        LATEST_TAG=$(git tag --sort=-creatordate | head -n1)
+        LATEST_TAG_NO_V="${LATEST_TAG#v}"
+        if [ "{{.MANUAL_VERSION_PICKED}}" = "true" ]; then
+          VERSION="{{.MANUAL_VERSION}}"
+          echo "Manual version picked: $VERSION"
+        else
+          VERSION=$(grep -oPm1 '(?<=<Version>)[^<]+' Directory.Build.props)
+          echo "Version from Directory.Build.props: $VERSION"
+          if [ "$VERSION" != "$LATEST_TAG_NO_V" ]; then
+            echo "ERROR: Version in Directory.Build.props ($VERSION) does not match latest git tag ($LATEST_TAG_NO_V)" >&2
+            exit 1
+          fi
+        fi
+        echo "$VERSION" > /tmp/deploy_version
 
   copy-secrets:
     desc: Copy secrets to source directory
     cmds:
       - cp {{.BACKEND_DEPLOY_DIR}}/secrets/appsettings.Production.json {{.BACKEND_SOURCE_DIR}}/LoyaltyCards.API/appsettings.Production.json
 
-  version:
+  checkout-version:
     desc: Show current version
     cmds:
-      - echo Current version is {{.VERSION}}
+      - |
+        VERSION=$(cat /tmp/deploy_version)
+        cd {{.BACKEND_SOURCE_DIR}} &&
+        if [ "{{.MANUAL_VERSION_PICKED}}" = "true" ]; then
+          echo "Checking out tag v$VERSION...";
+          git checkout "v$VERSION";
+        else
+          echo "Current version is $VERSION (latest tag, no checkout performed)";
+        fi
 
   build-and-push-docker-image:
     desc: Build and push Docker image to Docker Hub
     cmds:
-      - echo "Building Docker image version {{.VERSION}}"
+      - echo "Building Docker image version $(cat /tmp/deploy_version)"
       - echo "{{.DOCKER_HUB_TOKEN}}" | docker login -u {{.DOCKER_HUB_USERNAME}} --password-stdin
       - docker buildx create --use
-      - docker buildx build --platform linux/arm64 
-          -t {{.DOCKER_HUB_USERNAME}}/loyaltycardsbackend:{{.VERSION}} 
-          -t {{.DOCKER_HUB_USERNAME}}/loyaltycardsbackend:latest 
-          -f {{.BACKEND_SOURCE_DIR}}/LoyaltyCards.API/Dockerfile 
-          --push 
-          {{.BACKEND_SOURCE_DIR}}
+      - |
+        VERSION=$(cat /tmp/deploy_version)
+        if [ "{{.MANUAL_VERSION_PICKED}}" = "false" ]; then
+          docker buildx build --platform linux/arm64 \
+            -t {{.DOCKER_HUB_USERNAME}}/loyaltycardsbackend:$VERSION \
+            -t {{.DOCKER_HUB_USERNAME}}/loyaltycardsbackend:latest \
+            -f {{.BACKEND_SOURCE_DIR}}/LoyaltyCards.API/Dockerfile \
+            --push \
+            {{.BACKEND_SOURCE_DIR}}
+        else
+          docker buildx build --platform linux/arm64 \
+            -t {{.DOCKER_HUB_USERNAME}}/loyaltycardsbackend:$VERSION \
+            -f {{.BACKEND_SOURCE_DIR}}/LoyaltyCards.API/Dockerfile \
+            --push \
+            {{.BACKEND_SOURCE_DIR}}
+        fi
       - docker logout
-      - echo "Docker image version {{.VERSION}} built and pushed successfully"
+      - echo "Docker image version $VERSION built and pushed successfully"
 
   deploy-on-pi:
     desc: Deploy application on RaspberryPi
@@ -56,12 +96,13 @@ tasks:
       - cp {{.BACKEND_SOURCE_DIR}}/deploy/docker-compose.yaml {{.DOCKER_DEPLOYMENT_DIR}}/docker-compose.yaml
       - cp {{.BACKEND_DEPLOY_DIR}}/secrets/.env {{.DOCKER_DEPLOYMENT_DIR}}/.env
       - |
+        VERSION=$(cat /tmp/deploy_version)
         cd {{.DOCKER_DEPLOYMENT_DIR}} &&
           export COMPOSE_PROJECT_NAME={{.COMPOSE_PROJECT_NAME}} &&
           export PROJECT_BASE_NAME={{.PROJECT_BASE_NAME}} &&
-          export VERSION={{.VERSION}} &&
+          export VERSION=$VERSION &&
           export DOCKER_HUB_USERNAME={{.DOCKER_HUB_USERNAME}} &&
-          docker pull {{.DOCKER_HUB_USERNAME}}/loyaltycardsbackend:{{.VERSION}} &&
+          docker pull {{.DOCKER_HUB_USERNAME}}/loyaltycardsbackend:$VERSION &&
           docker compose down --volumes=false || true &&
           docker compose up -d
       - echo "Docker Container deployed successfully"
@@ -80,8 +121,9 @@ tasks:
     desc: Full deployment process
     cmds:
       - task: git-pull
+      - task: specify-version
       - task: copy-secrets
-      - task: version
+      - task: checkout-version
       - task: build-and-push-docker-image
       - task: deploy-on-pi
       - task: time-tracking
