@@ -123,7 +123,6 @@ class _CardDetailsDialogState extends State<CardDetailsDialog> {
 
   @override
   Widget build(BuildContext context) {
-    // Choose content and actions by a single conditional
     final Widget content = isEditing
         ? _CardEditForm(
             nicknameController: nicknameController,
@@ -155,12 +154,10 @@ class _CardDetailsDialogState extends State<CardDetailsDialog> {
       ),
     );
 
-    // Compact, nicely spaced row of actions shown while editing.
     final Widget editActionsRow = Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
       child: Row(
         children: [
-          // Delete: outlined with red accent
           Expanded(
             child: OutlinedButton(
               style: OutlinedButton.styleFrom(
@@ -176,7 +173,6 @@ class _CardDetailsDialogState extends State<CardDetailsDialog> {
           ),
           const SizedBox(width: 8),
 
-          // Cancel
           Expanded(
             child: TextButton(
               onPressed: isSaving ? null : _cancelEdit,
@@ -186,7 +182,6 @@ class _CardDetailsDialogState extends State<CardDetailsDialog> {
           ),
           const SizedBox(width: 8),
 
-          // Save: primary action
           Expanded(
             child: ElevatedButton(
               onPressed: isSaving ? null : _saveCard,
@@ -218,7 +213,6 @@ class _CardDetailsDialogState extends State<CardDetailsDialog> {
   }
 }
 
-/// Stateless widget that renders the read-only details.
 class _CardDetailsView extends StatelessWidget {
   final Map<String, dynamic> card;
   const _CardDetailsView({Key? key, required this.card}) : super(key: key);
@@ -251,7 +245,6 @@ class _CardDetailsView extends StatelessWidget {
       }
     }
 
-    // parse and format creation date if present
     final String rawCreation = (card['creationDate'] ?? '').toString().trim();
     String? formattedCreation;
     if (rawCreation.isNotEmpty) {
@@ -271,11 +264,9 @@ class _CardDetailsView extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // barcode at top
         if (barcodeNumber.isNotEmpty) barcodeWidget,
         const SizedBox(height: 8),
 
-        // store name
         const Text('Store Name', style: TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(height: 4),
         Text(card['storeName'] ?? ''),
@@ -312,7 +303,6 @@ class _CardDetailsView extends StatelessWidget {
   }
 }
 
-/// Stateless widget that renders the edit form.
 class _CardEditForm extends StatelessWidget {
   final TextEditingController nicknameController;
   final TextEditingController storeNameController;
@@ -327,7 +317,6 @@ class _CardEditForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Keep layout simple; parent handles save/cancel/delete callbacks
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [

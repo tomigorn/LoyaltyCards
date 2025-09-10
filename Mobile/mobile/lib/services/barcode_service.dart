@@ -1,22 +1,8 @@
 import 'package:barcode/barcode.dart';
 
-/// Simple utility service to generate barcode SVG strings from numeric (or alphanumeric)
-/// loyalty card numbers. The service focuses on generation only — rendering in the UI
-/// is left to the widget that consumes the SVG.
-///
-/// Note: this file depends on the `barcode` package. Add it to your project:
-///   flutter pub add barcode
-///
-/// Example:
-///   final svg = BarcodeService.generateSvgForNumber('1234567890123');
-///   // pass `svg` into a widget that can render SVG (e.g. flutter_svg)
-///
 enum BarcodeType { code128, ean13, ean8, qr }
 
 class BarcodeService {
-  /// Generate an SVG barcode for [data] using explicit [type].
-  /// Width/height control the output SVG dimensions.
-  /// Throws an Exception when generation fails (invalid input for chosen type).
   static String generateSvg(
     String data, {
     BarcodeType type = BarcodeType.code128,
@@ -42,7 +28,6 @@ class BarcodeService {
     }
 
     try {
-      // Barcode.toSvg will throw if the data is invalid for the selected barcode type.
       return barcode.toSvg(
         data,
         width: width,

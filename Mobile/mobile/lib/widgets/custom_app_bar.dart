@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import '../services/auth_service.dart'; // Import AuthService
+import '../services/auth_service.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
-  final List<Widget>? additionalActions; // Optional extra actions
-  final VoidCallback? onSortPressed; // new: optional sort callback
+  final List<Widget>? additionalActions;
+  final VoidCallback? onSortPressed;
 
   const CustomAppBar({
     super.key,
@@ -60,12 +60,10 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     List<Widget> actions = [];
     
-    // Add any additional actions passed in
     if (additionalActions != null) {
       actions.addAll(additionalActions!);
     }
 
-    // add sort button at top-right when a callback is provided
     if (onSortPressed != null) {
       actions.add(
         Padding(
@@ -87,15 +85,11 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         ),
       );
     }
-    
-    // keep actions as-is (profile moved to the left as leading)
  
     return AppBar(
       backgroundColor: Colors.white,
       elevation: 1,
-      // Title removed as requested
       title: const SizedBox.shrink(),
-      // moved profile button to the left
       leadingWidth: 56,
       leading: Align(
         alignment: Alignment.centerLeft,
@@ -107,7 +101,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             backgroundColor: Colors.blue[100],
             child: Icon(Icons.person, color: Colors.blue[700], size: 30),
           ),
-          tooltip: 'Profile',
         ),
       ),
       actions: actions,

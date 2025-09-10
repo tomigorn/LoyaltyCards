@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../widgets/custom_app_bar.dart';
 import '../services/loyalty_card_service.dart';
 import '../services/auth_service.dart';
-import '../widgets/card_details_dialog.dart'; // added import
+import '../widgets/card_details_dialog.dart';
 
 enum SortField { alphabetical, dateAdded }
 
@@ -64,7 +64,6 @@ class _CardListPageState extends State<CardListPage> {
           final cmp = aName.compareTo(bName);
           return _ascending ? cmp : -cmp;
         } else {
-          // dateAdded
           DateTime parseDate(Map<String, dynamic> m) {
             final raw = (m['creationDate'] ?? '').toString().trim();
             if (raw.isEmpty) return DateTime.fromMillisecondsSinceEpoch(0);
@@ -84,7 +83,6 @@ class _CardListPageState extends State<CardListPage> {
     });
   }
 
-  /// Cycle through sort modes on single tap: alpha ↑ -> alpha ↓ -> date ↑ -> date ↓ -> alpha ↑
   void _cycleSort() {
     setState(() {
       if (_sortField == SortField.alphabetical) {
@@ -130,7 +128,6 @@ class _CardListPageState extends State<CardListPage> {
                         : null,
                   ),
                   onTap: () {
-                    // update both sheet-local UI and parent state, but don't close the sheet
                     setModalState(() {
                       if (_sortField == SortField.alphabetical) {
                         _ascending = !_ascending;
@@ -231,7 +228,6 @@ class _CardListPageState extends State<CardListPage> {
                     : () async {
                         if (!_formKey.currentState!.validate()) return;
 
-                        // start saving
                         setDialogState(() => isSaving = true);
                         final payload = {
                           'nickname': nicknameController.text.trim(),
@@ -290,9 +286,7 @@ class _CardListPageState extends State<CardListPage> {
 
   @override
   Widget build(BuildContext context) {
-  // make grid responsive so cards can grow to nearly full width on small windows
   final double width = MediaQuery.of(context).size.width;
-  // keep two columns for most small windows; only collapse to single column under 200px
   final int responsiveColumns = width >= 200 ? 2 : 1;
 
   return Scaffold(
