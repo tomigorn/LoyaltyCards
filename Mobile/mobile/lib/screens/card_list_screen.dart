@@ -252,10 +252,59 @@ class _CardListPageState extends State<CardListPage> {
               ),
             ),
             actions: [
-              TextButton(
-                onPressed: isSaving ? null : () => Navigator.of(context).pop(),
-                child: Text('Close'),
-              ),
+              if (isEditing)
+                TextButton(
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.red,
+                  ),
+                  onPressed: isSaving
+                      ? null
+                      : () async {
+                          final confirmed = await showDialog<bool>(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: Text('Delete Card'),
+                                content: Text('Are you sure you want to delete this card?'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.of(context).pop(false),
+                                    child: Text('Cancel'),
+                                  ),
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                                    onPressed: () => Navigator.of(context).pop(true),
+                                    child: Text('Delete'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                          if (confirmed != true) return;
+                          setDialogState(() => isSaving = true);
+                          try {
+                            final token = await AuthService().getToken();
+                            await LoyaltyCardService.delete(card['id'].toString(), token: token);
+                            Navigator.of(context).pop(); // close details dialog
+                            await _loadCards();
+                            ScaffoldMessenger.of(this.context).showSnackBar(
+                              SnackBar(content: Text('Card deleted')),
+                            );
+                          } catch (e) {
+                            setDialogState(() => isSaving = false);
+                            ScaffoldMessenger.of(this.context)
+                                .showSnackBar(SnackBar(content: Text('Failed to delete: $e')));
+                          }
+                        },
+                  child: isSaving
+                      ? SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                      : Text('Delete'),
+                ),
+              if (!isEditing)
+                TextButton(
+                  onPressed: isSaving ? null : () => Navigator.of(context).pop(),
+                  child: Text('Close'),
+                ),
               if (!isEditing)
                 TextButton(
                   onPressed: isSaving ? null : () => setDialogState(() => isEditing = true),
