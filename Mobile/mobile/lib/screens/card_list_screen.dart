@@ -313,25 +313,25 @@ class _CardListPageState extends State<CardListPage> {
                           itemCount: cards.length,
                           itemBuilder: (context, index) {
                             final card = cards[index];
-                            return GestureDetector(
-                              onTap: () {
-                                _showCardDetails(card);
-                              },
-                              child: Card(
-                                elevation: 2,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                clipBehavior: Clip.antiAlias,
-                                child: Container(
-                                  color: Colors.green[600],
-                                  alignment: Alignment.center,
+                            return Card(
+                              color: Colors.green[600],
+                              elevation: 2,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              clipBehavior: Clip.antiAlias,
+                              child: InkWell(
+                                onTap: () => _showCardDetails(card),
+                                hoverColor: Colors.black12,
+                                splashColor: Colors.white24,
+                                borderRadius: BorderRadius.circular(12),
+                                child: Center(
                                   child: Padding(
                                     padding: const EdgeInsets.all(12.0),
                                     child: Text(
                                       _displayName(card),
                                       textAlign: TextAlign.center,
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         color: Colors.white,
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
