@@ -19,7 +19,25 @@ Future<void> main() async {
     setWindowTitle('My App');
     setWindowMinSize(const Size(phoneWidth, phoneHeight));
     setWindowMaxSize(const Size(phoneWidth, phoneHeight));
-    setWindowFrame(const Rect.fromLTWH(100, 100, phoneWidth, phoneHeight));
+
+    // Position the window near the right edge of the primary display.
+    // This queries the screen visible frame and positions the window
+    // so its right edge is 100px from the screen right edge.
+    try {
+      final info = await getWindowInfo();
+      final screenFrame = info.screen?.visibleFrame;
+      if (screenFrame != null) {
+        final double left = (screenFrame.right - phoneWidth - 100).clamp(screenFrame.left, screenFrame.right - phoneWidth);
+        final double top = (screenFrame.top + 100).clamp(screenFrame.top, screenFrame.bottom - phoneHeight);
+        setWindowFrame(Rect.fromLTWH(left, top, phoneWidth, phoneHeight));
+      } else {
+        // Fallback: small offset from top-left
+        setWindowFrame(const Rect.fromLTWH(100, 100, phoneWidth, phoneHeight));
+      }
+    } catch (_) {
+      // Some platforms or environments may not support getWindowInfo or may throw.
+      setWindowFrame(const Rect.fromLTWH(100, 100, phoneWidth, phoneHeight));
+    }
   }
 
   // Get environment from --dart-define or default to 'dev'
