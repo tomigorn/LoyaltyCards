@@ -251,6 +251,22 @@ class _CardDetailsView extends StatelessWidget {
       }
     }
 
+    // parse and format creation date if present
+    final String rawCreation = (card['creationDate'] ?? '').toString().trim();
+    String? formattedCreation;
+    if (rawCreation.isNotEmpty) {
+      DateTime? dt = DateTime.tryParse(rawCreation);
+      if (dt == null) {
+        final millis = int.tryParse(rawCreation);
+        if (millis != null) dt = DateTime.fromMillisecondsSinceEpoch(millis);
+      }
+      if (dt != null) {
+        final local = dt.toLocal();
+        String two(int n) => n.toString().padLeft(2, '0');
+        formattedCreation = '${local.year}-${two(local.month)}-${two(local.day)} ${two(local.hour)}:${two(local.minute)}';
+      }
+    }
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -258,9 +274,39 @@ class _CardDetailsView extends StatelessWidget {
         // barcode at top
         if (barcodeNumber.isNotEmpty) barcodeWidget,
         const SizedBox(height: 8),
+
+        // store name
         const Text('Store Name', style: TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(height: 4),
         Text(card['storeName'] ?? ''),
+        // spacer before the bottom-right creation date
+        const SizedBox(height: 12),
+
+        // creation date (small, right-aligned)
+        if (formattedCreation != null)
+          Align(
+            alignment: Alignment.centerRight,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  'Created',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  formattedCreation,
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ],
+            ),
+          ),
       ],
     );
   }
