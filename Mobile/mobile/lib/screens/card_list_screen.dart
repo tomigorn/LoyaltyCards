@@ -4,6 +4,8 @@ import '../services/loyalty_card_service.dart';
 import '../services/auth_service.dart';
 import '../widgets/card_details_dialog.dart'; // added import
 
+enum SortField { alphabetical, dateAdded }
+
 class CardListPage extends StatefulWidget {
   @override
   _CardListPageState createState() => _CardListPageState();
@@ -13,6 +15,8 @@ class _CardListPageState extends State<CardListPage> {
   List<Map<String, dynamic>> cards = [];
   bool isLoading = true;
   String? error;
+  SortField _sortField = SortField.alphabetical;
+  bool _ascending = true;
 
   @override
   void initState() {
@@ -32,6 +36,7 @@ class _CardListPageState extends State<CardListPage> {
       setState(() {
         cards = result;
       });
+      _applySort();
     } catch (e) {
       setState(() {
         error = e.toString();
@@ -46,53 +51,122 @@ class _CardListPageState extends State<CardListPage> {
     }
   }
 
+  void _applySort() {
+    setState(() {
+      cards.sort((a, b) {
+        if (_sortField == SortField.alphabetical) {
+          final aName = (a['nickname'] ?? a['title'] ?? a['storeName'] ?? '')
+              .toString()
+              .toLowerCase();
+          final bName = (b['nickname'] ?? b['title'] ?? b['storeName'] ?? '')
+              .toString()
+              .toLowerCase();
+          final cmp = aName.compareTo(bName);
+          return _ascending ? cmp : -cmp;
+        } else {
+          // dateAdded
+          DateTime parseDate(Map<String, dynamic> m) {
+            final raw = (m['creationDate'] ?? '').toString().trim();
+            if (raw.isEmpty) return DateTime.fromMillisecondsSinceEpoch(0);
+            var dt = DateTime.tryParse(raw);
+            if (dt != null) return dt;
+            final millis = int.tryParse(raw);
+            if (millis != null) return DateTime.fromMillisecondsSinceEpoch(millis);
+            return DateTime.fromMillisecondsSinceEpoch(0);
+          }
+
+          final da = parseDate(a);
+          final db = parseDate(b);
+          final cmp = da.compareTo(db);
+          return _ascending ? cmp : -cmp;
+        }
+      });
+    });
+  }
+
+  /// Cycle through sort modes on single tap: alpha ↑ -> alpha ↓ -> date ↑ -> date ↓ -> alpha ↑
+  void _cycleSort() {
+    setState(() {
+      if (_sortField == SortField.alphabetical) {
+        if (_ascending) {
+          _ascending = false;
+        } else {
+          _sortField = SortField.dateAdded;
+          _ascending = true;
+        }
+      } else {
+        if (_ascending) {
+          _ascending = false;
+        } else {
+          _sortField = SortField.alphabetical;
+          _ascending = true;
+        }
+      }
+      _applySort();
+    });
+    final label = _sortField == SortField.alphabetical ? 'Alphabetical' : 'Date Added';
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Sorted: $label ${_ascending ? 'ascending' : 'descending'}'), duration: Duration(milliseconds: 700)),
+    );
+  }
+
   void _showSortOptions() {
     showModalBottomSheet(
       context: context,
+      isDismissible: true, // allow tapping outside to close
       builder: (BuildContext context) {
-        return Container(
-          padding: EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Sort by',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 16),
-              ListTile(
-                leading: Icon(Icons.sort),
-                title: Text('Default'),
-                onTap: () {
-                  setState(() {
-                    // Add your sorting logic here
-                  });
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.sort_by_alpha),
-                title: Text('Alphabetical'),
-                onTap: () {
-                  setState(() {
-                    // Add your sorting logic here
-                  });
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.access_time),
-                title: Text('Date Added'),
-                onTap: () {
-                  setState(() {
-                    // Add your sorting logic here
-                  });
-                  Navigator.pop(context);
-                },
-              ),
-            ],
-          ),
-        );
+        return StatefulBuilder(builder: (context, setModalState) {
+          return Container(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.sort_by_alpha),
+                  title: const Text('Alphabetical'),
+                  trailing: Icon(
+                    _sortField == SortField.alphabetical
+                        ? (_ascending ? Icons.arrow_upward : Icons.arrow_downward)
+                        : null,
+                  ),
+                  onTap: () {
+                    // update both sheet-local UI and parent state, but don't close the sheet
+                    setModalState(() {
+                      if (_sortField == SortField.alphabetical) {
+                        _ascending = !_ascending;
+                      } else {
+                        _sortField = SortField.alphabetical;
+                        _ascending = true;
+                      }
+                    });
+                    // apply sort immediately so user can preview results while sheet remains open
+                    setState(() => _applySort());
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.access_time),
+                  title: const Text('Date Added'),
+                  trailing: Icon(
+                    _sortField == SortField.dateAdded
+                        ? (_ascending ? Icons.arrow_upward : Icons.arrow_downward)
+                        : null,
+                  ),
+                  onTap: () {
+                    setModalState(() {
+                      if (_sortField == SortField.dateAdded) {
+                        _ascending = !_ascending;
+                      } else {
+                        _sortField = SortField.dateAdded;
+                        _ascending = true;
+                      }
+                    });
+                    setState(() => _applySort());
+                  },
+                ),
+              ],
+            ),
+          );
+        });
       },
     );
   }
@@ -232,10 +306,8 @@ class _CardListPageState extends State<CardListPage> {
                   '${cards.length} items',
                   style: TextStyle(color: Colors.grey[600], fontSize: 14),
                 ),
-                ElevatedButton.icon(
+                ElevatedButton(
                   onPressed: _showSortOptions,
-                  icon: Icon(Icons.sort, size: 18),
-                  label: Text('Sort'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: Colors.black87,
@@ -244,7 +316,9 @@ class _CardListPageState extends State<CardListPage> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   ),
+                  child: const Icon(Icons.sort, size: 20),
                 ),
               ],
             ),
