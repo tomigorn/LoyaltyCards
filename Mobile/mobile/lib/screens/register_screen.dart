@@ -212,6 +212,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 TextFormField(
                   controller: _confirmPasswordController,
                   obscureText: !_isPasswordVisible,
+                  textInputAction: TextInputAction.done,
+                  onFieldSubmitted: (_) => _register(),
                   decoration: InputDecoration(
                     hintText: 'Confirm Password',
                     prefixIcon: const Icon(Icons.lock_outline),
