@@ -201,10 +201,16 @@ class _CardDetailsDialogState extends State<CardDetailsDialog> {
     );
 
     return AlertDialog(
-      // smaller title
       title: Text(
-        isEditing ? 'Edit Card' : 'Card Details',
-        style: const TextStyle(fontSize: 16),
+        isEditing
+            ? 'Edit Card'
+            : ((card['nickname'] ?? '').toString().trim().isNotEmpty
+                ? (card['nickname'] ?? '')
+                : 'Card Details'),
+        style: TextStyle(
+          fontSize: isEditing ? 16 : 18,
+          fontWeight: isEditing ? FontWeight.w600 : FontWeight.bold,
+        ),
       ),
       content: SingleChildScrollView(child: content),
       actions: isEditing ? [editActionsRow] : [viewActionsRow],
@@ -252,10 +258,6 @@ class _CardDetailsView extends StatelessWidget {
         // barcode at top
         if (barcodeNumber.isNotEmpty) barcodeWidget,
         const SizedBox(height: 8),
-        const Text('Nickname', style: TextStyle(fontWeight: FontWeight.bold)),
-        const SizedBox(height: 4),
-        Text(card['nickname'] ?? ''),
-        const SizedBox(height: 12),
         const Text('Store Name', style: TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(height: 4),
         Text(card['storeName'] ?? ''),
