@@ -290,7 +290,12 @@ class _CardListPageState extends State<CardListPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+  // make grid responsive so cards can grow to nearly full width on small windows
+  final double width = MediaQuery.of(context).size.width;
+  // keep two columns for most small windows; only collapse to single column under 200px
+  final int responsiveColumns = width >= 200 ? 2 : 1;
+
+  return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: CustomAppBar(
         title: 'Cards',
@@ -306,14 +311,10 @@ class _CardListPageState extends State<CardListPage> {
                     : RefreshIndicator(
                         onRefresh: _loadCards,
                         child: GridView.builder(
-                          // reduce top spacing so cards sit closer to the app bar
-                          padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                          gridDelegate:
-                              SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            crossAxisSpacing: 12,
-                            mainAxisSpacing: 12,
-                            childAspectRatio: 3 / 2,
+                    padding: const EdgeInsets.fromLTRB(8, 6, 8, 8),
+                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: responsiveColumns,
+                                            childAspectRatio: responsiveColumns == 1 ? 1.4 : 1.25,
                           ),
                           itemCount: cards.length,
                           itemBuilder: (context, index) {
