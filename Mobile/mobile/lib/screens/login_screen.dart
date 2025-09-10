@@ -180,7 +180,17 @@ class _LoginScreenState extends State<LoginScreen> {
                       MaterialPageRoute(
                         builder: (context) => const RegisterScreen(),
                       ),
-                    );
+                    ).then((_) {
+                      // Clear the form when returning from the register screen
+                      if (!mounted) return;
+                      _emailController.clear();
+                      _passwordController.clear();
+                      setState(() {
+                        _showValidation = false;
+                        _loginError = null;
+                        _isPasswordVisible = false;
+                      });
+                    });
                   },
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
