@@ -259,10 +259,6 @@ class _CardDetailsView extends StatelessWidget {
         const Text('Store Name', style: TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(height: 4),
         Text(card['storeName'] ?? ''),
-        const SizedBox(height: 12),
-        const Text('Barcode', style: TextStyle(fontWeight: FontWeight.bold)),
-        const SizedBox(height: 4),
-        Text(barcodeNumber.isNotEmpty ? barcodeNumber : (card['barcodeNumber'] ?? '')),
       ],
     );
   }
