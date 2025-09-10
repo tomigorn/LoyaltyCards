@@ -38,6 +38,8 @@ dependencies:
   email_validator: ^3.0.0
   window_size: ^0.1.0
   shared_preferences: ^2.5.3
+  barcode: ^2.2.9
+  flutter_svg: ^2.2.1
   # Comment out Firebase dependencies for now
   # google_sign_in: ^6.1.5
   # firebase_auth: ^4.10.0

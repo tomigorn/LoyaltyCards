@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../services/auth_service.dart';
 import '../services/loyalty_card_service.dart';
+import '../services/barcode_service.dart';
 
 class CardDetailsDialog extends StatefulWidget {
   final Map<String, dynamic> card;
@@ -130,11 +132,6 @@ class _CardDetailsDialogState extends State<CardDetailsDialog> {
           )
         : _CardDetailsView(card: card);
 
-    final List<Widget> viewActions = [
-      // use same spaced row style as editActionsRow for consistent spacing
-      // (we'll convert this list into a single row widget below)
-    ];
-
     final Widget viewActionsRow = Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
       child: Row(
@@ -204,7 +201,11 @@ class _CardDetailsDialogState extends State<CardDetailsDialog> {
     );
 
     return AlertDialog(
-      title: Text(isEditing ? 'Edit Card' : 'Card Details'),
+      // smaller title
+      title: Text(
+        isEditing ? 'Edit Card' : 'Card Details',
+        style: const TextStyle(fontSize: 16),
+      ),
       content: SingleChildScrollView(child: content),
       actions: isEditing ? [editActionsRow] : [viewActionsRow],
     );
@@ -218,10 +219,39 @@ class _CardDetailsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final String barcodeNumber = (card['barcodeNumber'] ?? '').toString().trim();
+    Widget barcodeWidget = const SizedBox.shrink();
+
+    if (barcodeNumber.isNotEmpty) {
+      try {
+        final svg = BarcodeService.generateSvgForNumber(barcodeNumber, width: 320, height: 100, drawText: true);
+        barcodeWidget = SizedBox(
+          width: double.infinity,
+          height: 110,
+          child: Center(
+            child: SvgPicture.string(
+              svg,
+              width: double.infinity,
+              height: 100,
+              fit: BoxFit.contain,
+            ),
+          ),
+        );
+      } catch (e) {
+        barcodeWidget = Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12.0),
+          child: Text('Unable to render barcode: $e', style: TextStyle(color: Colors.red[700])),
+        );
+      }
+    }
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // barcode at top
+        if (barcodeNumber.isNotEmpty) barcodeWidget,
+        const SizedBox(height: 8),
         const Text('Nickname', style: TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(height: 4),
         Text(card['nickname'] ?? ''),
@@ -232,7 +262,7 @@ class _CardDetailsView extends StatelessWidget {
         const SizedBox(height: 12),
         const Text('Barcode', style: TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(height: 4),
-        Text(card['barcodeNumber'] ?? ''),
+        Text(barcodeNumber.isNotEmpty ? barcodeNumber : (card['barcodeNumber'] ?? '')),
       ],
     );
   }
