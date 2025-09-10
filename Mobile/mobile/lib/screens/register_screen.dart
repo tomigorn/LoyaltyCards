@@ -184,16 +184,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   decoration: InputDecoration(
                     hintText: 'Password',
                     prefixIcon: const Icon(Icons.lock_outline),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _isPasswordVisible = !_isPasswordVisible;
-                        });
-                      },
-                    ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -217,6 +207,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   decoration: InputDecoration(
                     hintText: 'Confirm Password',
                     prefixIcon: const Icon(Icons.lock_outline),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _isPasswordVisible = !_isPasswordVisible;
+                        });
+                      },
+                    ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
