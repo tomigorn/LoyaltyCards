@@ -6,10 +6,10 @@ class CardDetailsDialog extends StatefulWidget {
   final Map<String, dynamic> card;
   const CardDetailsDialog({Key? key, required this.card}) : super(key: key);
 
-  /// Returns a map via Navigator.pop:
-  /// {'action': 'deleted'} when card was deleted,
-  /// {'action': 'updated'} when card was changed and dialog closed,
-  /// {'action': 'closed'} when closed with no changes.
+  /// Returns via Navigator.pop:
+  /// {'action': 'deleted'} when deleted,
+  /// {'action': 'updated'} when changed,
+  /// {'action': 'closed'} when closed without changes.
   @override
   State<CardDetailsDialog> createState() => _CardDetailsDialogState();
 }
@@ -19,6 +19,7 @@ class _CardDetailsDialogState extends State<CardDetailsDialog> {
   late TextEditingController nicknameController;
   late TextEditingController storeNameController;
   late TextEditingController barcodeController;
+
   bool isEditing = false;
   bool isSaving = false;
   bool _hasChanges = false;
@@ -90,7 +91,6 @@ class _CardDetailsDialogState extends State<CardDetailsDialog> {
       final token = await AuthService().getToken();
       await LoyaltyCardService.update(card['id'].toString(), payload, token: token);
 
-      // update local card and controllers, keep dialog open in view mode
       setState(() {
         card['nickname'] = payload['nickname'];
         card['storeName'] = payload['storeName'];
@@ -113,7 +113,6 @@ class _CardDetailsDialogState extends State<CardDetailsDialog> {
   }
 
   void _cancelEdit() {
-    // revert controllers
     nicknameController.text = card['nickname'] ?? '';
     storeNameController.text = card['storeName'] ?? '';
     barcodeController.text = card['barcodeNumber'] ?? '';
@@ -122,72 +121,105 @@ class _CardDetailsDialogState extends State<CardDetailsDialog> {
 
   @override
   Widget build(BuildContext context) {
+    // Choose content and actions by a single conditional
+    final Widget content = isEditing
+        ? _CardEditForm(
+            nicknameController: nicknameController,
+            storeNameController: storeNameController,
+            barcodeController: barcodeController,
+          )
+        : _CardDetailsView(card: card);
+
+    final List<Widget> viewActions = [
+      TextButton(
+        onPressed: isSaving ? null : () => Navigator.of(context).pop({'action': _hasChanges ? 'updated' : 'closed'}),
+        child: const Text('Close'),
+      ),
+      TextButton(
+        onPressed: isSaving ? null : () => setState(() => isEditing = true),
+        child: const Text('Edit'),
+      ),
+    ];
+
+    final List<Widget> editActions = [
+      TextButton(
+        style: TextButton.styleFrom(foregroundColor: Colors.red),
+        onPressed: isSaving ? null : _deleteCard,
+        child: isSaving
+            ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+            : const Text('Delete'),
+      ),
+      TextButton(
+        onPressed: isSaving ? null : _cancelEdit,
+        child: const Text('Cancel'),
+      ),
+      ElevatedButton(
+        onPressed: isSaving ? null : _saveCard,
+        child: isSaving
+            ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+            : const Text('Save'),
+      ),
+    ];
+
     return AlertDialog(
       title: Text(isEditing ? 'Edit Card' : 'Card Details'),
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (!isEditing) ...[
-              Align(alignment: Alignment.centerLeft, child: const Text('Nickname', style: TextStyle(fontWeight: FontWeight.bold))),
-              const SizedBox(height: 4),
-              Align(alignment: Alignment.centerLeft, child: Text(card['nickname'] ?? '')),
-              const SizedBox(height: 12),
-              Align(alignment: Alignment.centerLeft, child: const Text('Store Name', style: TextStyle(fontWeight: FontWeight.bold))),
-              const SizedBox(height: 4),
-              Align(alignment: Alignment.centerLeft, child: Text(card['storeName'] ?? '')),
-              const SizedBox(height: 12),
-              Align(alignment: Alignment.centerLeft, child: const Text('Barcode', style: TextStyle(fontWeight: FontWeight.bold))),
-              const SizedBox(height: 4),
-              Align(alignment: Alignment.centerLeft, child: Text(card['barcodeNumber'] ?? '')),
-            ] else ...[
-              TextField(controller: nicknameController, decoration: const InputDecoration(labelText: 'Nickname')),
-              const SizedBox(height: 12),
-              TextField(controller: storeNameController, decoration: const InputDecoration(labelText: 'Store Name')),
-              const SizedBox(height: 12),
-              TextField(controller: barcodeController, decoration: const InputDecoration(labelText: 'Barcode Number')),
-            ],
-          ],
-        ),
-      ),
-      actions: [
-        // Delete (left-most) - only while editing
-        if (isEditing)
-          TextButton(
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            onPressed: isSaving ? null : _deleteCard,
-            child: isSaving ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)) : const Text('Delete'),
-          ),
+      content: SingleChildScrollView(child: content),
+      actions: isEditing ? editActions : viewActions,
+    );
+  }
+}
 
-        // Close - only in view mode
-        if (!isEditing)
-          TextButton(
-            onPressed: isSaving
-                ? null
-                : () => Navigator.of(context).pop({'action': _hasChanges ? 'updated' : 'closed'}),
-            child: const Text('Close'),
-          ),
+/// Stateless widget that renders the read-only details.
+class _CardDetailsView extends StatelessWidget {
+  final Map<String, dynamic> card;
+  const _CardDetailsView({Key? key, required this.card}) : super(key: key);
 
-        // Edit - only in view mode
-        if (!isEditing)
-          TextButton(
-            onPressed: isSaving ? null : () => setState(() => isEditing = true),
-            child: const Text('Edit'),
-          ),
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Nickname', style: TextStyle(fontWeight: FontWeight.bold)),
+        const SizedBox(height: 4),
+        Text(card['nickname'] ?? ''),
+        const SizedBox(height: 12),
+        const Text('Store Name', style: TextStyle(fontWeight: FontWeight.bold)),
+        const SizedBox(height: 4),
+        Text(card['storeName'] ?? ''),
+        const SizedBox(height: 12),
+        const Text('Barcode', style: TextStyle(fontWeight: FontWeight.bold)),
+        const SizedBox(height: 4),
+        Text(card['barcodeNumber'] ?? ''),
+      ],
+    );
+  }
+}
 
-        // Cancel - only in edit mode
-        if (isEditing)
-          TextButton(
-            onPressed: isSaving ? null : _cancelEdit,
-            child: const Text('Cancel'),
-          ),
+/// Stateless widget that renders the edit form.
+class _CardEditForm extends StatelessWidget {
+  final TextEditingController nicknameController;
+  final TextEditingController storeNameController;
+  final TextEditingController barcodeController;
 
-        // Save - only in edit mode
-        if (isEditing)
-          ElevatedButton(
-            onPressed: isSaving ? null : _saveCard,
-            child: isSaving ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)) : const Text('Save'),
-          ),
+  const _CardEditForm({
+    Key? key,
+    required this.nicknameController,
+    required this.storeNameController,
+    required this.barcodeController,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    // Keep layout simple; parent handles save/cancel/delete callbacks
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        TextField(controller: nicknameController, decoration: const InputDecoration(labelText: 'Nickname')),
+        const SizedBox(height: 12),
+        TextField(controller: storeNameController, decoration: const InputDecoration(labelText: 'Store Name')),
+        const SizedBox(height: 12),
+        TextField(controller: barcodeController, decoration: const InputDecoration(labelText: 'Barcode Number')),
       ],
     );
   }
