@@ -131,40 +131,82 @@ class _CardDetailsDialogState extends State<CardDetailsDialog> {
         : _CardDetailsView(card: card);
 
     final List<Widget> viewActions = [
-      TextButton(
-        onPressed: isSaving ? null : () => Navigator.of(context).pop({'action': _hasChanges ? 'updated' : 'closed'}),
-        child: const Text('Close'),
-      ),
-      TextButton(
-        onPressed: isSaving ? null : () => setState(() => isEditing = true),
-        child: const Text('Edit'),
-      ),
+      // use same spaced row style as editActionsRow for consistent spacing
+      // (we'll convert this list into a single row widget below)
     ];
 
-    final List<Widget> editActions = [
-      TextButton(
-        style: TextButton.styleFrom(foregroundColor: Colors.red),
-        onPressed: isSaving ? null : _deleteCard,
-        child: isSaving
-            ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
-            : const Text('Delete'),
+    final Widget viewActionsRow = Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextButton(
+              onPressed: isSaving ? null : () => Navigator.of(context).pop({'action': _hasChanges ? 'updated' : 'closed'}),
+              style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 12)),
+              child: const Text('Close'),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: TextButton(
+              onPressed: isSaving ? null : () => setState(() => isEditing = true),
+              style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 12)),
+              child: const Text('Edit'),
+            ),
+          ),
+        ],
       ),
-      TextButton(
-        onPressed: isSaving ? null : _cancelEdit,
-        child: const Text('Cancel'),
+    );
+
+    // Compact, nicely spaced row of actions shown while editing.
+    final Widget editActionsRow = Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+      child: Row(
+        children: [
+          // Delete: outlined with red accent
+          Expanded(
+            child: OutlinedButton(
+              style: OutlinedButton.styleFrom(
+                side: const BorderSide(color: Colors.red),
+                foregroundColor: Colors.red,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+              ),
+              onPressed: isSaving ? null : _deleteCard,
+              child: isSaving
+                  ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                  : const Text('Delete'),
+            ),
+          ),
+          const SizedBox(width: 8),
+
+          // Cancel
+          Expanded(
+            child: TextButton(
+              onPressed: isSaving ? null : _cancelEdit,
+              style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 12)),
+              child: const Text('Cancel'),
+            ),
+          ),
+          const SizedBox(width: 8),
+
+          // Save: primary action
+          Expanded(
+            child: ElevatedButton(
+              onPressed: isSaving ? null : _saveCard,
+              style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 12)),
+              child: isSaving
+                  ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                  : const Text('Save'),
+            ),
+          ),
+        ],
       ),
-      ElevatedButton(
-        onPressed: isSaving ? null : _saveCard,
-        child: isSaving
-            ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
-            : const Text('Save'),
-      ),
-    ];
+    );
 
     return AlertDialog(
       title: Text(isEditing ? 'Edit Card' : 'Card Details'),
       content: SingleChildScrollView(child: content),
-      actions: isEditing ? editActions : viewActions,
+      actions: isEditing ? [editActionsRow] : [viewActionsRow],
     );
   }
 }
