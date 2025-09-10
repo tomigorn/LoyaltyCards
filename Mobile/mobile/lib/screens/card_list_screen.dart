@@ -292,37 +292,12 @@ class _CardListPageState extends State<CardListPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[50],
-      appBar: CustomAppBar(title: 'Cards'),
+      appBar: CustomAppBar(
+        title: 'Cards',
+        onSortPressed: _showSortOptions,
+      ),
       body: Column(
         children: [
-          Container(
-            width: double.infinity,
-            padding: EdgeInsets.all(16),
-            color: Colors.white,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  '${cards.length} items',
-                  style: TextStyle(color: Colors.grey[600], fontSize: 14),
-                ),
-                ElevatedButton(
-                  onPressed: _showSortOptions,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.black87,
-                    elevation: 1,
-                    side: BorderSide(color: Colors.grey[300]!),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  ),
-                  child: const Icon(Icons.sort, size: 20),
-                ),
-              ],
-            ),
-          ),
           Expanded(
             child: isLoading
                 ? Center(child: CircularProgressIndicator())
@@ -331,7 +306,8 @@ class _CardListPageState extends State<CardListPage> {
                     : RefreshIndicator(
                         onRefresh: _loadCards,
                         child: GridView.builder(
-                          padding: EdgeInsets.all(16),
+                          // reduce top spacing so cards sit closer to the app bar
+                          padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                           gridDelegate:
                               SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 2,

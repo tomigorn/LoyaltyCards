@@ -4,11 +4,13 @@ import '../services/auth_service.dart'; // Import AuthService
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final List<Widget>? additionalActions; // Optional extra actions
+  final VoidCallback? onSortPressed; // new: optional sort callback
 
   const CustomAppBar({
     super.key,
     required this.title,
     this.additionalActions,
+    this.onSortPressed,
   });
 
   void _onProfileTap(BuildContext context) {
@@ -62,33 +64,56 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     if (additionalActions != null) {
       actions.addAll(additionalActions!);
     }
-    
-    // Always add the profile button
-    actions.add(
-      Padding(
-        padding: EdgeInsets.only(right: 16),
-        child: GestureDetector(
-          onTap: () => _onProfileTap(context),
-          child: CircleAvatar(
-            radius: 18,
-            backgroundColor: Colors.blue[100],
-            child: Icon(Icons.person, color: Colors.blue[700], size: 20),
+
+    // add sort button at top-right when a callback is provided
+    if (onSortPressed != null) {
+      actions.add(
+        Padding(
+          padding: const EdgeInsets.only(right: 12.0),
+          child: ElevatedButton(
+            onPressed: onSortPressed,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+              foregroundColor: Colors.black87,
+              elevation: 1,
+              side: BorderSide(color: Colors.grey[300]!),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            ),
+            child: const Icon(Icons.sort, size: 20),
           ),
         ),
-      ),
-    );
-
+      );
+    }
+    
+    // keep actions as-is (profile moved to the left as leading)
+ 
     return AppBar(
       backgroundColor: Colors.white,
       elevation: 1,
-      title: Text(
-        title,
-        style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w600),
+      // Title removed as requested
+      title: const SizedBox.shrink(),
+      // moved profile button to the left
+      leadingWidth: 56,
+      leading: Align(
+        alignment: Alignment.centerLeft,
+        child: IconButton(
+          padding: const EdgeInsets.only(left: 8.0),
+          onPressed: () => _onProfileTap(context),
+          icon: CircleAvatar(
+            radius: 20,
+            backgroundColor: Colors.blue[100],
+            child: Icon(Icons.person, color: Colors.blue[700], size: 30),
+          ),
+          tooltip: 'Profile',
+        ),
       ),
       actions: actions,
     );
   }
-
+  
   @override
   Size get preferredSize => Size.fromHeight(kToolbarHeight);
 }
