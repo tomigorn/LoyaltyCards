@@ -3,6 +3,7 @@ import '../widgets/custom_app_bar.dart';
 import '../services/loyalty_card_service.dart';
 import '../services/auth_service.dart';
 import '../widgets/card_details_dialog.dart';
+import '../services/barcode_scan_service.dart';
 
 enum SortField { alphabetical, dateAdded }
 
@@ -207,11 +208,32 @@ class _CardListPageState extends State<CardListPage> {
                       ),
                     ),
                     SizedBox(height: 16),
-                    TextFormField(
-                      controller: barcodeController,
-                      decoration: InputDecoration(
-                        labelText: 'Barcode Number',
-                      ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextFormField(
+                            controller: barcodeController,
+                            decoration: InputDecoration(
+                              labelText: 'Barcode Number',
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        IconButton(
+                          icon: const Icon(Icons.camera_alt),
+                          tooltip: 'Scan barcode',
+                          onPressed: () async {
+                            final scanned = await BarcodeScanService.scanBarcode();
+                            if (scanned == null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Scan cancelled or failed')),
+                              );
+                              return;
+                            }
+                            barcodeController.text = scanned;
+                          },
+                        ),
+                      ],
                     ),
                   ],
                 ),
