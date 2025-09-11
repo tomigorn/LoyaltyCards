@@ -8,8 +8,10 @@ import '../services/barcode_scan_service.dart';
 enum SortField { alphabetical, dateAdded }
 
 class CardListPage extends StatefulWidget {
+  const CardListPage({super.key});
+
   @override
-  _CardListPageState createState() => _CardListPageState();
+  State<CardListPage> createState() => _CardListPageState();
 }
 
 class _CardListPageState extends State<CardListPage> {
@@ -42,9 +44,11 @@ class _CardListPageState extends State<CardListPage> {
       setState(() {
         error = e.toString();
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to load cards: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to load cards: $e')),
+        );
+      }
     } finally {
       setState(() {
         isLoading = false;
@@ -82,31 +86,6 @@ class _CardListPageState extends State<CardListPage> {
         }
       });
     });
-  }
-
-  void _cycleSort() {
-    setState(() {
-      if (_sortField == SortField.alphabetical) {
-        if (_ascending) {
-          _ascending = false;
-        } else {
-          _sortField = SortField.dateAdded;
-          _ascending = true;
-        }
-      } else {
-        if (_ascending) {
-          _ascending = false;
-        } else {
-          _sortField = SortField.alphabetical;
-          _ascending = true;
-        }
-      }
-      _applySort();
-    });
-    final label = _sortField == SortField.alphabetical ? 'Alphabetical' : 'Date Added';
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Sorted: $label ${_ascending ? 'ascending' : 'descending'}'), duration: Duration(milliseconds: 700)),
-    );
   }
 
   void _showSortOptions() {
@@ -170,7 +149,7 @@ class _CardListPageState extends State<CardListPage> {
   }
 
   void _showAddCardForm() {
-    final _formKey = GlobalKey<FormState>();
+    final formKey = GlobalKey<FormState>();
     final nicknameController = TextEditingController();
     final storeNameController = TextEditingController();
     final barcodeController = TextEditingController();
@@ -183,7 +162,7 @@ class _CardListPageState extends State<CardListPage> {
           return AlertDialog(
             title: Text('Add New Card'),
             content: Form(
-              key: _formKey,
+              key: formKey,
               child: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -225,11 +204,13 @@ class _CardListPageState extends State<CardListPage> {
                           onPressed: () async {
                             final scanned = await BarcodeScanService.scanBarcode();
                             if (scanned == null) {
-                              ScaffoldMessenger.of(context).showSnackBar(
+                              if (!mounted) return;
+                              ScaffoldMessenger.of(this.context).showSnackBar(
                                 const SnackBar(content: Text('Scan cancelled or failed')),
                               );
                               return;
                             }
+                            if (!mounted) return;
                             barcodeController.text = scanned;
                           },
                         ),
@@ -248,7 +229,7 @@ class _CardListPageState extends State<CardListPage> {
                 onPressed: isSaving
                     ? null
                     : () async {
-                        if (!_formKey.currentState!.validate()) return;
+                        if (!formKey.currentState!.validate()) return;
 
                         setDialogState(() => isSaving = true);
                         final payload = {
@@ -257,17 +238,21 @@ class _CardListPageState extends State<CardListPage> {
                           'barcodeNumber': barcodeController.text.trim(),
                         };
 
+                        // Capture navigator and messenger synchronously to avoid using BuildContext after async gaps
+                        final dialogNavigator = Navigator.of(context);
+                        final parentMessenger = ScaffoldMessenger.of(this.context);
+
                         try {
                           final token = await AuthService().getToken();
                           await LoyaltyCardService.create(payload, token: token);
-                          Navigator.of(context).pop(); // close dialog
+                          dialogNavigator.pop(); // close dialog using captured NavigatorState
                           await _loadCards(); // reload list
-                          ScaffoldMessenger.of(this.context).showSnackBar(
-                            SnackBar(content: Text('Card saved')),
+                          parentMessenger.showSnackBar(
+                            const SnackBar(content: Text('Card saved')),
                           );
                         } catch (e) {
                           setDialogState(() => isSaving = false);
-                          ScaffoldMessenger.of(this.context).showSnackBar(
+                          parentMessenger.showSnackBar(
                             SnackBar(content: Text('Failed to save card: $e')),
                           );
                         }

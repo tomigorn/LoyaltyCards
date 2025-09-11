@@ -51,7 +51,7 @@ class AuthService {
         throw 'Login failed: Invalid response from server';
       }
       if (e is String) {
-        throw e;
+        rethrow;
       }
       throw e.toString();
     }
@@ -97,7 +97,7 @@ class AuthService {
       }
     } catch (e) {
       if (e is String) {
-        throw e;
+        rethrow;
       }
       throw 'Registration failed: ${e.toString()}';
     }

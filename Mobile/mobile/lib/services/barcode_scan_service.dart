@@ -5,7 +5,7 @@ class BarcodeScanService {
   static Future<String?> scanBarcode() async {
     try {
       final result = await BarcodeScanner.scan();
-      if (result.rawContent == null || result.rawContent.isEmpty) return null;
+      if (result.rawContent.isEmpty) return null;
       return result.rawContent;
     } catch (e) {
       return null;

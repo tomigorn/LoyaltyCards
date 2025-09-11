@@ -7,7 +7,7 @@ import '../services/barcode_scan_service.dart';
 
 class CardDetailsDialog extends StatefulWidget {
   final Map<String, dynamic> card;
-  const CardDetailsDialog({Key? key, required this.card}) : super(key: key);
+  const CardDetailsDialog({super.key, required this.card});
 
   /// Returns via Navigator.pop:
   /// {'action': 'deleted'} when deleted,
@@ -69,8 +69,10 @@ class _CardDetailsDialogState extends State<CardDetailsDialog> {
     try {
       final token = await AuthService().getToken();
       await LoyaltyCardService.delete(card['id'].toString(), token: token);
+      if (!mounted) return;
       Navigator.of(context).pop({'action': 'deleted'});
     } catch (e) {
+      if (!mounted) return;
       setState(() => isSaving = false);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to delete: $e')));
     }

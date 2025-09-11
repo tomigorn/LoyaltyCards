@@ -21,7 +21,7 @@ class BarcodeService {
       case BarcodeType.qr:
         barcode = Barcode.qrCode();
         break;
-      case BarcodeType.code128:
+      // case BarcodeType.code128:
       default:
         barcode = Barcode.code128();
         break;

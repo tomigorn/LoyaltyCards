@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -62,7 +67,8 @@ class SettingsScreen extends StatelessWidget {
                       ),
                       onPressed: () async {
                         await AuthService().logout();
-                        Navigator.pushNamedAndRemoveUntil(context, '/login', (r) => false);
+                        if (!context.mounted) return;
+                        Navigator.of(context).pushNamedAndRemoveUntil('/login', (r) => false);
                       },
                       child: const Text('Sign out'),
                     ),
