@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../services/auth_service.dart';
 import '../services/loyalty_card_service.dart';
 import '../services/barcode_service.dart';
+import '../services/barcode_scan_service.dart';
 
 class CardDetailsDialog extends StatefulWidget {
   final Map<String, dynamic> card;
@@ -324,7 +325,34 @@ class _CardEditForm extends StatelessWidget {
         const SizedBox(height: 12),
         TextField(controller: storeNameController, decoration: const InputDecoration(labelText: 'Store Name')),
         const SizedBox(height: 12),
-        TextField(controller: barcodeController, decoration: const InputDecoration(labelText: 'Barcode Number')),
+        Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: barcodeController,
+                decoration: const InputDecoration(labelText: 'Barcode Number'),
+              ),
+            ),
+            const SizedBox(width: 8),
+            IconButton(
+              icon: const Icon(Icons.camera_alt),
+              tooltip: 'Scan barcode',
+              onPressed: () async {
+                // Request the scanner and write the scanned value into the field,
+                // clearing previous content first.
+                final scanned = await BarcodeScanService.scanBarcode();
+                if (scanned == null || scanned.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Scan cancelled or failed')),
+                  );
+                  return;
+                }
+                barcodeController.clear();
+                barcodeController.text = scanned;
+              },
+            ),
+          ],
+        ),
       ],
     );
   }
