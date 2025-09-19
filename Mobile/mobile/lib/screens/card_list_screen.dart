@@ -311,47 +311,79 @@ class _CardListPageState extends State<CardListPage> {
                     ? Center(child: Text('Error: $error'))
                     : RefreshIndicator(
                         onRefresh: _loadCards,
-                        child: GridView.builder(
-                    padding: const EdgeInsets.fromLTRB(8, 6, 8, 8),
-                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: responsiveColumns,
-                                            childAspectRatio: responsiveColumns == 1 ? 1.4 : 1.25,
-                          ),
-                          itemCount: cards.length,
-                          itemBuilder: (context, index) {
-                            final card = cards[index];
-                            return Card(
-                              color: Colors.green[600],
-                              elevation: 2,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              clipBehavior: Clip.antiAlias,
-                              child: InkWell(
-                                onTap: () => _showCardDetails(card),
-                                hoverColor: Colors.black12,
-                                splashColor: Colors.white24,
-                                borderRadius: BorderRadius.circular(12),
-                                child: Center(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(12.0),
-                                    child: Text(
-                                      _displayName(card),
-                                      textAlign: TextAlign.center,
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                      maxLines: 3,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
+                        child: cards.isEmpty
+                            ? ListView(
+                                physics: const AlwaysScrollableScrollPhysics(),
+                                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 48.0),
+                                children: [
+                                  Icon(Icons.credit_card, size: 84, color: Colors.green[300]),
+                                  const SizedBox(height: 20),
+                                  const Text(
+                                    'No cards yet',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                                   ),
+                                  const SizedBox(height: 8),
+                                  const Text(
+                                    'Tap the + button to add your first loyalty card. '
+                                    'You can scan a barcode, give it a nickname and save it.',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(fontSize: 14, color: Colors.black54),
+                                  ),
+                                  const SizedBox(height: 24),
+                                  Center(
+                                    child: ElevatedButton.icon(
+                                      onPressed: _showAddCardForm,
+                                      icon: const Icon(Icons.add),
+                                      label: const Text('Add a card'),
+                                      style: ElevatedButton.styleFrom(
+                                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              )
+                            : GridView.builder(
+                                padding: const EdgeInsets.fromLTRB(8, 6, 8, 8),
+                                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: responsiveColumns,
+                                  childAspectRatio: responsiveColumns == 1 ? 1.4 : 1.25,
                                 ),
+                                itemCount: cards.length,
+                                itemBuilder: (context, index) {
+                                  final card = cards[index];
+                                  return Card(
+                                    color: Colors.green[600],
+                                    elevation: 2,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    clipBehavior: Clip.antiAlias,
+                                    child: InkWell(
+                                      onTap: () => _showCardDetails(card),
+                                      hoverColor: Colors.black12,
+                                      splashColor: Colors.white24,
+                                      borderRadius: BorderRadius.circular(12),
+                                      child: Center(
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(12.0),
+                                          child: Text(
+                                            _displayName(card),
+                                            textAlign: TextAlign.center,
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                            maxLines: 3,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
                               ),
-                            );
-                          },
-                        ),
                       ),
           ),
         ],
