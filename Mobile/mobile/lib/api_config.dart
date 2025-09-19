@@ -16,6 +16,10 @@ class ApiConfig {
   static Uri loginEndpoint() => Uri.parse('$baseUrl/api/Auth/login');
   static Uri registerEndpoint() => Uri.parse('$baseUrl/api/Auth/register');
   static Uri validationRulesEndpoint() => Uri.parse('$baseUrl/api/Validation/rules');
+  static Uri loyaltyCardsEndpoint() => Uri.parse('$baseUrl/api/LoyaltyCard/getAllLoyaltyCards');
+  static Uri createLoyaltyCardEndpoint() => Uri.parse('$baseUrl/api/LoyaltyCard/createLoyaltyCard');
+  static Uri updateLoyaltyCard() => Uri.parse('$baseUrl/api/LoyaltyCard/updateLoyaltyCard');
+  static Uri deleteLoyaltyCard() => Uri.parse('$baseUrl/api/LoyaltyCard/deleteLoyaltyCard');
 }
 
 // Request models
