@@ -70,6 +70,7 @@ tasks:
     cmds:
       - echo "Building Docker image version $(cat /tmp/deploy_version)"
       - echo "{{.DOCKER_HUB_TOKEN}}" | docker login -u {{.DOCKER_HUB_USERNAME}} --password-stdin
+      - docker buildx rm {{.PROJECT_BASE_NAME}}-builder || true
       - docker buildx create --name {{.PROJECT_BASE_NAME}}-builder --use
       - |
         VERSION=$(cat /tmp/deploy_version)
