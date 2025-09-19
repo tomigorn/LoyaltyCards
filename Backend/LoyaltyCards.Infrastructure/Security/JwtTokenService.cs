@@ -2,26 +2,23 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.Options;
 using LoyaltyCards.Domain.Entities;
 
 namespace LoyaltyCards.Infrastructure.Security;
 
 public class JwtTokenService
 {
-    private readonly string _secret;
-    private readonly string _issuer;
-    private readonly string _audience;
+    private readonly JwtOptions _options;
 
-    public JwtTokenService(string secret, string issuer, string audience)
+    public JwtTokenService(IOptions<JwtOptions> options)
     {
-        _secret = secret;
-        _issuer = issuer;
-        _audience = audience;
+        _options = options.Value;
     }
 
     public string GenerateToken(User user, bool rememberMe = false)
     {
-        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secret));
+        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Secret));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
         var claims = new[]
@@ -31,11 +28,27 @@ public class JwtTokenService
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
         };
 
+        DateTime expires;
+        switch (_options.TokenExpiryUnit)
+        {
+            case "minutes":
+                expires = DateTime.UtcNow.AddMinutes(_options.TokenExpiryTime);
+                break;
+            case "hours":
+                expires = DateTime.UtcNow.AddHours(_options.TokenExpiryTime);
+                break;
+            case "days":
+                expires = DateTime.UtcNow.AddDays(_options.TokenExpiryTime);
+                break;
+            default:
+                throw new InvalidOperationException("Invalid TokenExpiryUnit in JWT options");
+        }
+
         var token = new JwtSecurityToken(
-            issuer: _issuer,
-            audience: _audience,
+            issuer: _options.Issuer,
+            audience: _options.Audience,
             claims: claims,
-            expires: rememberMe ? DateTime.UtcNow.AddDays(60) : DateTime.UtcNow.AddHours(24),
+            expires: expires,
             signingCredentials: credentials
         );
 

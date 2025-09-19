@@ -1,13 +1,29 @@
+using System.IO;
 using System.Text;
 using LoyaltyCards.Application.Users;
 using LoyaltyCards.Infrastructure.Persistence;
 using LoyaltyCards.Infrastructure.Security;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// bind JwtOptions from config
+builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
+// register JwtTokenService (uses IOptions<JwtOptions>)
+builder.Services.AddSingleton<JwtTokenService>();
+
+// compute DB path inside container or local dev reliably
+var dbFile = Path.Combine(AppContext.BaseDirectory, "Data", "app.db");
+// ensure directory exists
+Directory.CreateDirectory(Path.GetDirectoryName(dbFile)!);
+
+// override configuration connection string
+builder.Configuration["ConnectionStrings:DefaultConnection"] = $"Data Source={dbFile}";
 
 // Add services to the container.
 
@@ -15,6 +31,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
+        var jwtSecret = builder.Configuration["Jwt:Secret"] 
+                        ?? throw new InvalidOperationException("JWT secret is not configured.");
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
@@ -24,16 +42,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidAudience = builder.Configuration["Jwt:Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"]))
+                Encoding.UTF8.GetBytes(jwtSecret))
         };
     });
-
-// Add JWT service
-builder.Services.AddScoped<JwtTokenService>(provider => new JwtTokenService(
-    builder.Configuration["Jwt:Secret"],
-    builder.Configuration["Jwt:Issuer"],
-    builder.Configuration["Jwt:Audience"]
-));
 
 // CORS
 builder.Services.AddCors(options =>
