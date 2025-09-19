@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
+import 'login_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -68,7 +69,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       onPressed: () async {
                         await AuthService().logout();
                         if (!context.mounted) return;
-                        Navigator.of(context).pushNamedAndRemoveUntil('/login', (r) => false);
+                        Navigator.of(context).pushAndRemoveUntil(
+                          MaterialPageRoute(builder: (_) => const LoginScreen()),
+                          (route) => false,
+                        );
                       },
                       child: const Text('Sign out'),
                     ),
