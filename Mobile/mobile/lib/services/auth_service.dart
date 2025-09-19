@@ -1,24 +1,52 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart' as prefs;
-import '../api_config.dart';
+import 'package:mobile/api_config.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
   static const String _tokenKey = 'jwt_token';
 
   Future<void> saveToken(String token) async {
-    final preferences = await prefs.SharedPreferences.getInstance();
-    await preferences.setString(_tokenKey, token);
+    final sp = await SharedPreferences.getInstance();
+    await sp.setString(_tokenKey, token);
+    // quick debug log
+    print('AuthService: saved token length=${token.length}');
   }
 
   Future<String?> getToken() async {
-    final preferences = await prefs.SharedPreferences.getInstance();
-    return preferences.getString(_tokenKey);
+    final sp = await SharedPreferences.getInstance();
+    final t = sp.getString(_tokenKey);
+    print('AuthService: getToken -> ${t == null ? "null" : "len=${t.length}"}');
+    return t;
   }
 
-  Future<void> deleteToken() async {
-    final preferences = await prefs.SharedPreferences.getInstance();
-    await preferences.remove(_tokenKey);
+  Future<void> clearToken() async {
+    final sp = await SharedPreferences.getInstance();
+    await sp.remove(_tokenKey);
+    print('AuthService: cleared token');
+  }
+
+  Future<bool> isTokenValid() async {
+    final token = await getToken();
+    if (token == null || token.trim().isEmpty) return false;
+    final raw = token.startsWith('Bearer ') ? token.substring(7) : token;
+    final parts = raw.split('.');
+    if (parts.length < 2) return false;
+    try {
+      var payload = parts[1];
+      final pad = payload.length % 4;
+      if (pad != 0) payload += '=' * (4 - pad);
+      final decoded = utf8.decode(base64Url.decode(payload));
+      final map = jsonDecode(decoded) as Map<String, dynamic>;
+      if (!map.containsKey('exp')) return false;
+      final exp = map['exp'] is int ? map['exp'] as int : int.parse(map['exp'].toString());
+      final expiry = DateTime.fromMillisecondsSinceEpoch(exp * 1000, isUtc: true);
+      print('AuthService: token exp=$expiry (utc), now=${DateTime.now().toUtc()}');
+      return DateTime.now().toUtc().isBefore(expiry);
+    } catch (e) {
+      print('AuthService: token parse error $e');
+      return false;
+    }
   }
 
   Future<bool> login(String email, String password) async {
@@ -29,6 +57,7 @@ class AuthService {
         body: json.encode({
           'email': email,
           'password': password,
+          'rememberMe': true,
         }),
       ).timeout(
         const Duration(seconds: 5),
@@ -58,7 +87,7 @@ class AuthService {
   }
 
   Future<void> logout() async {
-    await deleteToken();
+    await clearToken();
   }
 
   Future<bool> isLoggedIn() async {
