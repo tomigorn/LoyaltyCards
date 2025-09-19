@@ -1,0 +1,27 @@
+services:
+  loyaltycardsbackend:
+    build:
+      context: ../        # Backend is one level up from deploy
+      dockerfile: LoyaltyCards.API/Dockerfile
+    image: loyaltycardsbackend:local
+    container_name: ${PROJECT_BASE_NAME}-backend-local
+    ports:
+      - "5000:5000"
+    volumes:
+      - ../Data:/Data
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    restart: always
+
+  cloudbeaver:
+    image: dbeaver/cloudbeaver:latest
+    environment:
+      - TZ=Europe/Zurich
+    ports:
+      - "8978:8978"
+    volumes:
+      - cloudbeaver_workspace:/opt/cloudbeaver/workspace
+    restart: always
+
+volumes:
+  cloudbeaver_workspace:
