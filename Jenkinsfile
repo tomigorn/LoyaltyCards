@@ -28,10 +28,23 @@ pipeline {
             }
         }
 
-        stage('✅ Pipeline Test Complete') {
+        stage('🏗️ Build Backend (.NET)') {
+            agent {
+                docker {
+                    image 'mcr.microsoft.com/dotnet/sdk:8.0'
+                    reuseNode true
+                }
+            }
             steps {
-                echo "Basic pipeline is working!"
-                echo "Ready to add build steps incrementally."
+                echo "Building Backend for environment: ${ENVIRONMENT}"
+                
+                dir('Backend') {
+                    sh 'dotnet --version'
+                    sh 'dotnet restore'
+                    sh 'dotnet build --configuration Release --no-restore'
+                }
+                
+                echo "Backend build completed!"
             }
         }
     }
