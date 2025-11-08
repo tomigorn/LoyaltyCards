@@ -33,7 +33,7 @@ pipeline {
                 }
 
                 stage('📱 Build Mobile (Flutter)') {
-                    agent { docker { image 'cirrusci/flutter:stable' } }
+                    agent { docker { image 'cirrusci/flutter:stable' args '--entrypoint ""' } }
                     steps {
                         script {
                             echo "\033[1;33m📦 Fetching dependencies & building Flutter app...\033[0m"
