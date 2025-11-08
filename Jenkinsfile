@@ -51,26 +51,35 @@ pipeline {
         stage('🐳 Build Docker Image') {
             steps {
                 script {
-                    // Extract version from Directory.Build.props
-                    def version = sh(
-                        script: "grep -oPm1 '(?<=<Version>)[^<]+' Backend/Directory.Build.props",
+                    // Get latest git tag (e.g., v0.1.5 or 0.1.5)
+                    def latestTag = sh(
+                        script: "git describe --tags --abbrev=0 2>/dev/null || echo 'v0.1.0'",
                         returnStdout: true
                     ).trim()
                     
-                    echo "Building Docker image for version: ${version}"
+                    // Remove 'v' prefix if present
+                    def baseVersion = latestTag.replaceFirst(/^v/, '')
+                    
+                    // Use Jenkins BUILD_NUMBER as the patch increment
+                    def dockerVersion = "${baseVersion}.${env.BUILD_NUMBER}"
+                    
+                    echo "Latest git tag: ${latestTag}"
+                    echo "Base version: ${baseVersion}"
+                    echo "Docker image version: ${dockerVersion}"
                     
                     dir('Backend') {
-                        // Build Docker image for current platform
+                        // Build Docker image with incremental version
                         sh """
                             docker build \
-                                -t loyaltycardsbackend:${version} \
+                                -t loyaltycardsbackend:${dockerVersion} \
+                                -t loyaltycardsbackend:${baseVersion}-latest \
                                 -t loyaltycardsbackend:latest \
                                 -f LoyaltyCards.API/Dockerfile \
                                 .
                         """
                     }
                     
-                    echo "Docker image built successfully: loyaltycardsbackend:${version}"
+                    echo "Docker image built successfully: loyaltycardsbackend:${dockerVersion}"
                 }
             }
         }
