@@ -47,6 +47,33 @@ pipeline {
                 echo "Backend build completed!"
             }
         }
+
+        stage('🐳 Build Docker Image') {
+            steps {
+                script {
+                    // Extract version from Directory.Build.props
+                    def version = sh(
+                        script: "grep -oPm1 '(?<=<Version>)[^<]+' Backend/Directory.Build.props",
+                        returnStdout: true
+                    ).trim()
+                    
+                    echo "Building Docker image for version: ${version}"
+                    
+                    dir('Backend') {
+                        // Build Docker image for current platform
+                        sh """
+                            docker build \
+                                -t loyaltycardsbackend:${version} \
+                                -t loyaltycardsbackend:latest \
+                                -f LoyaltyCards.API/Dockerfile \
+                                .
+                        """
+                    }
+                    
+                    echo "Docker image built successfully: loyaltycardsbackend:${version}"
+                }
+            }
+        }
     }
 
     post {
