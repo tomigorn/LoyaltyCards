@@ -175,7 +175,7 @@ pipeline {
 
     post {
         success {
-            echo "✅ Minimal pipeline completed successfully!"
+            echo "✅ LoyaltyCards pipeline completed successfully!"
         }
         failure {
             echo "❌ Pipeline failed - check logs above"
