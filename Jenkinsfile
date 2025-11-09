@@ -94,11 +94,12 @@ pipeline {
                                 REPO="loyaltycardsbackend"
                                 BASE="${baseVersion}"
                                 TAGS_JSON=$(curl -s "https://registry.hub.docker.com/v2/repositories/${USER}/${REPO}/tags?page_size=100") || TAGS_JSON='{}'
-                                # Extract tag names from JSON without requiring jq
-                                names=$(printf "%s" "$TAGS_JSON" | sed -n 's/.*"name"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p') || names=''
+
+                                # Extract tag names from JSON using awk (avoid backslashes in Groovy source)
+                                names=$(printf "%s" "$TAGS_JSON" | awk -F'"name":' '{for(i=2;i<=NF;i++){s=$i; p=index(s,sprintf("%c",34)); if(p){s=substr(s,p+1); q=index(s,sprintf("%c",34)); if(q) print substr(s,1,q-1)}}}') || names=''
 
                                 # Highest numeric suffix for tags matching BASE.N
-                                highest=$(printf "%s" "$names" | grep -E "^${BASE}[.][0-9]+$" | sed "s/^${BASE}[.]//" | sort -n | tail -n1 || true)
+                                highest=$(printf "%s" "$names" | grep -E "^${BASE}[.][0-9]+$" | sed 's/^'"${BASE}"'[.]//' | sort -n | tail -n1 || true)
                                 if [ -z "$highest" ]; then highest=0; fi
                                 echo "$highest"
                             ''', returnStdout: true).trim()
