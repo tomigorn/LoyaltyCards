@@ -142,7 +142,13 @@ pipeline {
 // ===================================================================================
         stage('⬆️ Push Docker Image') {
             when {
-                branch 'main'
+                allOf {
+                    branch 'main'
+                    expression {
+                        // Only push if this commit has a tag. Fetch tags first to be safe.
+                        return sh(script: 'git fetch --tags --prune >/dev/null 2>&1 || true; git describe --exact-match --tags >/dev/null 2>&1 && echo true || echo false', returnStdout: true).trim() == 'true'
+                    }
+                }
             }
             steps {
                 script {
