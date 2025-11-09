@@ -45,7 +45,10 @@ pipeline {
                 docker {
                     image 'mcr.microsoft.com/dotnet/sdk:8.0'
                     reuseNode true
-                    args '-e COMPOSE_PROJECT_NAME=cicd'
+                    // Persist NuGet packages between runs by mounting a host cache directory.
+                    // This speeds up `dotnet restore` dramatically across pipeline runs.
+                    // We also export NUGET_PACKAGES to point to the mounted cache inside the container.
+                    args "-e COMPOSE_PROJECT_NAME=cicd -e NUGET_PACKAGES=/root/.nuget/packages -v ${env.JENKINS_HOME}/.nuget/packages:/root/.nuget/packages"
                 }
             }
             // Build itself is done inside the Docker container
@@ -54,8 +57,20 @@ pipeline {
 
                 dir('Backend') {
                     sh 'dotnet --version'
-                    sh 'dotnet restore'
-                    sh 'dotnet build --configuration Release --no-restore'
+
+                    // If build artifacts already exist in the workspace (obj/bin), skip restore to save time.
+                    // The mounted NuGet cache will speed up restores when they do run.
+                    sh '''
+                        if [ -d "LoyaltyCards.API/obj" ] && [ -d "LoyaltyCards.API/bin" ]; then
+                            echo "Found existing build artifacts - skipping dotnet restore (cached)"
+                        else
+                            echo "No cached artifacts found - running dotnet restore"
+                            dotnet restore
+                        fi
+
+                        # Build using the already-restored packages. Keep --no-restore to avoid repeating restore.
+                        dotnet build --configuration Release --no-restore
+                    '''
                 }
 
                 echo "Backend build completed!"
