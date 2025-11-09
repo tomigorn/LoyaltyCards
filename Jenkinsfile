@@ -92,7 +92,7 @@ pipeline {
                                 set -euo pipefail
                                 USER="${DOCKER_HUB_USERNAME}"
                                 REPO="loyaltycardsbackend"
-                                BASE="${baseVersion}"
+                                BASE="${BASE_VERSION}"
                                 TAGS_JSON=$(curl -s "https://registry.hub.docker.com/v2/repositories/${USER}/${REPO}/tags?page_size=100") || TAGS_JSON='{}'
 
                                 # Extract tag names from JSON using awk (avoid backslashes in Groovy source)
@@ -141,13 +141,7 @@ pipeline {
 // ===================================================================================
         stage('⬆️ Push Docker Image') {
             when {
-                allOf {
-                    branch 'main'
-                    expression {
-                        // Only push if this commit has a tag. Fetch tags first to be safe.
-                        return sh(script: 'git fetch --tags --prune >/dev/null 2>&1 || true; git describe --exact-match --tags >/dev/null 2>&1 && echo true || echo false', returnStdout: true).trim() == 'true'
-                    }
-                }
+                branch 'main'
             }
             steps {
                 script {
