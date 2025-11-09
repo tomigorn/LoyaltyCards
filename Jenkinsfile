@@ -89,20 +89,18 @@ pipeline {
                     try {
                         withCredentials([usernamePassword(credentialsId: 'docker-hub', usernameVariable: 'DOCKER_HUB_USERNAME', passwordVariable: 'DOCKER_HUB_TOKEN')]) {
                             def highestSuffix = sh(script: '''
-                                set -e
+                                set -euo pipefail
                                 USER="${DOCKER_HUB_USERNAME}"
                                 REPO="loyaltycardsbackend"
                                 BASE="${baseVersion}"
                                 TAGS_JSON=$(curl -s "https://registry.hub.docker.com/v2/repositories/${USER}/${REPO}/tags?page_size=100") || TAGS_JSON='{}'
-                                python3 - <<'PY'
-                                import sys, json, re
-                                data = json.loads(sys.stdin.read() or '{}')
-                                names = [r.get('name') for r in data.get('results', []) if r.get('name')]
-                                base = sys.argv[1]
-                                regex = re.compile(r'^' + re.escape(base) + r'\.([0-9]+)$')
-                                nums = [int(regex.match(n).group(1)) for n in names if regex.match(n)]
-                                print(max(nums) if nums else 0)
-                                PY
+                                # Extract tag names from JSON without requiring jq
+                                names=$(printf "%s" "$TAGS_JSON" | sed -n 's/.*"name"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p') || names=''
+
+                                # Highest numeric suffix for tags matching BASE.N
+                                highest=$(printf "%s" "$names" | grep -E "^${BASE}[.][0-9]+$" | sed "s/^${BASE}[.]//" | sort -n | tail -n1 || true)
+                                if [ -z "$highest" ]; then highest=0; fi
+                                echo "$highest"
                             ''', returnStdout: true).trim()
 
                             def nextSuffix = (highestSuffix.isInteger() ? (highestSuffix as Integer) : 0) + 1
