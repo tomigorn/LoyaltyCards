@@ -33,6 +33,7 @@ pipeline {
                 docker {
                     image 'mcr.microsoft.com/dotnet/sdk:8.0'
                     reuseNode true
+                    args '-e COMPOSE_PROJECT_NAME=cicd'
                 }
             }
             steps {
