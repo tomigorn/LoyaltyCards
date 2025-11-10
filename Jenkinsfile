@@ -176,27 +176,24 @@ pipeline {
         // Deploy to Raspberry Pi (SSH-only) with host key verification
         // ===================================================================================
         stage('🚢 Deploy to Raspberry Pi') {
-            when {
-                branch 'main'
-            }
+            when { branch 'main' }
             steps {
                 script {
-                    withCredentials([sshUserPrivateKey(credentialsId: 'pi-ssh-deploy-key', variable: 'DEPLOY_SSH_SECRET'), string(credentialsId: 'pi-deploy-host-ip', variable: 'DEPLOY_SSH_IP')]) {
-                        sshagent (credentials: ['pi-ssh-deploy-key']) {
-                            sh '''
-                                set -euo pipefail
-                                KNOWN_HOSTS_FILE="$WORKSPACE/deploy_known_hosts"
-                                echo "Scanning host key for ${DEPLOY_SSH_IP}..."
-                                ssh-keyscan -t ed25519 ${DEPLOY_SSH_IP} 2>/dev/null > "$KNOWN_HOSTS_FILE" || ssh-keyscan ${DEPLOY_SSH_IP} > "$KNOWN_HOSTS_FILE" || true
-
-                                echo "Testing SSH connectivity..."
-                                ssh -o UserKnownHostsFile="$KNOWN_HOSTS_FILE" -o StrictHostKeyChecking=yes -o BatchMode=yes deploy@${DEPLOY_SSH_IP} 'echo connected'
-                            '''
-                        }
+                // only inject host IP as env var, the SSH key is used by sshagent
+                withCredentials([string(credentialsId: 'pi-deploy-host-ip', variable: 'DEPLOY_SSH_IP')]) {
+                    sshagent (credentials: ['pi-ssh-deploy-key']) {
+                    sh '''
+                        set -euo pipefail
+                        KNOWN_HOSTS="$WORKSPACE/deploy_known_hosts"
+                        ssh-keyscan -t ed25519 ${DEPLOY_SSH_IP} >> "$KNOWN_HOSTS" 2>/dev/null || true
+                        ssh -o UserKnownHostsFile="$KNOWN_HOSTS" -o StrictHostKeyChecking=yes -o BatchMode=yes deploy@${DEPLOY_SSH_IP} 'echo connected'
+                    '''
                     }
                 }
+                }
             }
-        }
+        }     
+
     }
 
     post {
