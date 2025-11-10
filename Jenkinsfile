@@ -181,29 +181,16 @@ pipeline {
             }
             steps {
                 script {
-                    def deployHost = env.DEPLOY_HOST ?: null
-                    def deployUser = env.DEPLOY_USER ?: 'deploy'
-                    def deployPath = env.DEPLOY_PATH ?: '~/LoyaltyCards/Backend'
-                    def credId = env.DEPLOY_CREDENTIAL_ID ?: 'pi-ssh-deploy-key'
-                    withCredentials([string(credentialsId: 'deploy-host', variable: 'DEPLOY_HOST_SECRET')]) {
-                        if (!deployHost) {
-                            deployHost = DEPLOY_HOST_SECRET ?: '192.168.1.2'
-                        }
-
-                        echo "Deploy target: ${deployUser}@${deployHost}:${deployPath} (credential: ${credId})"
-
-                        sshagent (credentials: [credId]) {
+                    withCredentials([sshUserPrivateKey(credentialsId: 'pi-ssh-deploy-key', variable: 'DEPLOY_SSH_SECRET'), string(credentialsId: 'pi-deploy-host-ip', variable: 'DEPLOY_SSH_IP')]) {
+                        sshagent (credentials: ['pi-ssh-deploy-key']) {
                             sh '''
                                 set -euo pipefail
                                 KNOWN_HOSTS_FILE="$WORKSPACE/deploy_known_hosts"
-                                echo "Scanning host key for ${deployHost}..."
-                                ssh-keyscan -t ed25519 ${deployHost} 2>/dev/null > "$KNOWN_HOSTS_FILE" || ssh-keyscan ${deployHost} > "$KNOWN_HOSTS_FILE" || true
+                                echo "Scanning host key for ${DEPLOY_SSH_IP}..."
+                                ssh-keyscan -t ed25519 ${DEPLOY_SSH_IP} 2>/dev/null > "$KNOWN_HOSTS_FILE" || ssh-keyscan ${DEPLOY_SSH_IP} > "$KNOWN_HOSTS_FILE" || true
 
                                 echo "Testing SSH connectivity..."
-                                ssh -o UserKnownHostsFile="$KNOWN_HOSTS_FILE" -o StrictHostKeyChecking=yes -o BatchMode=yes ${deployUser}@${deployHost} 'echo connected'
-
-                                echo "Running remote deployment commands..."
-                                ssh -o UserKnownHostsFile="$KNOWN_HOSTS_FILE" -o StrictHostKeyChecking=yes ${deployUser}@${deployHost} "mkdir -p ${deployPath} && cd ${deployPath} && docker compose pull || true && docker compose up -d --remove-orphans"
+                                ssh -o UserKnownHostsFile="$KNOWN_HOSTS_FILE" -o StrictHostKeyChecking=yes -o BatchMode=yes deploy@${DEPLOY_SSH_IP} 'echo connected'
                             '''
                         }
                     }
