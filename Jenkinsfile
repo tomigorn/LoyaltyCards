@@ -171,6 +171,46 @@ pipeline {
                 }
             }
         }
+
+        // ===================================================================================
+        // Deploy to Raspberry Pi (SSH-only) with host key verification
+        // ===================================================================================
+        stage('🚢 Deploy to Raspberry Pi') {
+            when {
+                branch 'main'
+            }
+            steps {
+                script {
+                    def deployHost = env.DEPLOY_HOST ?: null
+                    def deployUser = env.DEPLOY_USER ?: 'deploy'
+                    def deployPath = env.DEPLOY_PATH ?: '~/LoyaltyCards/Backend'
+                    def credId = env.DEPLOY_CREDENTIAL_ID ?: 'pi-ssh-deploy-key'
+                    withCredentials([string(credentialsId: 'deploy-host', variable: 'DEPLOY_HOST_SECRET')]) {
+                        if (!deployHost) {
+                            deployHost = DEPLOY_HOST_SECRET ?: '192.168.1.2'
+                        }
+
+                        echo "Deploy target: ${deployUser}@${deployHost}:${deployPath} (credential: ${credId})"
+
+                        sshagent (credentials: [credId]) {
+                            sh '''
+                                set -euo pipefail
+                                KNOWN_HOSTS_FILE="$WORKSPACE/deploy_known_hosts"
+                                echo "Scanning host key for ${deployHost}..."
+                                ssh-keyscan -t ed25519 ${deployHost} 2>/dev/null > "$KNOWN_HOSTS_FILE" || ssh-keyscan ${deployHost} > "$KNOWN_HOSTS_FILE" || true
+
+                                echo "Testing SSH connectivity..."
+                                ssh -o UserKnownHostsFile="$KNOWN_HOSTS_FILE" -o StrictHostKeyChecking=yes -o BatchMode=yes ${deployUser}@${deployHost} 'echo connected'
+
+                                echo "Running remote deployment commands..."
+                                ssh -o UserKnownHostsFile="$KNOWN_HOSTS_FILE" -o StrictHostKeyChecking=yes ${deployUser}@${deployHost} "mkdir -p ${deployPath} && cd ${deployPath} && docker compose pull || true && docker compose up -d --remove-orphans"
+                            '''
+                        }
+                    }
+                }
+            }
+        }
+        }
     }
 
     post {
