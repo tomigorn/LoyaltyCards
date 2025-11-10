@@ -186,14 +186,21 @@ pipeline {
                         set -euo pipefail
                         KNOWN_HOSTS="$WORKSPACE/deploy_known_hosts"
                         ssh-keyscan -t ed25519 ${DEPLOY_SSH_IP} >> "$KNOWN_HOSTS" 2>/dev/null || true
-                        ssh -o UserKnownHostsFile="$KNOWN_HOSTS" -o StrictHostKeyChecking=yes -o BatchMode=yes deploy@${DEPLOY_SSH_IP} 'echo connected'
+                        ssh -o UserKnownHostsFile="$KNOWN_HOSTS" -o StrictHostKeyChecking=yes -o BatchMode=yes deploy@${DEPLOY_SSH_IP} 'hostname -I || true'
                     '''
                     }
                 }
-                }
             }
-        }     
+        }
 
+        // ===================================================================================
+        // Final Stage
+        // ===================================================================================
+        stage('✅ Pipeline Complete') {
+            steps {
+                echo "LoyaltyCards pipeline completed!"
+            }
+        }
     }
 
     post {
