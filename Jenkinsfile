@@ -182,12 +182,13 @@ pipeline {
                 // only inject host IP as env var, the SSH key is used by sshagent
                 withCredentials([string(credentialsId: 'pi-deploy-host-ip', variable: 'DEPLOY_SSH_IP')]) {
                     sshagent (credentials: ['pi-ssh-deploy-key']) {
-                    sh '''
-                        set -euo pipefail
-                        KNOWN_HOSTS="$WORKSPACE/deploy_known_hosts"
-                        ssh-keyscan -t ed25519 ${DEPLOY_SSH_IP} >> "$KNOWN_HOSTS" 2>/dev/null || true
-                        ssh -o UserKnownHostsFile="$KNOWN_HOSTS" -o StrictHostKeyChecking=yes -o BatchMode=yes deploy@${DEPLOY_SSH_IP} 'hostname -I || true'
-                    '''
+                        sh '''
+                            set -euo pipefail
+                            KNOWN_HOSTS="$WORKSPACE/deploy_known_hosts"
+                            ssh-keyscan -t ed25519 ${DEPLOY_SSH_IP} >> "$KNOWN_HOSTS" 2>/dev/null || true
+                            ssh -o UserKnownHostsFile="$KNOWN_HOSTS" -o StrictHostKeyChecking=yes -o BatchMode=yes deploy@${DEPLOY_SSH_IP} 'hostname -I || true'
+                        '''
+                        }
                     }
                 }
             }
