@@ -1,7 +1,7 @@
 services:
   loyaltycardsbackend:
-    image: ${DOCKER_HUB_USERNAME}/loyaltycardsbackend:${VERSION}
-    container_name: ${PROJECT_BASE_NAME}-backend
+    image: tomigorn/loyaltycardsbackend:latest
+    container_name: loyalty-cards-backend
     ports:
       - "5000:5000"
     volumes:
@@ -14,7 +14,7 @@ services:
 
   cloudbeaver:
     image: dbeaver/cloudbeaver:latest
-    container_name: ${PROJECT_BASE_NAME}-cloudbeaver
+    container_name: loyalty-cards-cloudbeaver
     environment:
       - TZ=Europe/Zurich
     ports:
