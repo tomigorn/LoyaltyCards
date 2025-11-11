@@ -234,7 +234,8 @@ pipeline {
     post {
         success {
             script {
-                currentBuild.description = "✅ LoyaltyCards pipeline completed successfully!"
+                def dockerVersion = env.DOCKER_VERSION ?: "${baseVersion}.${env.BUILD_NUMBER}"
+                currentBuild.description = "✅ LoyaltyCards v${dockerVersion} installed!"
                 echo "✅ LoyaltyCards pipeline completed successfully!"
             }
         }
