@@ -210,7 +210,7 @@ pipeline {
         // ===================================================================================
         stage('🏁 Pipeline Complete') {
             steps {
-            // Intentionally no stage-level echo; final status is set in the `post` section below
+                echo "🏁 LoyaltyCards pipeline completed!"
             }
         }
     }
