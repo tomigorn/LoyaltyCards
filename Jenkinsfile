@@ -208,22 +208,20 @@ pipeline {
         // ===================================================================================
         // Final Stage
         // ===================================================================================
-        stage('✅ Pipeline Complete') {
+        stage('🏁 Pipeline Complete') {
             steps {
-                echo "✅ LoyaltyCards pipeline completed!"
+            // Intentionally no stage-level echo; final status is set in the `post` section below
             }
         }
     }
 
     post {
         success {
-            script {
-                // Set the run description so the UI shows a clear one-line summary
-                currentBuild.description = "✅ LoyaltyCards pipeline completed successfully!"
-                echo "✅ LoyaltyCards pipeline completed successfully!"
-            }
+            currentBuild.description = "✅ LoyaltyCards pipeline completed successfully!"
+            echo "✅ LoyaltyCards pipeline completed successfully!"
         }
         failure {
+            currentBuild.description = "❌ LoyaltyCards pipeline failed"
             echo "❌ Pipeline failed - check logs above"
         }
     }
