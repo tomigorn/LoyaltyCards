@@ -217,7 +217,11 @@ pipeline {
 
     post {
         success {
-            echo "✅ LoyaltyCards pipeline completed successfully!"
+            script {
+                // Set the run description so the UI shows a clear one-line summary
+                currentBuild.description = "✅ LoyaltyCards pipeline completed successfully!"
+                echo "✅ LoyaltyCards pipeline completed successfully!"
+            }
         }
         failure {
             echo "❌ Pipeline failed - check logs above"
