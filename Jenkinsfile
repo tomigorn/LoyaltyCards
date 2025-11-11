@@ -25,7 +25,6 @@ pipeline {
                 sh 'ls -la'
 
                 echo "✅ Checkout & verification completed!"
-                }
             }
         }
 
