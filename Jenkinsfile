@@ -201,14 +201,10 @@ pipeline {
 
                                 scp -o UserKnownHostsFile="$KNOWN_HOSTS" -o StrictHostKeyChecking=yes -o BatchMode=yes Backend/deploy/.env.example deploy@${DEPLOY_SSH_IP}:/home/deploy/deployments/LoyaltyCards/.env
 
-                                # Open a single SSH session and run multiple commands
-                                ssh -o UserKnownHostsFile="$KNOWN_HOSTS" -o StrictHostKeyChecking=yes -o BatchMode=yes deploy@${DEPLOY_SSH_IP} <<ENDSSH
-                                # ----- remote commands start -----
-                                echo "Connected: \$(hostname) as \$(whoami)"
-                                cd /home/deploy/deployments/LoyaltyCards/
-                                docker compose up -d
-
-                                ENDSSH
+                                # Run remote commands via a single inline ssh command (avoids heredoc/indentation issues)
+                                ssh -o UserKnownHostsFile="$KNOWN_HOSTS" -o StrictHostKeyChecking=yes -o BatchMode=yes deploy@${DEPLOY_SSH_IP} 'echo "Connected: $(hostname) as $(whoami)" && \
+                                    cd /home/deploy/deployments/LoyaltyCards && \
+                                    docker compose up -d'
                             '''
                         }
 
