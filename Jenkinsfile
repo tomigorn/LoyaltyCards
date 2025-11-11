@@ -13,13 +13,19 @@ pipeline {
 // ===================================================================================
         stage('🚀 Checkout & Verify') {
             steps {
-                echo "Environment: ${ENVIRONMENT}"
-                echo "Workspace: ${WORKSPACE}"
-                echo "Branch: ${env.BRANCH_NAME}"
+                echo "🐙 GitHub: Checking out code happens automatically before the pipeline starts.\n"
+
+                echo "🧪 Environment: ${ENVIRONMENT}"
+                echo "🗂️ Workspace: ${WORKSPACE}"
+                echo "🌿 Branch: ${env.BRANCH_NAME}"
 
                 // List workspace contents
+                echo "\nListing workspace contents:"
                 sh 'pwd'
                 sh 'ls -la'
+
+                echo "✅ Checkout & verification completed!"
+                }
             }
         }
 
@@ -28,11 +34,13 @@ pipeline {
 // ===================================================================================
         stage('📋 Check Project Structure') {
             steps {
-                echo "Checking Backend structure..."
+                echo "🖥️ Checking Backend structure..."
                 sh 'ls -la Backend/ || echo "Backend directory not found"'
 
-                echo "Checking Mobile structure..."
+                echo "📱 Checking Mobile structure..."
                 sh 'ls -la Mobile/mobile/ || echo "Mobile/mobile directory not found"'
+
+                echo "✅ Project structure verified!"
             }
         }
 
@@ -58,7 +66,7 @@ pipeline {
                     sh 'dotnet build --configuration Release --no-restore'
                 }
 
-                echo "Backend build completed!"
+                echo "✅ Backend build completed!"
             }
         }
 // ===================================================================================
@@ -132,7 +140,7 @@ pipeline {
                     }
 
                     // Log successful build
-                    echo "Docker image built successfully: loyaltycardsbackend:${dockerVersion}"
+                    echo "✅ Docker image built successfully: loyaltycardsbackend:${dockerVersion}"
                 }
             }
         }
@@ -167,6 +175,8 @@ pipeline {
 
                             sh 'docker logout'
                         }
+
+                        echo "✅ Docker images pushed successfully to Docker Hub."
                     }
                 }
             }
@@ -190,6 +200,8 @@ pipeline {
                         '''
                         }
                     }
+
+                    echo "✅ Deployment to Raspberry Pi completed!"
                 }
             }
         }
@@ -199,7 +211,7 @@ pipeline {
         // ===================================================================================
         stage('✅ Pipeline Complete') {
             steps {
-                echo "LoyaltyCards pipeline completed!"
+                echo "✅ LoyaltyCards pipeline completed!"
             }
         }
     }
