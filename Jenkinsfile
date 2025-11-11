@@ -206,7 +206,7 @@ pipeline {
                                 # ----- remote commands start -----
                                 echo "Connected: \$(hostname) as \$(whoami)"
                                 cd /home/deploy/deployments/LoyaltyCards/
-                                docker-compose up -d
+                                docker compose up -d
 
                                 ENDSSH
                             '''
