@@ -217,12 +217,16 @@ pipeline {
 
     post {
         success {
-            currentBuild.description = "✅ LoyaltyCards pipeline completed successfully!"
-            echo "✅ LoyaltyCards pipeline completed successfully!"
+            script {
+                currentBuild.description = "✅ LoyaltyCards pipeline completed successfully!"
+                echo "✅ LoyaltyCards pipeline completed successfully!"
+            }
         }
         failure {
-            currentBuild.description = "❌ LoyaltyCards pipeline failed"
-            echo "❌ Pipeline failed - check logs above"
+            script {
+                currentBuild.description = "❌ LoyaltyCards pipeline failed"
+                echo "❌ Pipeline failed - check logs above"
+            }
         }
     }
 }
