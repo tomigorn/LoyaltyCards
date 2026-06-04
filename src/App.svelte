@@ -5,19 +5,39 @@
   import CardDetail from './screens/CardDetail.svelte';
   import Settings from './screens/Settings.svelte';
   import type { Card } from './lib/types';
-  let screen = $state<'home'|'checkout'|'add'|'detail'|'settings'>('home');
+
+  type Screen = 'home' | 'checkout' | 'add' | 'detail' | 'settings';
+  let screen = $state<Screen>('home');
   let active = $state<Card | null>(null);
-  const go = (s: typeof screen) => screen = s;
+
+  // Forward navigation pushes a history entry so the OS/browser back gesture
+  // returns to the previous screen instead of closing the PWA.
+  function navigate(s: Screen) {
+    screen = s;
+    history.pushState({ screen: s }, '');
+  }
+  // In-app back / done / cancel just walk history back → triggers popstate below.
+  const back = () => history.back();
+
+  $effect(() => {
+    history.replaceState({ screen: 'home' }, '');         // home = root entry
+    const onPop = (e: PopStateEvent) => {
+      screen = ((e.state as { screen?: Screen } | null)?.screen) ?? 'home';
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  });
 </script>
+
 {#if screen === 'home'}
-  <Home onopen={(c) => { active = c; go('checkout'); }}
-        onadd={() => go('add')} onsettings={() => go('settings')} />
+  <Home onopen={(c) => { active = c; navigate('checkout'); }}
+        onadd={() => navigate('add')} onsettings={() => navigate('settings')} />
 {:else if screen === 'checkout' && active}
-  <Checkout card={active} onback={() => go('home')} onedit={() => go('detail')} />
+  <Checkout card={active} onback={back} onedit={() => navigate('detail')} />
 {:else if screen === 'add'}
-  <AddCard ondone={() => go('home')} oncancel={() => go('home')} />
+  <AddCard ondone={back} oncancel={back} />
 {:else if screen === 'detail' && active}
-  <CardDetail card={active} ondone={() => go('home')} />
+  <CardDetail card={active} ondone={back} ondeleted={() => history.go(-2)} />
 {:else if screen === 'settings'}
-  <Settings onback={() => go('home')} />
+  <Settings onback={back} />
 {/if}

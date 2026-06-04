@@ -5,14 +5,15 @@
   import { logoDevFetcher } from '../lib/logo/fetch';
   import { findCatalogById } from '../lib/catalog/catalog';
   import type { Card } from '../lib/types';
-  let { card, ondone }: { card: Card; ondone: () => void } = $props();
+  let { card, ondone, ondeleted }:
+    { card: Card; ondone: () => void; ondeleted: () => void } = $props();
   let draft = $state<Card>({ ...card });
   async function save() { draft.updatedAt = Date.now(); await putCard(draft); await loadCards(); ondone(); }
   async function remove() {
     if (card.logo.blobRef) await deleteImage(card.logo.blobRef);
     if (card.frontPhotoRef) await deleteImage(card.frontPhotoRef);
     if (card.backPhotoRef) await deleteImage(card.backPhotoRef);
-    await deleteCard(card.id); await loadCards(); ondone();
+    await deleteCard(card.id); await loadCards(); ondeleted();
   }
   async function uploadLogo(e: Event) {
     const file = (e.target as HTMLInputElement).files?.[0]; if (!file) return;
