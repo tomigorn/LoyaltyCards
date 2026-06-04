@@ -49,7 +49,8 @@ export async function startScan(
       // Map zxing enum key name to our detector-style string, then to BarcodeFormat
       const keyName = ZxingFormat[fmtNum]?.toLowerCase() as string | undefined;
       const fmt = keyName !== undefined ? mapDetectedFormat(keyName) : undefined;
-      onResult({ value: res.getText(), format: fmt ?? 'code128' });
+      if (fmt === undefined) return;
+      onResult({ value: res.getText(), format: fmt });
     }
   });
   return () => controls.stop();
