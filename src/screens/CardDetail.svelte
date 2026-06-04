@@ -1,5 +1,45 @@
 <script lang="ts">
+  import PhotoField from '../components/PhotoField.svelte';
+  import { putCard, deleteCard, putImage } from '../lib/db';
+  import { loadCards } from '../lib/stores';
+  import { clearbitFetcher } from '../lib/logo/fetch';
   import type { Card } from '../lib/types';
   let { card, ondone }: { card: Card; ondone: () => void } = $props();
+  let draft = $state<Card>({ ...card });
+  async function save() { draft.updatedAt = Date.now(); await putCard(draft); await loadCards(); ondone(); }
+  async function remove() { await deleteCard(card.id); await loadCards(); ondone(); }
+  async function uploadLogo(e: Event) {
+    const file = (e.target as HTMLInputElement).files?.[0]; if (!file) return;
+    const key = crypto.randomUUID(); await putImage(key, file);
+    draft.logo = { source: 'uploaded', blobRef: key };
+  }
+  async function fetchLogo() {
+    const blob = await clearbitFetcher.fetchLogo(draft.storeName);
+    if (!blob) { alert('No logo found online.'); return; }
+    const key = crypto.randomUUID(); await putImage(key, blob);
+    draft.logo = { source: 'fetched', blobRef: key };
+  }
 </script>
-<p>Detail — coming soon</p><button onclick={ondone}>Done</button>
+<header><button onclick={ondone}>← Back</button><h2>Edit</h2></header>
+<label>Name<input bind:value={draft.storeName} /></label>
+<label>Brand color<input type="color" bind:value={draft.brandColor} /></label>
+<div class="logo">
+  <input type="file" accept="image/*" onchange={uploadLogo} />
+  <button onclick={fetchLogo}>🌐 Fetch logo online</button>
+</div>
+<label>Notes<textarea bind:value={draft.notes}></textarea></label>
+<PhotoField label="Front photo" bind:value={draft.frontPhotoRef} />
+<PhotoField label="Back photo" bind:value={draft.backPhotoRef} />
+<label class="row"><input type="checkbox" bind:checked={draft.favorite} /> Favorite</label>
+<button class="save" onclick={save}>Save</button>
+<button class="del" onclick={remove}>Delete card</button>
+<style>
+  header{display:flex;gap:12px;align-items:center;padding:14px 16px}
+  label{display:block;margin:10px 16px}.row{display:flex;gap:8px;align-items:center}
+  input:not([type]),input[type=text],textarea{width:100%;padding:10px;border-radius:10px;
+    border:1px solid #2a2a30;background:#161618;color:#eee}
+  .logo{display:flex;gap:8px;margin:10px 16px}
+  .save{display:block;width:calc(100% - 32px);margin:10px 16px;padding:14px;border:none;
+    border-radius:12px;background:#2a6df4;color:#fff}
+  .del{display:block;margin:6px 16px;background:none;border:none;color:#f66}
+</style>
