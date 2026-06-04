@@ -3,6 +3,7 @@
   import { putCard, deleteCard, putImage, deleteImage } from '../lib/db';
   import { loadCards } from '../lib/stores';
   import { logoDevFetcher } from '../lib/logo/fetch';
+  import { findCatalogById } from '../lib/catalog/catalog';
   import type { Card } from '../lib/types';
   let { card, ondone }: { card: Card; ondone: () => void } = $props();
   let draft = $state<Card>({ ...card });
@@ -20,7 +21,9 @@
     draft.logo = { source: 'uploaded', blobRef: key };
   }
   async function fetchLogo() {
-    const domain = draft.storeName.trim().toLowerCase().replace(/\s+/g, '') + '.com';
+    const domain = draft.catalogId ? findCatalogById(draft.catalogId)?.domain
+      : draft.storeName.trim().toLowerCase().replace(/\s+/g, '') + '.com';
+    if (!domain) { alert('No domain to fetch from.'); return; }
     const blob = await logoDevFetcher.fetchLogo(domain);
     if (!blob) { alert('No logo found online.'); return; }
     if (draft.logo.blobRef) await deleteImage(draft.logo.blobRef);
