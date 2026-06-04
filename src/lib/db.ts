@@ -2,17 +2,21 @@ import { openDB, type IDBPDatabase } from 'idb';
 import type { Card } from './types';
 
 const DB_NAME = 'loyaltycards';
-const VERSION = 1;
+const VERSION = 2;
 let dbp: Promise<IDBPDatabase> | null = null;
 
 function open() {
   if (!dbp) {
     dbp = openDB(DB_NAME, VERSION, {
-      upgrade(db) {
+      upgrade(db, oldVersion) {
         if (!db.objectStoreNames.contains('cards'))
           db.createObjectStore('cards', { keyPath: 'id' });
         if (!db.objectStoreNames.contains('images'))
           db.createObjectStore('images');
+        if (!db.objectStoreNames.contains('logos'))
+          db.createObjectStore('logos');
+        if (!db.objectStoreNames.contains('logoColors'))
+          db.createObjectStore('logoColors');
       },
     });
   }
@@ -40,4 +44,17 @@ export async function deleteImage(key: string) { await (await open()).delete('im
 export async function clearAll() {
   const db = await open();
   await db.clear('cards'); await db.clear('images');
+}
+
+export async function getLogo(domain: string): Promise<Blob | undefined> {
+  return (await open()).get('logos', domain);
+}
+export async function putLogo(domain: string, blob: Blob) { await (await open()).put('logos', blob, domain); }
+export async function getLogoColor(domain: string): Promise<string | undefined> {
+  return (await open()).get('logoColors', domain);
+}
+export async function putLogoColor(domain: string, hex: string) { await (await open()).put('logoColors', hex, domain); }
+export async function clearLogoCache() {
+  const db = await open();
+  await db.clear('logos'); await db.clear('logoColors');
 }
