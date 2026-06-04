@@ -19,7 +19,7 @@ or image (trademark-clean); data only.
 - **Fuzzy name matching** (`matchShop`) powering an autocomplete in the Add flow.
 - **On-demand logo fetch** from logo.dev, **cached on-device** (IndexedDB), shared per domain.
 - **Auto-fetch on catalog match** (with a Settings toggle), dominant-colour extraction for tiles.
-- **Logo-on-white tile style** (style A) on the home grid.
+- **Logo-on-brand-color tile style** (style B) on the home grid.
 
 ### Non-goals (separate future specs)
 - #4 barcode → brand inference (GS1 prefixes / loyalty patterns).
@@ -125,10 +125,13 @@ Free-text (no selection) still works → generated tile.
 
 ## 9. Tile style
 
-**Style A — logo on white** (selected): home-grid tiles render the fetched logo centered on a
-white card with the store name beneath. Cleanest with full-colour logos. Cards with no logo
-keep the coloured initials tile. (`CardTile.svelte` updated; brand colour becomes an accent /
-tile-fallback rather than the always-on background.)
+**Style B — logo on brand colour** (selected): home-grid tiles keep the **brand-colour
+background** (the colour from §6 — hand-set `brandColor`, else the dominant colour extracted
+from the fetched logo, else neutral) and render the fetched logo on a small **white chip**
+centred on the tile, with the store name beneath. This keeps the vivid v1 look while adding
+real logos; the white chip guarantees logo legibility on any background. Cards with no logo
+fall back to the coloured initials tile (unchanged). `CardTile.svelte` is updated to draw the
+white-chip-on-colour variant when a logo URL resolves.
 
 ## 10. Data-model & storage changes
 
