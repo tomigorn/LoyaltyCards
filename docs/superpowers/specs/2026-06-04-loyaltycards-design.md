@@ -109,6 +109,14 @@ color+initials tile**. The user can override with an uploaded/snapped image at a
 logo.dev, Brandfetch). Decided during implementation; the fetch is behind an interface so
 the choice is swappable.
 
+**v1 shipped behavior (honest note):** the bundled catalog supplies each store's
+**brand color + name + default barcode format**. Catalog **logo images** load from
+`public/catalog-logos/<logoAsset>` and degrade gracefully to a generated colored-initials
+tile when the file is absent. **No third-party logos are bundled by default** (trademark);
+the user drops their own logo files into `public/catalog-logos/`, or uses the on-demand
+online fetch, or uploads an image per card. So the effective logo chain is:
+uploaded/fetched blob → catalog asset (if present) → generated tile.
+
 ## 5. Screens & Flows
 
 1. **Home** — logo grid (layout A): big color tiles, 2 per row. 🔍 search icon + ⚙️ settings.
