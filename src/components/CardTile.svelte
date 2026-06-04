@@ -1,40 +1,34 @@
 <script lang="ts">
   import type { Card } from '../lib/types';
-  import { resolveLogoUrl } from '../lib/logo/resolve';
-  import { getImage, getLogo, putLogo, putLogoColor } from '../lib/db';
-  import { generateTile } from '../lib/logo/tile';
-  import { logoDevFetcher } from '../lib/logo/fetch';
-  import { extractDominantColor } from '../lib/logo/color';
+  import { resolveCardLogo } from '../lib/logo/resolveCard';
+  import { getLogoColor } from '../lib/db';
   import { findCatalogById } from '../lib/catalog/catalog';
   let { card, onopen }: { card: Card; onopen: (c: Card) => void } = $props();
   let url = $state('');
-
+  let extractedColor = $state<string | undefined>(undefined);
+  const bg = $derived(card.brandColor || extractedColor || '#2a2a30');
   $effect(() => {
-    let createdUrl: string | null = null;
-    resolveLogoUrl(card, {
-      getImage,
-      getLogo,
-      putLogo,
-      putLogoColor,
-      makeObjectUrl: (blob) => { createdUrl = URL.createObjectURL(blob); return createdUrl; },
-      generateTile,
-      fetchLogo: (d) => logoDevFetcher.fetchLogo(d),
-      extractColor: extractDominantColor,
-      autoFetchEnabled: () => true,
-      domainFor: (id) => findCatalogById(id)?.domain,
-    }).then(u => url = u);
-    return () => { if (createdUrl && createdUrl.startsWith('blob:')) URL.revokeObjectURL(createdUrl); };
+    let made = '';
+    resolveCardLogo(card).then(u => { url = u; made = u; });
+    // resolve tile background colour: brandColor wins, else extracted colour for the shop
+    if (!card.brandColor && card.catalogId) {
+      const dom = findCatalogById(card.catalogId)?.domain;
+      if (dom) getLogoColor(dom).then(c => { if (c) extractedColor = c; });
+    }
+    return () => { if (made.startsWith('blob:')) URL.revokeObjectURL(made); };
   });
+  const isTile = $derived(url.startsWith('data:')); // generated tile → no white chip
 </script>
-<button class="tile" style="background:{card.brandColor}" onclick={() => onopen(card)}>
-  {#if url}
-    <img src={url} alt={card.storeName} />
+<button class="tile" style="background:{bg}" onclick={() => onopen(card)}>
+  {#if url && !isTile}
+    <span class="chip"><img src={url} alt={card.storeName} /></span>
   {/if}
-  <span>{card.storeName}</span>
+  <span class="nm">{card.storeName}</span>
 </button>
 <style>
   .tile{border:none;border-radius:14px;aspect-ratio:1.4;display:flex;flex-direction:column;
-    align-items:center;justify-content:center;gap:6px;color:#fff;cursor:pointer;padding:8px;overflow:hidden}
-  img{max-width:70%;max-height:55%;object-fit:contain}
-  span{font-size:13px;font-weight:600;text-shadow:0 1px 2px rgba(0,0,0,.4)}
+    align-items:center;justify-content:center;gap:7px;color:#fff;cursor:pointer;padding:8px;overflow:hidden}
+  .chip{background:#fff;border-radius:9px;padding:6px;display:flex;align-items:center;justify-content:center}
+  .chip img{width:42px;height:42px;object-fit:contain;display:block}
+  .nm{font-size:13px;font-weight:700;text-shadow:0 1px 2px rgba(0,0,0,.35)}
 </style>
