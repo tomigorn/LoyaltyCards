@@ -1,8 +1,11 @@
 <script lang="ts">
   import type { Card } from '../lib/types';
   import { resolveLogoUrl } from '../lib/logo/resolve';
-  import { getImage } from '../lib/db';
+  import { getImage, getLogo, putLogo, putLogoColor } from '../lib/db';
   import { generateTile } from '../lib/logo/tile';
+  import { logoDevFetcher } from '../lib/logo/fetch';
+  import { extractDominantColor } from '../lib/logo/color';
+  import { findCatalogById } from '../lib/catalog/catalog';
   let { card, onopen }: { card: Card; onopen: (c: Card) => void } = $props();
   let url = $state('');
 
@@ -10,8 +13,15 @@
     let createdUrl: string | null = null;
     resolveLogoUrl(card, {
       getImage,
+      getLogo,
+      putLogo,
+      putLogoColor,
       makeObjectUrl: (blob) => { createdUrl = URL.createObjectURL(blob); return createdUrl; },
       generateTile,
+      fetchLogo: (d) => logoDevFetcher.fetchLogo(d),
+      extractColor: extractDominantColor,
+      autoFetchEnabled: () => true,
+      domainFor: (id) => findCatalogById(id)?.domain,
     }).then(u => url = u);
     return () => { if (createdUrl && createdUrl.startsWith('blob:')) URL.revokeObjectURL(createdUrl); };
   });

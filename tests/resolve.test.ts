@@ -1,38 +1,66 @@
 import { describe, it, expect } from 'vitest';
-import { resolveLogoUrl } from '../src/lib/logo/resolve';
+import { resolveLogoUrl, type ResolveDeps } from '../src/lib/logo/resolve';
 import type { Card } from '../src/lib/types';
 
 const base: Card = {
-  id: 'c1', storeName: 'Migros', barcodeValue: '7612345678900', barcodeFormat: 'ean13',
+  id: 'c1', storeName: 'Migros', barcodeValue: '1', barcodeFormat: 'ean13',
   brandColor: '#FF6600', logo: { source: 'generated' }, notes: '',
   favorite: false, order: 0, createdAt: 1, updatedAt: 1,
 };
+const deps = (over: Partial<ResolveDeps> = {}): ResolveDeps => ({
+  getImage: async () => undefined,
+  getLogo: async () => undefined,
+  putLogo: async () => {},
+  putLogoColor: async () => {},
+  makeObjectUrl: () => 'blob://x',
+  generateTile: () => 'data:tile',
+  fetchLogo: async () => null,
+  extractColor: async () => '#000000',
+  autoFetchEnabled: () => true,
+  domainFor: () => undefined,
+  ...over,
+});
 
 describe('resolveLogoUrl', () => {
-  it('returns an uploaded blob URL when source=uploaded', async () => {
-    const card = { ...base, logo: { source: 'uploaded' as const, blobRef: 'img1' } };
-    const url = await resolveLogoUrl(card, {
-      getImage: async () => new Blob(['x']),
-      makeObjectUrl: () => 'blob://img1',
-      generateTile: () => 'data:tile',
-    });
-    expect(url).toBe('blob://img1');
+  it('1) uses the user-uploaded blob first', async () => {
+    const card = { ...base, logo: { source: 'uploaded' as const, blobRef: 'i' } };
+    const url = await resolveLogoUrl(card, deps({ getImage: async () => new Blob(['x']), makeObjectUrl: () => 'blob://up' }));
+    expect(url).toBe('blob://up');
   });
-  it('falls back to a generated tile when source=generated', async () => {
-    const url = await resolveLogoUrl(base, {
-      getImage: async () => undefined,
-      makeObjectUrl: () => 'blob://x',
-      generateTile: () => 'data:tile',
-    });
+  it('2) uses a cached shop logo when catalog-linked', async () => {
+    const card = { ...base, catalogId: 'ch-migros' };
+    const url = await resolveLogoUrl(card, deps({
+      domainFor: () => 'migros.ch',
+      getLogo: async (d) => d === 'migros.ch' ? new Blob(['x']) : undefined,
+      makeObjectUrl: () => 'blob://cached',
+    }));
+    expect(url).toBe('blob://cached');
+  });
+  it('3) auto-fetches when enabled and uncached', async () => {
+    const card = { ...base, catalogId: 'ch-migros' };
+    let put = '';
+    const url = await resolveLogoUrl(card, deps({
+      domainFor: () => 'migros.ch',
+      fetchLogo: async () => new Blob(['x']),
+      putLogo: async (d) => { put = d; },
+      makeObjectUrl: () => 'blob://fetched',
+    }));
+    expect(url).toBe('blob://fetched');
+    expect(put).toBe('migros.ch');
+  });
+  it('4) falls back to a generated tile', async () => {
+    const url = await resolveLogoUrl(base, deps({ autoFetchEnabled: () => false }));
     expect(url).toBe('data:tile');
   });
-  it('falls back to tile if the stored blob is missing', async () => {
-    const card = { ...base, logo: { source: 'uploaded' as const, blobRef: 'missing' } };
-    const url = await resolveLogoUrl(card, {
-      getImage: async () => undefined,
-      makeObjectUrl: () => 'blob://x',
-      generateTile: () => 'data:tile',
-    });
+  it('does not fetch when auto-fetch disabled', async () => {
+    const card = { ...base, catalogId: 'ch-migros' };
+    let fetched = false;
+    const url = await resolveLogoUrl(card, deps({
+      domainFor: () => 'migros.ch',
+      autoFetchEnabled: () => false,
+      fetchLogo: async () => { fetched = true; return new Blob(['x']); },
+    }));
+    expect(fetched).toBe(false);
     expect(url).toBe('data:tile');
   });
 });
