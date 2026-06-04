@@ -1,19 +1,29 @@
 <script lang="ts">
   import ScannerView from '../components/ScannerView.svelte';
+  import ShopSuggest from '../components/ShopSuggest.svelte';
   import { FORMATS, FORMAT_LABELS, validateBarcode } from '../lib/barcode/formats';
-  import { findCatalogEntry } from '../lib/catalog/catalog';
+  import { findCatalogEntry, findCatalogById } from '../lib/catalog/catalog';
   import { putCard, getAllCards } from '../lib/db';
   import { loadCards } from '../lib/stores';
-  import type { BarcodeFormat, Card } from '../lib/types';
+  import type { BarcodeFormat, Card, CatalogEntry } from '../lib/types';
   let { ondone, oncancel }: { ondone: () => void; oncancel: () => void } = $props();
 
   let mode = $state<'choose'|'scan'|'manual'>('choose');
   let value = $state(''); let format = $state<BarcodeFormat>('ean13'); let storeName = $state('');
   let err = $state('');
   let formatTouched = $state(false);
+  let catalogId = $state<string | undefined>(undefined);
+  let brandColor = $state<string | undefined>(undefined);
+  let picked = $state(false);
+
+  function pick(e: CatalogEntry) {
+    storeName = e.name; catalogId = e.id; brandColor = e.brandColor;
+    if (!formatTouched && e.defaultFormat) format = e.defaultFormat;
+    picked = true;
+  }
 
   $effect(() => {
-    if (!formatTouched) {
+    if (!formatTouched && !picked) {
       const entry = findCatalogEntry(storeName);
       if (entry?.defaultFormat) format = entry.defaultFormat;
     }
@@ -26,14 +36,14 @@
     const v = validateBarcode(format, value);
     if (!v.ok) { err = v.error ?? 'Invalid barcode'; return; }
     if (!storeName.trim()) { err = 'Enter a store name'; return; }
-    const cat = findCatalogEntry(storeName);
+    const cat = catalogId ? findCatalogById(catalogId) : findCatalogEntry(storeName);
     const now = Date.now();
     const all = await getAllCards();
     const order = all.reduce((m, c) => Math.max(m, c.order), 0) + 1;
     const card: Card = {
       id: crypto.randomUUID(), storeName: storeName.trim(), barcodeValue: value,
       barcodeFormat: format, brandColor: cat?.brandColor ?? '#444',
-      logo: { source: cat ? 'catalog' : 'generated' }, notes: '',
+      logo: { source: cat ? 'catalog' : 'generated' }, catalogId: cat?.id, notes: '',
       favorite: false, order, createdAt: now, updatedAt: now,
     };
     await putCard(card); await loadCards(); ondone();
@@ -48,6 +58,7 @@
   <button onclick={() => mode = 'manual'}>Enter manually instead</button>
 {:else}
   <label>Store name<input bind:value={storeName} placeholder="e.g. Migros" /></label>
+  <ShopSuggest query={storeName} onpick={pick} />
   <label>Number<input bind:value /></label>
   <label>Format
     <select bind:value={format} onchange={() => formatTouched = true}>
