@@ -2,7 +2,7 @@
   import PhotoField from '../components/PhotoField.svelte';
   import { putCard, deleteCard, putImage, deleteImage } from '../lib/db';
   import { loadCards } from '../lib/stores';
-  import { clearbitFetcher } from '../lib/logo/fetch';
+  import { logoDevFetcher } from '../lib/logo/fetch';
   import type { Card } from '../lib/types';
   let { card, ondone }: { card: Card; ondone: () => void } = $props();
   let draft = $state<Card>({ ...card });
@@ -20,7 +20,8 @@
     draft.logo = { source: 'uploaded', blobRef: key };
   }
   async function fetchLogo() {
-    const blob = await clearbitFetcher.fetchLogo(draft.storeName);
+    const domain = draft.storeName.trim().toLowerCase().replace(/\s+/g, '') + '.com';
+    const blob = await logoDevFetcher.fetchLogo(domain);
     if (!blob) { alert('No logo found online.'); return; }
     if (draft.logo.blobRef) await deleteImage(draft.logo.blobRef);
     const key = crypto.randomUUID(); await putImage(key, blob);
