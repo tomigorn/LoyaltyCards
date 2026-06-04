@@ -1,10 +1,14 @@
 <script lang="ts">
   import { exportBackup, importBackup } from '../lib/backup';
-  import { putCard } from '../lib/db';
+  import { putCard, clearLogoCache } from '../lib/db';
   import { cards, loadCards } from '../lib/stores';
+  import { getAutoFetch, setAutoFetch } from '../lib/settings';
   import { get } from 'svelte/store';
   let { onback }: { onback: () => void } = $props();
   let msg = $state('');
+  let autoFetch = $state(getAutoFetch());
+  function toggleAuto() { autoFetch = !autoFetch; setAutoFetch(autoFetch); }
+  async function clearLogos() { await clearLogoCache(); msg = 'Logo cache cleared ✓'; }
 
   async function doExport() {
     const json = await exportBackup();
@@ -33,6 +37,11 @@
   <button onclick={doExport}>⬇️ Export backup</button>
   <label class="imp">⬆️ Import backup<input type="file" accept="application/json" onchange={doImport} /></label>
   {#if msg}<p>{msg}</p>{/if}
+</section>
+<section>
+  <h3>Logos</h3>
+  <label class="row"><input type="checkbox" checked={autoFetch} onchange={toggleAuto} /> Auto-fetch logos</label>
+  <button onclick={clearLogos}>Clear logo cache</button>
 </section>
 <section>
   <h3>Reorder cards</h3>
