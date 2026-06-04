@@ -10,9 +10,17 @@
   let mode = $state<'choose'|'scan'|'manual'>('choose');
   let value = $state(''); let format = $state<BarcodeFormat>('ean13'); let storeName = $state('');
   let err = $state('');
+  let formatTouched = $state(false);
+
+  $effect(() => {
+    if (!formatTouched) {
+      const entry = findCatalogEntry(storeName);
+      if (entry?.defaultFormat) format = entry.defaultFormat;
+    }
+  });
 
   function onScan(r: { value: string; format: BarcodeFormat }) {
-    value = r.value; format = r.format; mode = 'manual';
+    value = r.value; format = r.format; formatTouched = true; mode = 'manual';
   }
   async function save() {
     const v = validateBarcode(format, value);
@@ -40,7 +48,7 @@
   <label>Store name<input bind:value={storeName} placeholder="e.g. Migros" /></label>
   <label>Number<input bind:value /></label>
   <label>Format
-    <select bind:value={format}>
+    <select bind:value={format} onchange={() => formatTouched = true}>
       {#each FORMATS as f}<option value={f}>{FORMAT_LABELS[f]}</option>{/each}
     </select>
   </label>
