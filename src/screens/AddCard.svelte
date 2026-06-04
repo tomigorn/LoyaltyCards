@@ -2,7 +2,7 @@
   import ScannerView from '../components/ScannerView.svelte';
   import { FORMATS, FORMAT_LABELS, validateBarcode } from '../lib/barcode/formats';
   import { findCatalogEntry } from '../lib/catalog/catalog';
-  import { putCard } from '../lib/db';
+  import { putCard, getAllCards } from '../lib/db';
   import { loadCards } from '../lib/stores';
   import type { BarcodeFormat, Card } from '../lib/types';
   let { ondone, oncancel }: { ondone: () => void; oncancel: () => void } = $props();
@@ -28,11 +28,13 @@
     if (!storeName.trim()) { err = 'Enter a store name'; return; }
     const cat = findCatalogEntry(storeName);
     const now = Date.now();
+    const all = await getAllCards();
+    const order = all.reduce((m, c) => Math.max(m, c.order), 0) + 1;
     const card: Card = {
       id: crypto.randomUUID(), storeName: storeName.trim(), barcodeValue: value,
       barcodeFormat: format, brandColor: cat?.brandColor ?? '#444',
       logo: { source: cat ? 'catalog' : 'generated' }, notes: '',
-      favorite: false, order: now, createdAt: now, updatedAt: now,
+      favorite: false, order, createdAt: now, updatedAt: now,
     };
     await putCard(card); await loadCards(); ondone();
   }
