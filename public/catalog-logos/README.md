@@ -1,0 +1,1 @@
+Drop store logo files here named to match each catalog entry's `logoAsset` (e.g. `migros.svg`). No third-party logos are bundled by default for trademark reasons; add your own. Missing files degrade gracefully to a colored initials tile.

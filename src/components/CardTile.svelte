@@ -3,16 +3,39 @@
   import { resolveLogoUrl } from '../lib/logo/resolve';
   import { getImage } from '../lib/db';
   import { generateTile } from '../lib/logo/tile';
+  import { findCatalogEntry } from '../lib/catalog/catalog';
   let { card, onopen }: { card: Card; onopen: (c: Card) => void } = $props();
   let url = $state('');
+  let catalogSrc = $state<string | null>(null);
+
   $effect(() => {
+    if (card.logo.source === 'catalog' && !card.logo.blobRef) {
+      const entry = findCatalogEntry(card.storeName);
+      if (entry) {
+        catalogSrc = `/catalog-logos/${entry.logoAsset}`;
+        url = '';
+        return;
+      }
+    }
+    catalogSrc = null;
     resolveLogoUrl(card, {
       getImage, makeObjectUrl: URL.createObjectURL, generateTile,
     }).then(u => url = u);
   });
+
+  function onCatalogError(e: Event) {
+    const img = e.currentTarget as HTMLImageElement;
+    img.onerror = null;
+    catalogSrc = null;
+    url = generateTile(card.storeName, card.brandColor);
+  }
 </script>
 <button class="tile" style="background:{card.brandColor}" onclick={() => onopen(card)}>
-  {#if url}<img src={url} alt={card.storeName} />{/if}
+  {#if catalogSrc}
+    <img src={catalogSrc} alt={card.storeName} onerror={onCatalogError} />
+  {:else if url}
+    <img src={url} alt={card.storeName} />
+  {/if}
   <span>{card.storeName}</span>
 </button>
 <style>
