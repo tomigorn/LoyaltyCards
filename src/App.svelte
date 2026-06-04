@@ -1,4 +1,23 @@
 <script lang="ts">
+  import Home from './screens/Home.svelte';
+  import Checkout from './screens/Checkout.svelte';
+  import AddCard from './screens/AddCard.svelte';
+  import CardDetail from './screens/CardDetail.svelte';
+  import Settings from './screens/Settings.svelte';
+  import type { Card } from './lib/types';
+  let screen = $state<'home'|'checkout'|'add'|'detail'|'settings'>('home');
+  let active = $state<Card | null>(null);
+  const go = (s: typeof screen) => screen = s;
 </script>
-<main><h1>LoyaltyCards</h1></main>
-<style>:global(body){margin:0;background:#0b0b0d;color:#e6e6ec;font-family:system-ui,sans-serif}</style>
+{#if screen === 'home'}
+  <Home onopen={(c) => { active = c; go('checkout'); }}
+        onadd={() => go('add')} onsettings={() => go('settings')} />
+{:else if screen === 'checkout' && active}
+  <Checkout card={active} onback={() => go('home')} onedit={() => go('detail')} />
+{:else if screen === 'add'}
+  <AddCard ondone={() => go('home')} oncancel={() => go('home')} />
+{:else if screen === 'detail' && active}
+  <CardDetail card={active} ondone={() => go('home')} />
+{:else if screen === 'settings'}
+  <Settings onback={() => go('home')} />
+{/if}
