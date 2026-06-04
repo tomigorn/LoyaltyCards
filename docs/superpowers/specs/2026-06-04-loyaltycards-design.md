@@ -140,13 +140,31 @@ the choice is swappable.
   `/home/pi/Projects/Docker/LoyaltyCards`, following the user's mandated sample structure
   (`docker-compose.yaml`, `.env.example`, `.env`, `.gitignore`).
 
-### How the compose project consumes the source
+### Build → Docker Hub → pull (decided)
 
-The compose service **builds from the source repo** via an absolute build `context`
-pointing at `/home/pi/Documents/development/LoyaltyCards` (single-host Pi, no registry
-needed). `COMPOSE_PROJECT_NAME=LoyaltyCards`.
+- The **source repo** builds a Docker image and **pushes it to Docker Hub** as
+  **`tomigorn/loyalty-cards`** (the existing "loyalty cards backend" Docker Hub repo is
+  renamed/repurposed to this image name).
+- The **deploy compose project** at `/home/pi/Projects/Docker/LoyaltyCards` **pulls**
+  `tomigorn/loyalty-cards` and runs it (no build on the Pi). `COMPOSE_PROJECT_NAME=LoyaltyCards`.
+- **Image tag** pinned via an `.env` var (e.g. `IMAGE_TAG`) so updates are explicit.
 
-- Traefik router on a hostname (TBD with user), HTTPS, secure-headers labels.
+### Traefik route (to be set up)
+
+- Public hostname **`loyalty-cards.holy-grail.ch`** is already created at Cloudflare
+  (tunnel ingress). The **Traefik router still needs to be wired** via container labels on
+  the LoyaltyCards service: `Host(\`loyalty-cards.holy-grail.ch\`)`, HTTPS entrypoint, TLS,
+  plus **secure-headers** (and optionally rate-limiting) middleware — matching the
+  conventions of an existing project (e.g. BackdropCarousel) and joining the Traefik network.
+
+### Build/push pipeline
+
+- A repo job exists in Jenkins ("LoyaltyCards Multibranch Pipeline" →
+  `github.com/tomigorn/LoyaltyCards`). v1 may reuse Jenkins to build+push the image, or use a
+  simple local Taskfile/`docker build && docker push`. Chosen in the implementation plan.
+
+### Checklist
+
 - A new **all-❌ row** will be added to `/home/pi/Projects/Docker/_global/checklist.md`
   when the Docker project is created (per the user's checklist rules; checkmarks/versions
   remain the user's to fill).
@@ -169,5 +187,6 @@ needed). `COMPOSE_PROJECT_NAME=LoyaltyCards`.
 ## 10. Open Items (resolved during implementation, not blockers)
 
 - Which online logo-fetch service.
-- Exact deploy hostname for the Traefik route.
 - Import semantics: replace vs merge.
+- Build/push mechanism: reuse the Jenkins multibranch pipeline vs a simple
+  Taskfile/`docker build && docker push`.
