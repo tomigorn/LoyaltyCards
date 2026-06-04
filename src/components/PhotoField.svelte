@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { putImage, getImage } from '../lib/db';
+  import { putImage, getImage, deleteImage } from '../lib/db';
   let { label, value = $bindable() }: { label: string; value: string | undefined } = $props();
   let url = $state('');
   $effect(() => {
@@ -14,8 +14,11 @@
   async function onPick(e: Event) {
     const file = (e.target as HTMLInputElement).files?.[0];
     if (!file) return;
+    const oldKey = value;
     const key = crypto.randomUUID();
-    await putImage(key, file); value = key;
+    await putImage(key, file);
+    if (oldKey) await deleteImage(oldKey);
+    value = key;
     const newUrl = URL.createObjectURL(file);
     if (url && url.startsWith('blob:')) URL.revokeObjectURL(url);
     url = newUrl;

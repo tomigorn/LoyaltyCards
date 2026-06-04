@@ -1,21 +1,28 @@
 <script lang="ts">
   import PhotoField from '../components/PhotoField.svelte';
-  import { putCard, deleteCard, putImage } from '../lib/db';
+  import { putCard, deleteCard, putImage, deleteImage } from '../lib/db';
   import { loadCards } from '../lib/stores';
   import { clearbitFetcher } from '../lib/logo/fetch';
   import type { Card } from '../lib/types';
   let { card, ondone }: { card: Card; ondone: () => void } = $props();
   let draft = $state<Card>({ ...card });
   async function save() { draft.updatedAt = Date.now(); await putCard(draft); await loadCards(); ondone(); }
-  async function remove() { await deleteCard(card.id); await loadCards(); ondone(); }
+  async function remove() {
+    if (card.logo.blobRef) await deleteImage(card.logo.blobRef);
+    if (card.frontPhotoRef) await deleteImage(card.frontPhotoRef);
+    if (card.backPhotoRef) await deleteImage(card.backPhotoRef);
+    await deleteCard(card.id); await loadCards(); ondone();
+  }
   async function uploadLogo(e: Event) {
     const file = (e.target as HTMLInputElement).files?.[0]; if (!file) return;
+    if (draft.logo.blobRef) await deleteImage(draft.logo.blobRef);
     const key = crypto.randomUUID(); await putImage(key, file);
     draft.logo = { source: 'uploaded', blobRef: key };
   }
   async function fetchLogo() {
     const blob = await clearbitFetcher.fetchLogo(draft.storeName);
     if (!blob) { alert('No logo found online.'); return; }
+    if (draft.logo.blobRef) await deleteImage(draft.logo.blobRef);
     const key = crypto.randomUUID(); await putImage(key, blob);
     draft.logo = { source: 'fetched', blobRef: key };
   }
