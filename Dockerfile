@@ -4,6 +4,8 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 COPY . .
+ARG VITE_LOGODEV_TOKEN=""
+ENV VITE_LOGODEV_TOKEN=$VITE_LOGODEV_TOKEN
 RUN npm run build
 
 # ---- runtime stage ----
