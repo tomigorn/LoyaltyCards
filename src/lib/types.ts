@@ -20,13 +20,15 @@ export interface Card {
   order: number;
   createdAt: number;
   updatedAt: number;
+  catalogId?: string;        // links a card to a CatalogEntry.id
 }
 
 export interface CatalogEntry {
-  id: string;
+  id: string;                // e.g. 'ch-migros'
   name: string;
   aliases: string[];
-  brandColor: string;
-  logoAsset: string;        // path under /catalog-logos/
+  domain: string;            // logo.dev key, e.g. 'migros.ch'
+  country: string;           // ISO-2: CH, DE, FR, IT, AT, US, CA
   defaultFormat?: BarcodeFormat;
+  brandColor?: string;
 }
