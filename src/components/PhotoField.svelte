@@ -3,13 +3,22 @@
   let { label, value = $bindable() }: { label: string; value: string | undefined } = $props();
   let url = $state('');
   $effect(() => {
-    if (value) getImage(value).then(b => { if (b) url = URL.createObjectURL(b); });
+    let createdUrl: string | null = null;
+    if (value) {
+      getImage(value).then(b => {
+        if (b) { createdUrl = URL.createObjectURL(b); url = createdUrl; }
+      });
+    }
+    return () => { if (createdUrl && createdUrl.startsWith('blob:')) URL.revokeObjectURL(createdUrl); };
   });
   async function onPick(e: Event) {
     const file = (e.target as HTMLInputElement).files?.[0];
     if (!file) return;
     const key = crypto.randomUUID();
-    await putImage(key, file); value = key; url = URL.createObjectURL(file);
+    await putImage(key, file); value = key;
+    const newUrl = URL.createObjectURL(file);
+    if (url && url.startsWith('blob:')) URL.revokeObjectURL(url);
+    url = newUrl;
   }
 </script>
 <label>{label}

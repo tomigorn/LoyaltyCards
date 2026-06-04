@@ -13,6 +13,7 @@
     a.href = URL.createObjectURL(blob);
     a.download = `loyaltycards-backup.json`;
     a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 0);
   }
   async function doImport(e: Event) {
     const file = (e.target as HTMLInputElement).files?.[0]; if (!file) return;

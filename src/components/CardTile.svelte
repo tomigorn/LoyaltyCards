@@ -18,9 +18,13 @@
       }
     }
     catalogSrc = null;
+    let createdUrl: string | null = null;
     resolveLogoUrl(card, {
-      getImage, makeObjectUrl: URL.createObjectURL, generateTile,
+      getImage,
+      makeObjectUrl: (blob) => { createdUrl = URL.createObjectURL(blob); return createdUrl; },
+      generateTile,
     }).then(u => url = u);
+    return () => { if (createdUrl && createdUrl.startsWith('blob:')) URL.revokeObjectURL(createdUrl); };
   });
 
   function onCatalogError(e: Event) {
