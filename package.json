@@ -31,7 +31,8 @@
     "@zxing/browser": "^0.2.0",
     "bwip-js": "^4.11.1",
     "idb": "^8.0.3",
-    "svelte": "^5.56.2"
+    "svelte": "^5.56.2",
+    "svelte-dnd-action": "^0.9.69"
   },
   "devDependencies": {
     "@playwright/test": "^1.60.0",
