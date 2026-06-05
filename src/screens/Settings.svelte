@@ -4,6 +4,7 @@
   import { putCard, clearLogoCache } from '../lib/db';
   import { cards, loadCards } from '../lib/stores';
   import { getAutoFetch, setAutoFetch } from '../lib/settings';
+  import { clearFailedDomains } from '../lib/logo/fetch';
   import { get } from 'svelte/store';
   import type { DndEvent } from 'svelte-dnd-action';
   import type { Card } from '../lib/types';
@@ -12,7 +13,7 @@
   let msg = $state('');
   let autoFetch = $state(getAutoFetch());
   function toggleAuto() { autoFetch = !autoFetch; setAutoFetch(autoFetch); }
-  async function clearLogos() { await clearLogoCache(); msg = 'Logo cache cleared ✓'; }
+  async function clearLogos() { await clearLogoCache(); clearFailedDomains(); msg = 'Logo cache cleared ✓'; }
 
   async function doExport() {
     const json = await exportBackup();
