@@ -124,14 +124,15 @@ test('cross-device sync: add in A → visible in B; delete in B → gone in A', 
   console.log('Context B sees the card — pull worked');
 
   // ---- Context B: open the card, navigate to detail, delete it ----
-  await pageB.getByText(STORE_NAME).click(); // → checkout screen
-  // Checkout has an "edit" button (icon or text) that navigates to CardDetail
-  // Try clicking the edit icon aria-label or text
-  const editButton = pageB.getByRole('button', { name: /edit/i }).first();
+  // Click the card tile (role=button div) to open Checkout
+  await pageB.getByRole('button', { name: STORE_NAME }).click();
+  // Wait for the Checkout "Edit" button to appear before clicking it
+  const editButton = pageB.getByRole('button', { name: /^Edit$/i });
+  await expect(editButton).toBeVisible({ timeout: 10_000 });
   await editButton.click();
 
   // Wait for CardDetail (has a "Delete card" button)
-  await expect(pageB.getByRole('button', { name: /delete card/i })).toBeVisible({ timeout: 5_000 });
+  await expect(pageB.getByRole('button', { name: /delete card/i })).toBeVisible({ timeout: 10_000 });
   await pageB.getByRole('button', { name: /delete card/i }).click();
 
   // Verify B no longer shows the card

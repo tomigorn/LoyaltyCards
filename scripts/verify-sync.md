@@ -1,121 +1,99 @@
-# Sync Verification — Task 7 Result
+# Sync Verification — Result (autodate fix, 2026-06-05)
 
-**Outcome:** Automated live test NOT completed. Documented-manual with reason (see below).
+**Outcome: GREEN — all assertions passed.**
 
 ---
 
-## What Was Run
+## Environment
 
-### Container & build
+- Backend image: `loyaltycards-sync:local` (includes `created`/`updated` autodate fields on `cards` collection)
+- PWA: Phase C sync engine (`src/lib/sync/engine.ts`)
+- Playwright: two isolated browser contexts on `http://localhost:4173`
+
+---
+
+## Commands Run
 
 ```bash
-docker run -d --rm --name pb-e2e -p 8091:8090 \
+# 1. Ephemeral backend
+docker rm -f pb-e2e 2>/dev/null
+docker run -d --name pb-e2e -p 8091:8090 \
   -e PB_ADMIN_EMAIL=a@b.c -e PB_ADMIN_PASSWORD=password123456 \
   loyaltycards-sync:local
-# health check → 200 OK
+sleep 6
+# health check       → 200
+# sort=updated check → 200  (fix confirmed; was 400 before)
 
-VITE_SYNC_URL=http://localhost:8091 npm run build   # succeeded
-npx vite preview --port 4173 &                      # 200 OK on localhost:4173
+# 2. Build + preview
+cd /home/pi/Documents/development/LoyaltyCards
+VITE_SYNC_URL=http://localhost:8091 npm run build
+npx vite preview --port 4173 &
+# preview check      → 200
+
+# 3. Two-context Playwright test
+npx playwright test e2e-live/sync.spec.ts --config e2e-live/playwright.config.ts
+
+# 4. Tear down
+docker rm -f pb-e2e
+pkill -f "vite preview"
 ```
-
-### Playwright two-context test
-
-A Playwright test (`e2e-live/sync.spec.ts`) was written and iterated.
-Context A signed up, added a card; the `push()` call **confirmed the card in PocketBase** (verified via direct API query: `totalItems: 1`). Context B logged in and waited for `pull()` to surface the card — but the card never appeared.
-
-### Root cause found
-
-Manual API investigation showed that PocketBase's `cards` collection in the
-`loyaltycards-sync:local` image does **not** have `updated` exposed for
-filtering or sorting:
-
-```
-# Works (returns items):
-GET /api/collections/cards/records
-GET /api/collections/cards/records?sort=clientUpdatedAt
-
-# Fails with HTTP 400:
-GET /api/collections/cards/records?sort=updated
-GET /api/collections/cards/records?filter=updated>"2020-01-01"
-```
-
-`engine.ts` `pull()` calls `pb.collection(CARDS).getFullList({ filter, sort: 'updated' })`.
-Because `sort: 'updated'` always causes a 400 on this image, every `pull()` throws
-(the error is swallowed in the `syncing = false` `finally` block) and **no cards are
-ever pulled**. The 101 unit tests pass because they mock PocketBase.
-
-The image is the Phase-A backend built before this sync engine was designed; the
-collection was seeded without `updated` as a sortable/filterable field in the API rules.
-The fix is either:
-
-- Update the backend schema to allow sorting/filtering on `updated`, OR
-- Change `pull()` to not sort by `updated` and track the cursor differently
-  (e.g. use `clientUpdatedAt` as the cursor instead of PB's system `updated` field).
-
-No automated test result was fabricated. The 101 unit/integration tests (Tasks 1–5)
-remain the correctness safety net.
 
 ---
 
-## Manual Verification Steps (for when the backend is public / schema is fixed)
+## Test Result
 
-Run these once against the live or fixed-schema backend:
+```
+Running 1 test using 1 worker
 
-### Prerequisites
+signUp done for sync...@example.com
+addCard done: SyncTestShop
+Waiting for push...
+PB cards after A push: {"totalItems":1, ...}   ← card confirmed in PocketBase
+logIn done for sync...@example.com
+Context B sees the card — pull worked           ← ASSERTION 1 PASSED
+Context B deleted the card
+Context A no longer shows the card — tombstone applied  ← ASSERTIONS 2+3 PASSED
 
-```bash
-# Backend running and reachable (e.g. https://loyalty-sync.holy-grail.ch or localhost:8091)
-# App built with VITE_SYNC_URL pointing at that backend
-VITE_SYNC_URL=https://loyalty-sync.holy-grail.ch npm run build
-npx vite preview --port 4173 &
+1 passed (27.9s)
 ```
 
-### Step 1 – Device A: Sign up and add a card
+---
 
-1. Open `http://localhost:4173` (or the real PWA URL).
-2. Tap **⚙️ Settings** → **Create an account** → enter `you@example.com` / `password`.
-3. Go back (‹) to the card grid.
-4. Tap **＋** → **Enter manually**.
-5. Store name: `Migros`, Number: `7613269001234`, Format: Code 128.
-6. Tap **Save**.
-7. The `Migros` tile should appear immediately (written to IndexedDB) **and** be pushed to
-   PocketBase within ~2 s while online (check Network tab: POST to `/api/collections/cards/records`).
+## Assertions Verified
 
-### Step 2 – Device B: Log in and confirm card appears
+| # | Assertion | Result |
+|---|-----------|--------|
+| 1 | Card appears in PocketBase after Context A push (`totalItems > 0`) | PASS |
+| 2 | Context B (fresh storage, same account) sees the card after login — pull works | PASS |
+| 3 | Context B deletes the card; card disappears from B's view | PASS |
+| 4 | Context A reloads; card is gone — tombstone propagated from B to A | PASS |
 
-1. Open the same URL in a **different browser** (or incognito / different device).
-2. Tap **⚙️ Settings** → enter the same credentials → **Log in**.
-3. Go back (‹) to the card grid.
-4. Within ~5 s the `Migros` tile should appear (pulled from PocketBase by `pull()`).
+---
 
-### Step 3 – Device B: Delete the card, tombstone propagates to A
+## Fix Applied to Test Harness
 
-1. In Device B, tap the `Migros` tile → checkout screen.
-2. Tap the **edit** button to open CardDetail.
-3. Tap **Delete card**.
-4. The tile disappears from Device B.
-5. Switch to Device A (or reload its tab / navigate away and back). Within ~5 s the
-   `Migros` tile should be gone (tombstone received via `pull()` or realtime push).
+The navigation flow in `e2e-live/sync.spec.ts` was corrected:
 
-### Step 4 – Tear down
+- **Before:** `pageB.getByText(STORE_NAME).click()` — clicked the text span inside the tile div, which did not reliably trigger navigation
+- **After:** `pageB.getByRole('button', { name: STORE_NAME }).click()` — clicks the `role="button"` div directly
+- Also added explicit waits: wait for the "Edit" button to be visible before clicking it (Checkout screen), and increased timeout for "Delete card" button
 
-```bash
-docker stop pb-e2e     # if using ephemeral container
-# kill vite preview:
-kill $(pgrep -f "vite preview")
-```
+These were test-harness fixes only; no sync engine code was changed.
+
+---
+
+## Previous Blocker (resolved)
+
+In the prior run (`loyaltycards-sync:local` without autodate):
+
+- `GET /api/collections/cards/records?sort=updated` returned **HTTP 400**
+- `pull()` in `engine.ts` always threw and no cards were ever pulled
+- The fix (adding `created`/`updated` autodate fields to the `cards` schema) resolved this
+
+Now both `sort=updated` and `filter=updated>...` return **200** on the image used for this run.
 
 ---
 
 ## Unit / Integration Test Coverage (safety net)
 
-All 101 tests green (25 test files):
-
-- `src/lib/db.test.ts` — mutation hook fires on put/delete
-- `src/lib/sync/map.test.ts` — toRemote/fromRemote round-trip
-- `src/lib/sync/merge.test.ts` — LWW + tombstone merge decisions
-- `src/lib/sync/queue.test.ts` — enqueue / collapse / drain
-- `src/lib/sync/engine.test.ts` — push upsert, pull LWW, pull tombstone, adoptLocalCards,
-  echo-loop suppression
-
-These cover every sync code path end-to-end against a mocked PocketBase.
+All 101 unit/integration tests remain green (25 test files), covering every sync code path against a mocked PocketBase. The live e2e test above proves the full stack with the real backend.
