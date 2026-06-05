@@ -35,6 +35,8 @@ const COLOR_FALLBACK = '#444444';   // value extractDominantColor returns when i
  *  3) the colour extracted from the store logo,
  *  4) the card's own colour / neutral. */
 export async function resolveCardColor(card: Card): Promise<string> {
+  // 0) explicit user override always wins
+  if (card.tileColor) return card.tileColor;
   // 1) front card photo
   if (card.frontPhotoRef) {
     const blob = await getImage(card.frontPhotoRef);

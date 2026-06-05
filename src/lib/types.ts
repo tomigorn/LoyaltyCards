@@ -24,6 +24,7 @@ export interface Card {
   updatedAt: number;
   lastUsedAt?: number;
   catalogId?: string;        // links a card to a CatalogEntry.id
+  tileColor?: string;        // explicit user override for the tile background colour
 }
 
 export interface CatalogEntry {

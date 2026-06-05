@@ -4,7 +4,7 @@
   import { putCard, deleteCard, putImage, deleteImage } from '../lib/db';
   import { loadCards } from '../lib/stores';
   import { logoDevFetcher } from '../lib/logo/fetch';
-  import { resolveCardLogo } from '../lib/logo/resolveCard';
+  import { resolveCardLogo, resolveCardColor } from '../lib/logo/resolveCard';
   import { findCatalogById } from '../lib/catalog/catalog';
   import type { Card } from '../lib/types';
   let { card, ondone, ondeleted }:
@@ -12,11 +12,16 @@
   let draft = $state<Card>({ ...card });
   let showPicker = $state(false);
   let logoUrl = $state('');
+  let effColor = $state('#2a2a30');   // the effective tile colour (override or auto)
   $effect(() => {
     let made = '';
-    resolveCardLogo($state.snapshot(draft) as Card).then(u => { logoUrl = u; made = u; });
+    const snap = $state.snapshot(draft) as Card;
+    resolveCardLogo(snap).then(u => { logoUrl = u; made = u; });
+    resolveCardColor(snap).then(c => { effColor = c; });
     return () => { if (made.startsWith('blob:')) URL.revokeObjectURL(made); };
   });
+  function setTileColor(e: Event) { draft.tileColor = (e.currentTarget as HTMLInputElement).value; }
+  function resetTileColor() { draft.tileColor = undefined; }
 
   async function pickLogo(url: string) {
     showPicker = false;
@@ -89,11 +94,16 @@
     <LogoPicker initial={draft.storeName} onpick={pickLogo} onclose={() => showPicker = false} />
   {/if}
 
-  <label class="field swatch">
-    <span class="lbl">Brand colour</span>
-    <span class="dot" style="background:{draft.brandColor}"></span>
-    <input type="color" bind:value={draft.brandColor} hidden />
-  </label>
+  <div class="field swatch">
+    <span class="lbl">Tile colour</span>
+    <div class="swatch-right">
+      {#if draft.tileColor}<button class="auto" onclick={resetTileColor}>↺ Auto</button>{/if}
+      <label class="dot-btn" aria-label="Pick tile colour">
+        <span class="dot" style="background:{effColor}"></span>
+        <input type="color" value={draft.tileColor ?? effColor} oninput={setTileColor} hidden />
+      </label>
+    </div>
+  </div>
 
   <label class="field">
     <span class="lbl">Notes</span>
@@ -137,10 +147,14 @@
   .logo-prev .ph{font-size:24px;filter:grayscale(1);opacity:.6}
   .logo-actions{flex:1;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
   .logo-actions .btn{padding:0;height:64px;flex-direction:column;font-size:13px;gap:4px}
-  /* colour swatch */
+  /* tile-colour swatch */
   .swatch{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;
-    border-radius:12px;border:1px solid #2a2a30;background:#161618;cursor:pointer}
+    border-radius:12px;border:1px solid #2a2a30;background:#161618}
   .swatch .lbl{margin:0;color:#e6e6ec;font-size:15px}
+  .swatch-right{display:flex;align-items:center;gap:10px}
+  .auto{background:#23232b;border:1px solid #33333a;color:#cdd;border-radius:999px;
+    padding:5px 12px;font-size:13px;cursor:pointer}
+  .dot-btn{cursor:pointer;display:flex}
   .dot{width:34px;height:34px;border-radius:50%;border:2px solid #3a3a42}
   /* favourite */
   .toggle{display:flex;align-items:center;justify-content:space-between;padding:14px;border-radius:12px;
