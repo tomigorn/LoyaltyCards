@@ -7,8 +7,10 @@
   import type { Card } from './lib/types';
   import { putCard } from './lib/db';
   import { refreshSession } from './lib/auth/store';
+  import { startSync } from './lib/sync/start';
 
   refreshSession();
+  startSync();
 
   type Screen = 'home' | 'checkout' | 'add' | 'detail' | 'settings';
   let screen = $state<Screen>('home');
