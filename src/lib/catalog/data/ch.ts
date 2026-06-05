@@ -1,11 +1,11 @@
 import type { CatalogEntry } from '../../types';
 export const CH: CatalogEntry[] = [
   // Groceries / Supermarkets
-  { id: 'ch-migros', name: 'Migros', program: 'Cumulus', programColor: '#7AB51D', programDomain: 'cumulus.ch', aliases: ['cumulus', 'cumulus card'], domain: 'migros.ch', country: 'CH', defaultFormat: 'ean13', brandColor: '#FF6600' },
-  { id: 'ch-coop', name: 'Coop', program: 'Supercard', programColor: '#EB690B', programDomain: 'supercard.ch', aliases: ['supercard', 'coop city', 'coop supercard'], domain: 'coop.ch', country: 'CH', defaultFormat: 'ean13', brandColor: '#E2001A' },
+  { id: 'ch-migros', name: 'Migros', program: 'Cumulus', programDomain: 'cumulus.ch', aliases: ['cumulus', 'cumulus card'], domain: 'migros.ch', country: 'CH', defaultFormat: 'ean13', brandColor: '#FF6600' },
+  { id: 'ch-coop', name: 'Coop', program: 'Supercard', programDomain: 'supercard.ch', aliases: ['supercard', 'coop city', 'coop supercard'], domain: 'coop.ch', country: 'CH', defaultFormat: 'ean13', brandColor: '#E2001A' },
   { id: 'ch-denner', name: 'Denner', aliases: ['denner karte'], domain: 'denner.ch', country: 'CH', defaultFormat: 'ean13', brandColor: '#E2001A' },
   { id: 'ch-aldi', name: 'Aldi Suisse', aliases: ['aldi', 'aldi ch'], domain: 'aldi.ch', country: 'CH', defaultFormat: 'ean13' },
-  { id: 'ch-lidl', name: 'Lidl Schweiz', program: 'Plus', programColor: '#0050AA', aliases: ['lidl', 'lidl ch', 'lidl plus'], domain: 'lidl.ch', country: 'CH', defaultFormat: 'ean13', brandColor: '#0050AA' },
+  { id: 'ch-lidl', name: 'Lidl Schweiz', program: 'Plus', aliases: ['lidl', 'lidl ch', 'lidl plus'], domain: 'lidl.ch', country: 'CH', defaultFormat: 'ean13', brandColor: '#0050AA' },
   { id: 'ch-volg', name: 'Volg', program: 'TopCard', aliases: ['topcard volg'], domain: 'volg.ch', country: 'CH', defaultFormat: 'ean13' },
   { id: 'ch-leshop', name: 'LeShop', aliases: ['migros leshop'], domain: 'leshop.ch', country: 'CH', defaultFormat: 'ean13' },
 
@@ -31,14 +31,14 @@ export const CH: CatalogEntry[] = [
   { id: 'ch-microspot', name: 'Microspot', aliases: [], domain: 'microspot.ch', country: 'CH', defaultFormat: 'code128' },
 
   // DIY / Home
-  { id: 'ch-ikea', name: 'IKEA', program: 'Family', programColor: '#0058A3', aliases: ['ikea family', 'ikea schweiz'], domain: 'ikea.com', country: 'CH', defaultFormat: 'code128', brandColor: '#0058A3' },
+  { id: 'ch-ikea', name: 'IKEA', program: 'Family', aliases: ['ikea family', 'ikea schweiz'], domain: 'ikea.com', country: 'CH', defaultFormat: 'code128', brandColor: '#0058A3' },
   { id: 'ch-bauhaus', name: 'Bauhaus', aliases: [], domain: 'bauhaus.ch', country: 'CH', defaultFormat: 'ean13' },
   { id: 'ch-jumbo', name: 'Jumbo', aliases: ['jumbo baumarkt', 'jumbo card'], domain: 'jumbo.ch', country: 'CH', defaultFormat: 'ean13' },
   { id: 'ch-obi', name: 'OBI', aliases: [], domain: 'obi.ch', country: 'CH', defaultFormat: 'ean13' },
 
   // Travel / Transport
   { id: 'ch-sbb', name: 'SBB', program: 'SwissPass', aliases: ['cff', 'ffs', 'swisspass', 'swiss pass'], domain: 'sbb.ch', country: 'CH', defaultFormat: 'aztec' },
-  { id: 'ch-swiss', name: 'SWISS', program: 'Miles & More', programColor: '#05164D', programDomain: 'miles-and-more.com', aliases: ['swiss airlines', 'swiss miles more', 'miles and more'], domain: 'swiss.com', country: 'CH', defaultFormat: 'aztec', brandColor: '#B41E21' },
+  { id: 'ch-swiss', name: 'SWISS', program: 'Miles & More', programDomain: 'miles-and-more.com', aliases: ['swiss airlines', 'swiss miles more', 'miles and more'], domain: 'swiss.com', country: 'CH', defaultFormat: 'aztec', brandColor: '#B41E21' },
   { id: 'ch-mobility', name: 'Mobility', aliases: ['mobility carsharing'], domain: 'mobility.ch', country: 'CH', defaultFormat: 'code128' },
 
   // Other notable loyalty programs

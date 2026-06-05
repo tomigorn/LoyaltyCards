@@ -10,10 +10,10 @@ export function dominantHexFromPixels(px: Uint8ClampedArray): string {
   for (let i = 0; i < px.length; i += 4) {
     if (px[i + 3] < 200) continue;                       // transparent
     const r = px[i], g = px[i + 1], b = px[i + 2];
-    if (r > 240 && g > 240 && b > 240) continue;          // near-white background
+    if (r > 235 && g > 235 && b > 235) continue;          // near-white background
     const key = `${r},${g},${b}`;
     const sat = Math.max(r, g, b) - Math.min(r, g, b);
-    if (sat > 24) chroma.set(key, (chroma.get(key) ?? 0) + 1);
+    if (sat >= 40) chroma.set(key, (chroma.get(key) ?? 0) + 1);   // saturated brand colour
     else if (r < 110 && g < 110 && b < 110) dark.set(key, (dark.get(key) ?? 0) + 1);
   }
   const pick = (m: Map<string, number>) => {
@@ -31,7 +31,7 @@ export function dominantHexFromPixels(px: Uint8ClampedArray): string {
 export async function extractDominantColor(blob: Blob): Promise<string> {
   try {
     const bmp = await createImageBitmap(blob);
-    const size = 24;
+    const size = 32;
     const canvas = document.createElement('canvas');
     canvas.width = canvas.height = size;
     const ctx = canvas.getContext('2d')!;
