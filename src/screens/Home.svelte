@@ -68,7 +68,7 @@
 <input class="search" placeholder="🔍 Search…" bind:value={$query} />
 
 {#if reorderMode}
-  <div class="grid pad-bottom" use:dndzone={{ items, flipDurationMs: 150 }}
+  <div class="grid pad-bottom" use:dndzone={{ items, flipDurationMs: 150, dropTargetStyle: {} }}
        onconsider={handleConsider} onfinalize={handleFinalize}>
     {#each items as card (card.id)}
       <div class="drag-wrap"><CardTile {card} onopen={noop} /></div>
