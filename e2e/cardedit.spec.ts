@@ -16,6 +16,8 @@ test('editing a card persists after reload', async ({ page }) => {
   await page.getByText('Edit').click();                  // → detail
   await page.locator('input').first().fill('Renamed Shop');  // Name field
   await page.getByRole('button', { name: 'Save' }).click();
+  // save() returns to the checkout screen — wait for that so the IndexedDB write has landed
+  await expect(page.getByText('Edit')).toBeVisible();
 
   await page.goto('/');                                  // fresh load from IndexedDB
   await expect(page.getByText('Renamed Shop')).toBeVisible();
