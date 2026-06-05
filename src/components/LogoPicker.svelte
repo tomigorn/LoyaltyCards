@@ -7,10 +7,11 @@
   let q = $state(initial ?? '');
 
   function domains(query: string): string[] {
+    // Real catalog domains give real logos; only guess a domain when nothing matches.
+    const fromCatalog = matchShop(query, 4).map(e => e.domain);
+    if (fromCatalog.length) return [...new Set(fromCatalog)].slice(0, 4);
     const slug = query.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
-    const fromCatalog = matchShop(query, 3).map(e => e.domain);
-    const guesses = slug ? [`${slug}.com`, `${slug}.ch`, `${slug}.de`] : [];
-    return [...new Set([...fromCatalog, ...guesses])].slice(0, 5);
+    return slug ? [`${slug}.com`] : [];
   }
 
   // candidate image URLs across several services for each guessed domain
@@ -24,9 +25,14 @@
     return out;
   });
 
-  function hideBroken(e: Event) {
+  function hide(e: Event) {
     const btn = (e.currentTarget as HTMLElement).closest('.opt') as HTMLElement | null;
     if (btn) btn.style.display = 'none';
+  }
+  // hide failed loads AND tiny placeholders (blank / 1px icons from favicon services)
+  function onImgLoad(e: Event) {
+    const img = e.currentTarget as HTMLImageElement;
+    if (img.naturalWidth && img.naturalWidth < 24) hide(e);
   }
 </script>
 
@@ -39,7 +45,7 @@
   <div class="grid">
     {#each candidates as url (url)}
       <button class="opt" onclick={() => onpick(url)}>
-        <img src={url} alt="" loading="lazy" onerror={hideBroken} />
+        <img src={url} alt="" loading="lazy" onerror={hide} onload={onImgLoad} />
       </button>
     {/each}
   </div>
