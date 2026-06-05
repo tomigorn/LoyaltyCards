@@ -45,7 +45,7 @@ export const FR: CatalogEntry[] = [
   { id: 'fr-castorama', name: 'Castorama', aliases: ['casto'], domain: 'castorama.fr', country: 'FR', defaultFormat: 'ean13', brandColor: '#0050AA' },
 
   // Travel / Airlines
-  { id: 'fr-air-france', name: 'Air France', program: 'Flying Blue', programDomain: 'flyingblue.com', aliases: ['flying blue', 'air france klm'], domain: 'airfrance.fr', country: 'FR', defaultFormat: 'aztec', brandColor: '#003E87' },
+  { id: 'fr-air-france', name: 'Air France', program: 'Flying Blue', aliases: ['flying blue', 'air france klm'], domain: 'airfrance.fr', country: 'FR', defaultFormat: 'aztec', brandColor: '#003E87' },
   { id: 'fr-sncf', name: 'SNCF', program: 'Voyageur', aliases: ['sncf connect', 'voyageur', 'carte sncf'], domain: 'sncf.com', country: 'FR', defaultFormat: 'aztec', brandColor: '#E2001A' },
 
   // Coffee / Food

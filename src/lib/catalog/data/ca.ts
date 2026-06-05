@@ -1,22 +1,22 @@
 import type { CatalogEntry } from '../../types';
 export const CA: CatalogEntry[] = [
   // Groceries / Supermarkets / Wholesale
-  { id: 'ca-loblaws', name: 'Loblaws', program: 'PC Optimum', programDomain: 'pcoptimum.ca', aliases: ['pc optimum', 'pc points', 'president choice'], domain: 'loblaws.ca', country: 'CA', defaultFormat: 'code128', brandColor: '#E31837' },
-  { id: 'ca-shoppers', name: 'Shoppers Drug Mart', program: 'PC Optimum', programDomain: 'pcoptimum.ca', aliases: ['shoppers', 'optimum', 'pc optimum shoppers'], domain: 'shoppersdrugmart.ca', country: 'CA', defaultFormat: 'code128', brandColor: '#E31837' },
+  { id: 'ca-loblaws', name: 'Loblaws', program: 'PC Optimum', aliases: ['pc optimum', 'pc points', 'president choice'], domain: 'loblaws.ca', country: 'CA', defaultFormat: 'code128', brandColor: '#E31837' },
+  { id: 'ca-shoppers', name: 'Shoppers Drug Mart', program: 'PC Optimum', aliases: ['shoppers', 'optimum', 'pc optimum shoppers'], domain: 'shoppersdrugmart.ca', country: 'CA', defaultFormat: 'code128', brandColor: '#E31837' },
   { id: 'ca-canadian-tire', name: 'Canadian Tire', program: 'Triangle Rewards', aliases: ['canadian tire money', 'triangle rewards', 'ctm'], domain: 'canadiantire.ca', country: 'CA', defaultFormat: 'code128', brandColor: '#CC0000' },
   { id: 'ca-tim-hortons', name: 'Tim Hortons', program: 'Tims Rewards', aliases: ['timmies', 'tims rewards', 'tim rewards'], domain: 'timhortons.ca', country: 'CA', defaultFormat: 'qr', brandColor: '#C8102E' },
   { id: 'ca-sobeys', name: 'Sobeys', program: 'Scene+', aliases: ['air miles sobeys', 'scene+ sobeys'], domain: 'sobeys.com', country: 'CA', defaultFormat: 'code128', brandColor: '#E2001A' },
   { id: 'ca-metro', name: 'Metro', aliases: ['metro inc', 'metro rewards'], domain: 'metro.ca', country: 'CA', defaultFormat: 'code128', brandColor: '#E2001A' },
-  { id: 'ca-real-canadian-superstore', name: 'Real Canadian Superstore', program: 'PC Optimum', programDomain: 'pcoptimum.ca', aliases: ['superstore', 'rcs', 'pc optimum superstore'], domain: 'realcanadiansuperstore.ca', country: 'CA', defaultFormat: 'code128' },
+  { id: 'ca-real-canadian-superstore', name: 'Real Canadian Superstore', program: 'PC Optimum', aliases: ['superstore', 'rcs', 'pc optimum superstore'], domain: 'realcanadiansuperstore.ca', country: 'CA', defaultFormat: 'code128' },
   { id: 'ca-iga', name: 'IGA', aliases: ['iga canada'], domain: 'iga.net', country: 'CA', defaultFormat: 'code128', brandColor: '#CC0000' },
   { id: 'ca-costco', name: 'Costco Canada', aliases: ['costco', 'costco membership'], domain: 'costco.ca', country: 'CA', defaultFormat: 'code128', brandColor: '#005DAA' },
   { id: 'ca-food-basics', name: 'Food Basics', aliases: ['food basics canada'], domain: 'foodbasics.ca', country: 'CA', defaultFormat: 'code128' },
-  { id: 'ca-no-frills', name: 'No Frills', program: 'PC Optimum', programDomain: 'pcoptimum.ca', aliases: ['nofrills', 'pc optimum no frills'], domain: 'nofrills.ca', country: 'CA', defaultFormat: 'code128', brandColor: '#FFCC00' },
+  { id: 'ca-no-frills', name: 'No Frills', program: 'PC Optimum', aliases: ['nofrills', 'pc optimum no frills'], domain: 'nofrills.ca', country: 'CA', defaultFormat: 'code128', brandColor: '#FFCC00' },
   { id: 'ca-walmart', name: 'Walmart Canada', aliases: ['walmart ca'], domain: 'walmart.ca', country: 'CA', defaultFormat: 'code128', brandColor: '#0071CE' },
 
   // Pharmacy / Health
   { id: 'ca-rexall', name: 'Rexall', program: 'Be Well', aliases: ['be well rexall', 'bewell'], domain: 'rexall.ca', country: 'CA', defaultFormat: 'code128' },
-  { id: 'ca-jean-coutu', name: 'Jean Coutu', program: 'PC Optimum', programDomain: 'pcoptimum.ca', aliases: ['jean coutu pcpoints', 'pcpoints jean coutu'], domain: 'jeancoutu.com', country: 'CA', defaultFormat: 'code128', brandColor: '#E2001A' },
+  { id: 'ca-jean-coutu', name: 'Jean Coutu', program: 'PC Optimum', aliases: ['jean coutu pcpoints', 'pcpoints jean coutu'], domain: 'jeancoutu.com', country: 'CA', defaultFormat: 'code128', brandColor: '#E2001A' },
 
   // Fuel / Gas
   { id: 'ca-petro-canada', name: 'Petro-Canada', program: 'Petro-Points', aliases: ['petropoints', 'petro canada'], domain: 'petro-canada.ca', country: 'CA', defaultFormat: 'code128', brandColor: '#CC0000' },

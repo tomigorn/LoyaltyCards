@@ -32,9 +32,7 @@ export interface CatalogEntry {
   program?: string;          // loyalty-program name, e.g. 'Cumulus' → displays "Migros Cumulus"
   aliases: string[];
   domain: string;            // store logo.dev key, e.g. 'migros.ch'
-  programDomain?: string;    // program logo.dev key, e.g. 'cumulus.ch' (tried before `domain`)
   country: string;           // ISO-2: CH, DE, FR, IT, AT, US, CA
   defaultFormat?: BarcodeFormat;
   brandColor?: string;       // store brand colour
-  programColor?: string;     // loyalty-program brand colour (preferred for the tile)
 }

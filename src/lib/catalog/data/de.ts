@@ -3,7 +3,7 @@ export const DE: CatalogEntry[] = [
   // Groceries / Supermarkets / Discounters
   { id: 'de-lidl', name: 'Lidl', program: 'Plus', aliases: ['lidl plus', 'lidl connect'], domain: 'lidl.de', country: 'DE', defaultFormat: 'ean13', brandColor: '#0050AA' },
   { id: 'de-aldi', name: 'Aldi', aliases: ['aldi sued', 'aldi nord', 'aldi suisse'], domain: 'aldi.de', country: 'DE', defaultFormat: 'ean13' },
-  { id: 'de-rewe', name: 'Rewe', program: 'Payback', programDomain: 'payback.de', aliases: ['rewe payback', 'rewe card'], domain: 'rewe.de', country: 'DE', defaultFormat: 'ean13', brandColor: '#CC071E' },
+  { id: 'de-rewe', name: 'Rewe', program: 'Payback', aliases: ['rewe payback', 'rewe card'], domain: 'rewe.de', country: 'DE', defaultFormat: 'ean13', brandColor: '#CC071E' },
   { id: 'de-edeka', name: 'Edeka', aliases: ['edeka card', 'netto'], domain: 'edeka.de', country: 'DE', defaultFormat: 'ean13', brandColor: '#00539F' },
   { id: 'de-penny', name: 'Penny', aliases: ['penny markt'], domain: 'penny.de', country: 'DE', defaultFormat: 'ean13', brandColor: '#CC071E' },
   { id: 'de-netto', name: 'Netto', aliases: ['netto marken discount'], domain: 'netto-online.de', country: 'DE', defaultFormat: 'ean13' },
@@ -11,14 +11,14 @@ export const DE: CatalogEntry[] = [
   { id: 'de-real', name: 'Real', aliases: ['real markt'], domain: 'real.de', country: 'DE', defaultFormat: 'ean13' },
 
   // Pharmacy / Drugstore
-  { id: 'de-dm', name: 'dm', program: 'Payback', programDomain: 'payback.de', aliases: ['dm drogerie', 'dm markt', 'dm aktiv plus'], domain: 'dm.de', country: 'DE', defaultFormat: 'ean13', brandColor: '#EF7C00' },
+  { id: 'de-dm', name: 'dm', program: 'Payback', aliases: ['dm drogerie', 'dm markt', 'dm aktiv plus'], domain: 'dm.de', country: 'DE', defaultFormat: 'ean13', brandColor: '#EF7C00' },
   { id: 'de-rossmann', name: 'Rossmann', aliases: ['rossmann card'], domain: 'rossmann.de', country: 'DE', defaultFormat: 'ean13', brandColor: '#C4003C' },
   { id: 'de-mueller', name: 'Müller', aliases: ['mueller drogerie', 'muellercard'], domain: 'mueller.de', country: 'DE', defaultFormat: 'ean13' },
   { id: 'de-budni', name: 'Budni', aliases: ['budnikowsky'], domain: 'budni.de', country: 'DE', defaultFormat: 'ean13' },
 
   // Fuel / Mobility
   { id: 'de-shell', name: 'Shell', program: 'ClubSmart', aliases: ['shell clubsmart', 'shell station'], domain: 'shell.com', country: 'DE', defaultFormat: 'ean13' },
-  { id: 'de-aral', name: 'Aral', program: 'Payback', programDomain: 'payback.de', aliases: ['aral payback'], domain: 'aral.de', country: 'DE', defaultFormat: 'ean13', brandColor: '#0050AA' },
+  { id: 'de-aral', name: 'Aral', program: 'Payback', aliases: ['aral payback'], domain: 'aral.de', country: 'DE', defaultFormat: 'ean13', brandColor: '#0050AA' },
   { id: 'de-esso', name: 'Esso', aliases: ['esso card'], domain: 'esso.com', country: 'DE', defaultFormat: 'ean13' },
   { id: 'de-totalenergies', name: 'TotalEnergies', aliases: ['total station', 'total'], domain: 'totalenergies.com', country: 'DE', defaultFormat: 'ean13' },
 
@@ -42,7 +42,7 @@ export const DE: CatalogEntry[] = [
   { id: 'de-toom', name: 'Toom', aliases: ['toom baumarkt'], domain: 'toom.de', country: 'DE', defaultFormat: 'ean13' },
 
   // Travel / Airlines
-  { id: 'de-lufthansa', name: 'Lufthansa', program: 'Miles & More', programDomain: 'miles-and-more.com', aliases: ['miles and more', 'lh miles'], domain: 'lufthansa.com', country: 'DE', defaultFormat: 'aztec', brandColor: '#05164D' },
+  { id: 'de-lufthansa', name: 'Lufthansa', program: 'Miles & More', aliases: ['miles and more', 'lh miles'], domain: 'lufthansa.com', country: 'DE', defaultFormat: 'aztec', brandColor: '#05164D' },
   { id: 'de-db', name: 'Deutsche Bahn', program: 'BahnBonus', aliases: ['db bahn', 'bahncard', 'bahn'], domain: 'bahn.de', country: 'DE', defaultFormat: 'aztec', brandColor: '#CC071E' },
 
   // Multi-retailer loyalty

@@ -1,18 +1,18 @@
 import type { CatalogEntry } from '../../types';
 export const AT: CatalogEntry[] = [
   // Groceries / Supermarkets / Discounters
-  { id: 'at-billa', name: 'Billa', program: 'jö Bonus Club', programDomain: 'joe.at', aliases: ['billa plus', 'billa club', 'billa card'], domain: 'billa.at', country: 'AT', defaultFormat: 'ean13', brandColor: '#FFD700' },
+  { id: 'at-billa', name: 'Billa', program: 'jö Bonus Club', aliases: ['billa plus', 'billa club', 'billa card'], domain: 'billa.at', country: 'AT', defaultFormat: 'ean13', brandColor: '#FFD700' },
   { id: 'at-spar', name: 'Spar', aliases: ['spar austria', 'eurospar', 'interspar', 'spar my club'], domain: 'spar.at', country: 'AT', defaultFormat: 'ean13', brandColor: '#009640' },
   { id: 'at-hofer', name: 'Hofer', aliases: ['hofer aldi', 'hofer karte'], domain: 'hofer.at', country: 'AT', defaultFormat: 'ean13', brandColor: '#004A97' },
   { id: 'at-lidl', name: 'Lidl Österreich', program: 'Plus', aliases: ['lidl', 'lidl plus', 'lidl at'], domain: 'lidl.at', country: 'AT', defaultFormat: 'ean13', brandColor: '#0050AA' },
-  { id: 'at-merkur', name: 'Merkur', program: 'jö Bonus Club', programDomain: 'joe.at', aliases: ['merkur markt'], domain: 'merkurmarkt.at', country: 'AT', defaultFormat: 'ean13', brandColor: '#CC071E' },
+  { id: 'at-merkur', name: 'Merkur', program: 'jö Bonus Club', aliases: ['merkur markt'], domain: 'merkurmarkt.at', country: 'AT', defaultFormat: 'ean13', brandColor: '#CC071E' },
   { id: 'at-penny', name: 'Penny Österreich', aliases: ['penny at', 'penny markt'], domain: 'penny.at', country: 'AT', defaultFormat: 'ean13', brandColor: '#CC071E' },
   { id: 'at-mpreis', name: 'MPreis', aliases: [], domain: 'mpreis.at', country: 'AT', defaultFormat: 'ean13' },
   { id: 'at-adeg', name: 'ADEG', aliases: ['adeg markt'], domain: 'adeg.at', country: 'AT', defaultFormat: 'ean13' },
 
   // Pharmacy / Drugstore / Health
-  { id: 'at-dm', name: 'dm Österreich', program: 'Payback', programDomain: 'payback.at', aliases: ['dm drogerie', 'dm aktiv plus', 'dm austria'], domain: 'dm.at', country: 'AT', defaultFormat: 'ean13', brandColor: '#EF7C00' },
-  { id: 'at-bipa', name: 'Bipa', program: 'jö Bonus Club', programDomain: 'joe.at', aliases: ['bipa card', 'bipa drogerie'], domain: 'bipa.com', country: 'AT', defaultFormat: 'ean13', brandColor: '#E2001A' },
+  { id: 'at-dm', name: 'dm Österreich', program: 'Payback', aliases: ['dm drogerie', 'dm aktiv plus', 'dm austria'], domain: 'dm.at', country: 'AT', defaultFormat: 'ean13', brandColor: '#EF7C00' },
+  { id: 'at-bipa', name: 'Bipa', program: 'jö Bonus Club', aliases: ['bipa card', 'bipa drogerie'], domain: 'bipa.com', country: 'AT', defaultFormat: 'ean13', brandColor: '#E2001A' },
   { id: 'at-mueller', name: 'Müller', aliases: ['mueller drogerie', 'muellercard'], domain: 'mueller.at', country: 'AT', defaultFormat: 'ean13' },
 
   // Fuel
@@ -38,7 +38,7 @@ export const AT: CatalogEntry[] = [
   { id: 'at-hornbach', name: 'Hornbach', aliases: [], domain: 'hornbach.at', country: 'AT', defaultFormat: 'ean13', brandColor: '#F28C00' },
 
   // Travel / Airlines
-  { id: 'at-austrian', name: 'Austrian Airlines', program: 'Miles & More', programDomain: 'miles-and-more.com', aliases: ['austrian', 'miles and more', 'aua'], domain: 'austrian.com', country: 'AT', defaultFormat: 'aztec', brandColor: '#CC071E' },
+  { id: 'at-austrian', name: 'Austrian Airlines', program: 'Miles & More', aliases: ['austrian', 'miles and more', 'aua'], domain: 'austrian.com', country: 'AT', defaultFormat: 'aztec', brandColor: '#CC071E' },
   { id: 'at-oebb', name: 'ÖBB', program: 'Vorteilscard', aliases: ['obb', 'oebb', 'vorteilscard'], domain: 'oebb.at', country: 'AT', defaultFormat: 'aztec', brandColor: '#CC071E' },
 
   // Multi-retailer loyalty

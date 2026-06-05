@@ -1,8 +1,8 @@
 import type { CatalogEntry } from '../../types';
 export const CH: CatalogEntry[] = [
   // Groceries / Supermarkets
-  { id: 'ch-migros', name: 'Migros', program: 'Cumulus', programDomain: 'cumulus.ch', aliases: ['cumulus', 'cumulus card'], domain: 'migros.ch', country: 'CH', defaultFormat: 'ean13', brandColor: '#FF6600' },
-  { id: 'ch-coop', name: 'Coop', program: 'Supercard', programDomain: 'supercard.ch', aliases: ['supercard', 'coop city', 'coop supercard'], domain: 'coop.ch', country: 'CH', defaultFormat: 'ean13', brandColor: '#E2001A' },
+  { id: 'ch-migros', name: 'Migros', program: 'Cumulus', aliases: ['cumulus', 'cumulus card'], domain: 'migros.ch', country: 'CH', defaultFormat: 'ean13', brandColor: '#FF6600' },
+  { id: 'ch-coop', name: 'Coop', program: 'Supercard', aliases: ['supercard', 'coop city', 'coop supercard'], domain: 'coop.ch', country: 'CH', defaultFormat: 'ean13', brandColor: '#E2001A' },
   { id: 'ch-denner', name: 'Denner', aliases: ['denner karte'], domain: 'denner.ch', country: 'CH', defaultFormat: 'ean13', brandColor: '#E2001A' },
   { id: 'ch-aldi', name: 'Aldi Suisse', aliases: ['aldi', 'aldi ch'], domain: 'aldi.ch', country: 'CH', defaultFormat: 'ean13' },
   { id: 'ch-lidl', name: 'Lidl Schweiz', program: 'Plus', aliases: ['lidl', 'lidl ch', 'lidl plus'], domain: 'lidl.ch', country: 'CH', defaultFormat: 'ean13', brandColor: '#0050AA' },
@@ -38,7 +38,7 @@ export const CH: CatalogEntry[] = [
 
   // Travel / Transport
   { id: 'ch-sbb', name: 'SBB', program: 'SwissPass', aliases: ['cff', 'ffs', 'swisspass', 'swiss pass'], domain: 'sbb.ch', country: 'CH', defaultFormat: 'aztec' },
-  { id: 'ch-swiss', name: 'SWISS', program: 'Miles & More', programDomain: 'miles-and-more.com', aliases: ['swiss airlines', 'swiss miles more', 'miles and more'], domain: 'swiss.com', country: 'CH', defaultFormat: 'aztec', brandColor: '#B41E21' },
+  { id: 'ch-swiss', name: 'SWISS', program: 'Miles & More', aliases: ['swiss airlines', 'swiss miles more', 'miles and more'], domain: 'swiss.com', country: 'CH', defaultFormat: 'aztec', brandColor: '#B41E21' },
   { id: 'ch-mobility', name: 'Mobility', aliases: ['mobility carsharing'], domain: 'mobility.ch', country: 'CH', defaultFormat: 'code128' },
 
   // Other notable loyalty programs
