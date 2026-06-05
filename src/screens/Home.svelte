@@ -36,11 +36,12 @@
 
   // The Done button is the single, explicit save point.
   async function save() {
-    for (let i = 0; i < items.length; i++) {
-      if (items[i].order !== i) { items[i] = { ...items[i], order: i }; await putCard(items[i]); }
-    }
-    await loadCards();
+    // Snapshot the final order BEFORE touching state, then exit reorder mode so the
+    // live dnd-zone is unmounted and can't revert `items` while we persist.
+    const ordered = items.map((c, i) => ({ ...c, order: i }));
     reorderMode = false;
+    for (const c of ordered) await putCard(c);
+    await loadCards();
   }
 
   function handleSortChange(e: Event) { setSort((e.target as HTMLSelectElement).value as SortMode); }
