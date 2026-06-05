@@ -103,3 +103,28 @@ describe('auth store — login', () => {
     expect(authWithPassword).toHaveBeenCalledWith('a@b.c', 'pw');
   });
 });
+
+import { startTotp, confirmTotp, disableTotp } from './store';
+
+describe('auth store — TOTP management', () => {
+  beforeEach(() => { send.mockReset(); });
+
+  it('startTotp returns the secret + otpauth url', async () => {
+    send.mockResolvedValueOnce({ secret: 'S', otpauthUrl: 'otpauth://x' });
+    const r = await startTotp();
+    expect(send).toHaveBeenCalledWith('/api/loyalty/totp/setup', expect.objectContaining({ method: 'POST' }));
+    expect(r).toEqual({ secret: 'S', otpauthUrl: 'otpauth://x' });
+  });
+
+  it('confirmTotp posts the code to enable', async () => {
+    send.mockResolvedValueOnce({ enabled: true });
+    await confirmTotp('123456');
+    expect(send).toHaveBeenCalledWith('/api/loyalty/totp/enable', expect.objectContaining({ method: 'POST', body: { code: '123456' } }));
+  });
+
+  it('disableTotp posts the code to disable', async () => {
+    send.mockResolvedValueOnce({ enabled: false });
+    await disableTotp('123456');
+    expect(send).toHaveBeenCalledWith('/api/loyalty/totp/disable', expect.objectContaining({ method: 'POST', body: { code: '123456' } }));
+  });
+});

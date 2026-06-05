@@ -57,3 +57,17 @@ export async function signup(email: string, password: string): Promise<void> {
   await pb.collection(USERS).create({ email, password, passwordConfirm: password });
   await pb.collection(USERS).authWithPassword(email, password);
 }
+
+export interface TotpSetup { secret: string; otpauthUrl: string; }
+
+export async function startTotp(): Promise<TotpSetup> {
+  return (await pb.send('/api/loyalty/totp/setup', { method: 'POST', body: {} })) as TotpSetup;
+}
+
+export async function confirmTotp(code: string): Promise<void> {
+  await pb.send('/api/loyalty/totp/enable', { method: 'POST', body: { code } });
+}
+
+export async function disableTotp(code: string): Promise<void> {
+  await pb.send('/api/loyalty/totp/disable', { method: 'POST', body: { code } });
+}
