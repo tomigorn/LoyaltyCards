@@ -8,7 +8,13 @@
   let { card, ondone, ondeleted }:
     { card: Card; ondone: () => void; ondeleted: () => void } = $props();
   let draft = $state<Card>({ ...card });
-  async function save() { draft.updatedAt = Date.now(); await putCard(draft); await loadCards(); ondone(); }
+  async function save() {
+    draft.updatedAt = Date.now();
+    // $state proxies aren't structured-cloneable for IndexedDB — snapshot to a plain object.
+    await putCard($state.snapshot(draft) as Card);
+    await loadCards();
+    ondone();
+  }
   async function remove() {
     if (card.logo.blobRef) await deleteImage(card.logo.blobRef);
     if (card.frontPhotoRef) await deleteImage(card.frontPhotoRef);
