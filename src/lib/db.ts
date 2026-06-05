@@ -8,6 +8,7 @@ let dbp: Promise<IDBPDatabase> | null = null;
 export type Mutation = { kind: 'put'; card: Card } | { kind: 'delete'; id: string };
 let mutationHook: ((m: Mutation) => void) | null = null;
 export function setMutationHook(fn: ((m: Mutation) => void) | null) { mutationHook = fn; }
+export function getMutationHook(): ((m: Mutation) => void) | null { return mutationHook; }
 
 function open() {
   if (!dbp) {
