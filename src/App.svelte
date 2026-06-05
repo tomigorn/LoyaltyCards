@@ -5,6 +5,7 @@
   import CardDetail from './screens/CardDetail.svelte';
   import Settings from './screens/Settings.svelte';
   import type { Card } from './lib/types';
+  import { putCard } from './lib/db';
 
   type Screen = 'home' | 'checkout' | 'add' | 'detail' | 'settings';
   let screen = $state<Screen>('home');
@@ -30,7 +31,7 @@
 </script>
 
 {#if screen === 'home'}
-  <Home onopen={(c) => { active = c; navigate('checkout'); }}
+  <Home onopen={(c) => { const u = { ...c, lastUsedAt: Date.now() }; putCard(u); active = u; navigate('checkout'); }}
         onadd={() => navigate('add')} onsettings={() => navigate('settings')} />
 {:else if screen === 'checkout' && active}
   <Checkout card={active} onback={back} onedit={() => navigate('detail')} />
