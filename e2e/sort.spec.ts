@@ -22,13 +22,13 @@ test('sort selector changes card order (A–Z vs Date added)', async ({ page }) 
   await page.getByLabel('Sort order').selectOption('alpha');
 
   // Apple Shop should appear before Zebra Store in the grid
-  const tileTexts = await page.locator('button.tile').allTextContents();
+  const tileTexts = await page.locator('.tile').allTextContents();
   expect(tileTexts[0]).toContain('Apple Shop');
   expect(tileTexts[1]).toContain('Zebra Store');
 
   // Switch to Date added — Apple Shop was added last so appears first (newest first)
   await page.getByLabel('Sort order').selectOption('added');
-  const tileTextsAdded = await page.locator('button.tile').allTextContents();
+  const tileTextsAdded = await page.locator('.tile').allTextContents();
   expect(tileTextsAdded[0]).toContain('Apple Shop');
   expect(tileTextsAdded[1]).toContain('Zebra Store');
 });

@@ -23,26 +23,30 @@
     };
   });
   const isTile = $derived(logoUrl.startsWith('data:')); // generated tile → no white chip
+  // a plain div (not a <button>): native buttons swallow touch-drags, so dragging the
+  // background wouldn't start a reorder — only a child element would.
+  function open() { onopen(card); }
+  function onkey(e: KeyboardEvent) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } }
 </script>
 
 {#if photoUrl}
-  <button class="tile photo" onclick={() => onopen(card)}>
+  <div class="tile photo" role="button" tabindex="0" onclick={open} onkeydown={onkey}>
     <img class="cardimg" src={photoUrl} alt={card.storeName} draggable="false" />
     <span class="nm over">{card.storeName}</span>
-  </button>
+  </div>
 {:else}
-  <button class="tile" style="background:{bg}" onclick={() => onopen(card)}>
+  <div class="tile" role="button" tabindex="0" style="background:{bg}" onclick={open} onkeydown={onkey}>
     {#if logoUrl && !isTile}
       <span class="chip"><img src={logoUrl} alt={card.storeName} draggable="false" /></span>
     {/if}
     <span class="nm">{card.storeName}</span>
-  </button>
+  </div>
 {/if}
 
 <style>
   .tile{position:relative;width:100%;border:none;border-radius:14px;aspect-ratio:1.4;display:flex;
     flex-direction:column;align-items:center;justify-content:center;gap:7px;color:#fff;cursor:pointer;
-    padding:8px;overflow:hidden}
+    padding:8px;overflow:hidden;user-select:none;-webkit-tap-highlight-color:transparent}
   /* logos/photos must not behave like draggable/long-pressable images (no browser image
      menu, and the whole TILE stays the tap/drag target, not the image) */
   .tile img{pointer-events:none;user-select:none;-webkit-user-drag:none;-webkit-touch-callout:none}

@@ -100,7 +100,8 @@
   .tile-wrap{display:contents}
   /* real grid cell; the whole tile is the drag handle on touch (not just the logo) */
   .drag-wrap{display:block;touch-action:none;-webkit-user-drag:none;user-select:none}
-  .drag-wrap :global(.tile){touch-action:none}
+  /* every part of the tile is a drag surface (no scroll-instead-of-drag anywhere on it) */
+  .drag-wrap :global(*){touch-action:none}
   .drag-wrap :global(img){pointer-events:none;-webkit-user-drag:none;user-select:none}
   .add{aspect-ratio:1.4;border-radius:14px;border:1px dashed #3a3a42;background:#161618;
     color:#9a9aa4;font-size:28px;cursor:pointer}
