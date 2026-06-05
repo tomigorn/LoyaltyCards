@@ -58,7 +58,7 @@
 
 {#if reorderMode}
   <header>
-    <span class="reorder-title">Drag to reorder</span>
+    <h1>Cards</h1>
     <button class="done-btn" onclick={doneReorder}>Done ✓</button>
   </header>
   <div
@@ -112,10 +112,13 @@
     border:1px solid #2a2a30;background:#161618;color:#eee}
   .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px 24px}
   .tile-wrap{display:contents}
-  .drag-wrap{display:block}
+  .drag-wrap{display:block}              /* a real grid cell; the tile fills it (width:100%) */
   .add{aspect-ratio:1.4;border-radius:14px;border:1px dashed #3a3a42;background:#161618;
     color:#9a9aa4;font-size:28px;cursor:pointer}
-  .reorder-title{font-size:17px;font-weight:600;color:#eee}
+  /* iOS/Android-style wiggle while reordering (on the tile, not the dnd-moved wrapper) */
+  @keyframes wiggle { 0%,100%{transform:rotate(-1deg)} 50%{transform:rotate(1deg)} }
+  .drag-wrap :global(.tile){ animation: wiggle 0.26s ease-in-out infinite; transform-origin:center }
+  .drag-wrap:nth-child(odd) :global(.tile){ animation-delay:-0.13s }
   .done-btn{background:#3a7bd5;color:#fff;border:none;border-radius:10px;
     padding:8px 18px;font-size:15px;font-weight:600;cursor:pointer}
 </style>

@@ -26,7 +26,7 @@
   <span class="nm">{card.storeName}</span>
 </button>
 <style>
-  .tile{border:none;border-radius:14px;aspect-ratio:1.4;display:flex;flex-direction:column;
+  .tile{width:100%;border:none;border-radius:14px;aspect-ratio:1.4;display:flex;flex-direction:column;
     align-items:center;justify-content:center;gap:7px;color:#fff;cursor:pointer;padding:8px;overflow:hidden}
   .chip{background:#fff;border-radius:9px;padding:6px;display:flex;align-items:center;justify-content:center}
   .chip img{width:42px;height:42px;object-fit:contain;display:block}
