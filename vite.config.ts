@@ -32,5 +32,8 @@ export default defineConfig({
     setupFiles: ['./tests/setup.ts'],
     globals: true,
     exclude: ['**/node_modules/**', '**/dist/**', 'e2e/**'],
+    alias: [
+      { find: /^svelte$/, replacement: new URL('./node_modules/svelte/src/index-client.js', import.meta.url).pathname },
+    ],
   },
 });
