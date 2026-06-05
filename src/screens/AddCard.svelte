@@ -11,6 +11,7 @@
   let mode = $state<'choose'|'scan'|'manual'>('choose');
   let value = $state(''); let format = $state<BarcodeFormat>('ean13'); let storeName = $state('');
   let err = $state('');
+  let warn = $state('');
   let formatTouched = $state(false);
   let catalogId = $state<string | undefined>(undefined);
   let brandColor = $state<string | undefined>(undefined);
@@ -32,10 +33,21 @@
   function onScan(r: { value: string; format: BarcodeFormat }) {
     value = r.value; format = r.format; formatTouched = true; mode = 'manual';
   }
+
+  // Editing the number or format clears a pending "save anyway" warning,
+  // so a changed value is re-validated from scratch.
+  $effect(() => { value; format; warn = ''; });
+
   async function save() {
-    const v = validateBarcode(format, value);
-    if (!v.ok) { err = v.error ?? 'Invalid barcode'; return; }
     if (!storeName.trim()) { err = 'Enter a store name'; return; }
+    if (!value.trim()) { err = 'Enter a number'; return; }
+    err = '';
+    const v = validateBarcode(format, value);
+    if (!v.ok && !warn) {
+      // Soft guard: warn once, but let the user add the card anyway on the next tap.
+      warn = `${v.error ?? 'This doesn’t look like a valid barcode'} — tap “Save anyway” to add it.`;
+      return;
+    }
     const cat = catalogId ? findCatalogById(catalogId) : findCatalogEntry(storeName);
     const now = Date.now();
     const all = await getAllCards();
@@ -66,7 +78,8 @@
     </select>
   </label>
   {#if err}<p class="err">{err}</p>{/if}
-  <button class="big" onclick={save}>Save</button>
+  {#if warn}<p class="warn">⚠️ {warn}</p>{/if}
+  <button class="big" onclick={save}>{warn ? 'Save anyway' : 'Save'}</button>
 {/if}
 <style>
   header{display:flex;gap:12px;align-items:center;padding:14px 16px}
@@ -77,4 +90,5 @@
   input,select{width:100%;padding:10px;margin-top:4px;border-radius:10px;border:1px solid #2a2a30;
     background:#161618;color:#eee}
   .err{color:#f88;margin:6px 16px}
+  .warn{color:#ffcf66;margin:6px 16px;font-size:14px}
 </style>
