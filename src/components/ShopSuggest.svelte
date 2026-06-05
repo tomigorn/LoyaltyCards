@@ -1,5 +1,6 @@
 <script lang="ts">
   import { matchShop } from '../lib/catalog/match';
+  import { displayName } from '../lib/catalog/catalog';
   import type { CatalogEntry } from '../lib/types';
   let { query, onpick }: { query: string; onpick: (e: CatalogEntry) => void } = $props();
   const results = $derived(matchShop(query, 5));
@@ -8,7 +9,7 @@
   <div class="menu">
     {#each results as e (e.id)}
       <button class="opt" onclick={() => onpick(e)}>
-        <span class="nm">{e.name}</span><span class="cc">{e.country}</span>
+        <span class="nm">{displayName(e)}</span><span class="cc">{e.country}</span>
       </button>
     {/each}
   </div>

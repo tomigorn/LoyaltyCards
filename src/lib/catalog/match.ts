@@ -25,7 +25,9 @@ function dice(a: string, b: string): number {
 }
 
 function score(qn: string, e: CatalogEntry): number {
-  const names = [e.name, ...e.aliases].map(normalize);
+  const terms = [e.name, ...e.aliases];
+  if (e.program) terms.push(e.program, `${e.name} ${e.program}`);
+  const names = terms.map(normalize);
   let best = 0;
   for (const n of names) {
     if (n === qn) return 1;                  // exact

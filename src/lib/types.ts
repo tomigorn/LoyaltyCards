@@ -25,7 +25,8 @@ export interface Card {
 
 export interface CatalogEntry {
   id: string;                // e.g. 'ch-migros'
-  name: string;
+  name: string;              // store / brand name, e.g. 'Migros'
+  program?: string;          // loyalty-program name, e.g. 'Cumulus' → displays "Migros Cumulus"
   aliases: string[];
   domain: string;            // logo.dev key, e.g. 'migros.ch'
   country: string;           // ISO-2: CH, DE, FR, IT, AT, US, CA

@@ -12,4 +12,8 @@ export function findCatalogEntry(query: string): CatalogEntry | undefined {
 export function findCatalogById(id: string): CatalogEntry | undefined {
   return CATALOG.find(e => e.id === id);
 }
+/** What the autocomplete shows and the card is named: "Migros Cumulus", else "Migros". */
+export function displayName(e: CatalogEntry): string {
+  return e.program ? `${e.name} ${e.program}` : e.name;
+}
 export { CATALOG };

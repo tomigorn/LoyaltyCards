@@ -2,7 +2,7 @@
   import ScannerView from '../components/ScannerView.svelte';
   import ShopSuggest from '../components/ShopSuggest.svelte';
   import { FORMATS, FORMAT_LABELS, validateBarcode } from '../lib/barcode/formats';
-  import { findCatalogEntry, findCatalogById } from '../lib/catalog/catalog';
+  import { findCatalogEntry, findCatalogById, displayName } from '../lib/catalog/catalog';
   import { putCard, getAllCards } from '../lib/db';
   import { loadCards } from '../lib/stores';
   import type { BarcodeFormat, Card, CatalogEntry } from '../lib/types';
@@ -18,7 +18,7 @@
   let picked = $state(false);
 
   function pick(e: CatalogEntry) {
-    storeName = e.name; catalogId = e.id; brandColor = e.brandColor;
+    storeName = displayName(e); catalogId = e.id; brandColor = e.brandColor;
     if (!formatTouched && e.defaultFormat) format = e.defaultFormat;
     picked = true;
   }
