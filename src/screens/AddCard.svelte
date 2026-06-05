@@ -114,70 +114,96 @@
     mode = 'manual';
   }
 </script>
-<header><button onclick={oncancel}>← Cancel</button><h2>Add card</h2></header>
+<header>
+  <button class="back" onclick={oncancel} aria-label="Cancel">‹</button>
+  <h2>Add card</h2>
+</header>
 
+<div class="body">
 {#if mode === 'choose'}
-  <!-- Hidden file input for photo capture — inside choose block so it doesn't exist in manual mode -->
-  <input
-    type="file"
-    accept="image/*"
-    capture="environment"
-    style="display:none"
-    bind:this={photoInput}
-    onchange={onPhotoSelected}
-  />
-  <button class="big" onclick={() => mode = 'scan'}>📷 Scan barcode</button>
-  <button class="big" onclick={triggerPhotoInput}>🖼️ Photo of card</button>
-  <button class="big" onclick={() => mode = 'manual'}>⌨️ Enter manually</button>
+  <!-- hidden file input for photo capture (inside choose so it's absent in manual mode) -->
+  <input type="file" accept="image/*" capture="environment" style="display:none"
+    bind:this={photoInput} onchange={onPhotoSelected} />
+  <button class="opt" onclick={() => mode = 'scan'}>
+    <span class="ic">📷</span><span class="t"><b>Scan barcode</b><small>Point the camera at the card</small></span><span class="ch">›</span>
+  </button>
+  <button class="opt" onclick={triggerPhotoInput}>
+    <span class="ic">🖼️</span><span class="t"><b>Photo of card</b><small>Read the shop name from a photo</small></span><span class="ch">›</span>
+  </button>
+  <button class="opt" onclick={() => mode = 'manual'}>
+    <span class="ic">⌨️</span><span class="t"><b>Enter manually</b><small>Type the name &amp; number</small></span><span class="ch">›</span>
+  </button>
 {:else if mode === 'scan'}
   <ScannerView onresult={onScan} />
-  <button onclick={() => mode = 'manual'}>Enter manually instead</button>
+  <button class="btn" onclick={() => mode = 'manual'}>⌨️ Enter manually instead</button>
 {:else if mode === 'ocr'}
   {#if ocrReading}
-    <p class="ocr-status">Reading card…</p>
+    <p class="ocr-status">📷 Reading card…</p>
   {:else}
-    <p class="ocr-hint">Found possible matches — tap one to use it:</p>
-    <div class="ocr-list">
+    <span class="lbl">Found possible matches — tap one</span>
+    <div class="list">
       {#each ocrSuggestions as e (e.id)}
-        <button class="ocr-opt" onclick={() => pickOcrSuggestion(e)}>
+        <button class="row" onclick={() => pickOcrSuggestion(e)}>
           <span class="nm">{displayName(e)}</span><span class="cc">{e.country}</span>
         </button>
       {/each}
     </div>
-    <button class="link-btn" onclick={() => mode = 'manual'}>None of these — enter manually</button>
+    <button class="btn" onclick={() => mode = 'manual'}>None of these — enter manually</button>
   {/if}
 {:else}
-  <label>Store name<input bind:value={storeName} placeholder="e.g. Migros" /></label>
+  <label class="field">
+    <span class="lbl">Store name</span>
+    <input class="text" bind:value={storeName} placeholder="e.g. Migros" />
+  </label>
   <ShopSuggest query={storeName} onpick={pick} />
-  <label>Number<input bind:value /></label>
-  <label>Format
-    <select bind:value={format} onchange={() => formatTouched = true}>
+  <label class="field">
+    <span class="lbl">Number</span>
+    <input class="text" bind:value inputmode="numeric" />
+  </label>
+  <label class="field">
+    <span class="lbl">Format</span>
+    <select class="text" bind:value={format} onchange={() => formatTouched = true}>
       {#each FORMATS as f}<option value={f}>{FORMAT_LABELS[f]}</option>{/each}
     </select>
   </label>
   {#if err}<p class="err">{err}</p>{/if}
   {#if warn}<p class="warn">⚠️ {warn}</p>{/if}
-  <button class="big" onclick={save}>{warn ? 'Save anyway' : 'Save'}</button>
+  <button class="btn primary" onclick={save}>{warn ? 'Save anyway' : 'Save'}</button>
 {/if}
-<style>
-  header{display:flex;gap:12px;align-items:center;padding:14px 16px}
-  button{cursor:pointer}
-  .big{display:block;width:calc(100% - 32px);margin:10px 16px;padding:14px;border-radius:12px;
-    border:none;background:#2a6df4;color:#fff;font-size:16px}
-  label{display:block;margin:10px 16px;color:#cdd}
-  input,select{width:100%;padding:10px;margin-top:4px;border-radius:10px;border:1px solid #2a2a30;
-    background:#161618;color:#eee}
-  .err{color:#f88;margin:6px 16px}
-  .warn{color:#ffcf66;margin:6px 16px;font-size:14px}
+</div>
 
-  /* OCR styles */
-  .ocr-status{color:#aac;margin:24px 16px;font-size:16px;text-align:center}
-  .ocr-hint{color:#8a8a94;margin:12px 16px 4px;font-size:13px}
-  .ocr-list{background:#1b1b20;border:1px solid #33333a;border-radius:10px;overflow:hidden;margin:4px 16px 0}
-  .ocr-opt{display:flex;align-items:center;gap:10px;width:100%;padding:12px 14px;background:none;
-    border:none;border-bottom:1px solid #26262c;color:#eee;cursor:pointer;text-align:left;font-size:15px}
-  .ocr-opt:last-child{border-bottom:none}
-  .nm{font-size:14px}.cc{margin-left:auto;color:#8a8a94;font-size:11px;border:1px solid #3a3a42;border-radius:5px;padding:1px 5px}
-  .link-btn{display:block;margin:14px 16px;background:none;border:none;color:#6a8ef0;font-size:14px;
-    padding:0;text-decoration:underline}
+<style>
+  header{display:flex;align-items:center;gap:6px;padding:12px 12px 6px}
+  .back{background:none;border:none;color:#e6e6ec;font-size:30px;line-height:1;cursor:pointer;
+    width:40px;height:40px;border-radius:10px}
+  .back:active{background:#1a1a20}
+  h2{font-size:19px;margin:0}
+  .body{display:flex;flex-direction:column;gap:12px;padding:8px 16px 40px}
+  .field{display:block}
+  .lbl{display:block;color:#9a9aa6;font-size:13px;margin:0 2px 6px}
+  .text{width:100%;padding:12px;border-radius:12px;border:1px solid #2a2a30;background:#161618;
+    color:#eee;font-size:15px;font-family:inherit}
+  .btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border-radius:12px;
+    border:1px solid #33333a;background:#1a1a20;color:#e6e6ec;font-size:15px;cursor:pointer;
+    -webkit-tap-highlight-color:transparent}
+  .btn:active{background:#23232b}
+  .btn.primary{background:#2a6df4;border:none;font-weight:600;font-size:16px;margin-top:6px}
+  /* choose-mode option cards */
+  .opt{display:flex;align-items:center;gap:14px;padding:16px;border-radius:14px;border:1px solid #2a2a30;
+    background:#161618;color:#e6e6ec;cursor:pointer;text-align:left;-webkit-tap-highlight-color:transparent}
+  .opt:active{background:#1e1e24}
+  .opt .ic{font-size:24px;width:30px;text-align:center}
+  .opt .t{flex:1;display:flex;flex-direction:column;gap:2px}
+  .opt .t b{font-size:16px}
+  .opt .t small{color:#8a8a94;font-size:13px}
+  .opt .ch{color:#666;font-size:22px}
+  .err{color:#f88;margin:2px 2px;font-size:14px}
+  .warn{color:#ffcf66;margin:2px 2px;font-size:14px}
+  .ocr-status{color:#aac;margin:28px 0;font-size:16px;text-align:center}
+  .list{background:#161618;border:1px solid #2a2a30;border-radius:12px;overflow:hidden}
+  .row{display:flex;align-items:center;gap:10px;width:100%;padding:14px;background:none;border:none;
+    border-bottom:1px solid #23232b;color:#eee;cursor:pointer;text-align:left;font-size:15px}
+  .row:last-child{border-bottom:none}
+  .nm{font-size:15px}
+  .cc{margin-left:auto;color:#8a8a94;font-size:11px;border:1px solid #3a3a42;border-radius:5px;padding:1px 6px}
 </style>
