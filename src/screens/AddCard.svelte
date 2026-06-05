@@ -3,6 +3,7 @@
   import ShopSuggest from '../components/ShopSuggest.svelte';
   import { FORMATS, FORMAT_LABELS, validateBarcode } from '../lib/barcode/formats';
   import { findCatalogEntry, findCatalogById, displayName } from '../lib/catalog/catalog';
+  import { detectBrand } from '../lib/barcode/detect';
   import { putCard, getAllCards } from '../lib/db';
   import { loadCards } from '../lib/stores';
   import type { BarcodeFormat, Card, CatalogEntry } from '../lib/types';
@@ -32,6 +33,14 @@
 
   function onScan(r: { value: string; format: BarcodeFormat }) {
     value = r.value; format = r.format; formatTouched = true; mode = 'manual';
+    if (!picked) {
+      const detected = detectBrand(r.value);
+      if (detected) {
+        storeName = displayName(detected); catalogId = detected.id; brandColor = detected.brandColor;
+        picked = true;
+        // formatTouched is already true — keep the scanned format, not the catalog defaultFormat
+      }
+    }
   }
 
   // Editing the number or format clears a pending "save anyway" warning,
