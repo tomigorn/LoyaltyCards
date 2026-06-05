@@ -6,6 +6,8 @@ export type BarcodeFormat =
 export type LogoSource = 'catalog' | 'fetched' | 'uploaded' | 'generated';
 export interface Logo { source: LogoSource; blobRef?: string; }
 
+export type SortMode = 'lastUsed' | 'alpha' | 'added' | 'custom';
+
 export interface Card {
   id: string;
   storeName: string;
@@ -20,6 +22,7 @@ export interface Card {
   order: number;
   createdAt: number;
   updatedAt: number;
+  lastUsedAt?: number;
   catalogId?: string;        // links a card to a CatalogEntry.id
 }
 
