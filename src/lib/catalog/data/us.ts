@@ -2,7 +2,7 @@ import type { CatalogEntry } from '../../types';
 export const US: CatalogEntry[] = [
   // Groceries / Supermarkets / Wholesale
   { id: 'us-walmart', name: 'Walmart', aliases: ['walmart rewards', 'walmart+', 'walmart plus'], domain: 'walmart.com', country: 'US', defaultFormat: 'code128', brandColor: '#0071CE' },
-  { id: 'us-target', name: 'Target', program: 'Circle', aliases: ['target circle', 'redcard'], domain: 'target.com', country: 'US', defaultFormat: 'code128', brandColor: '#CC0000' },
+  { id: 'us-target', name: 'Target', program: 'Circle', programColor: '#CC0000', aliases: ['target circle', 'redcard'], domain: 'target.com', country: 'US', defaultFormat: 'code128', brandColor: '#CC0000' },
   { id: 'us-costco', name: 'Costco', aliases: ['costco membership', 'costco warehouse'], domain: 'costco.com', country: 'US', defaultFormat: 'code128', brandColor: '#005DAA' },
   { id: 'us-kroger', name: 'Kroger', program: 'Kroger Plus', aliases: ['kroger plus', 'kroger rewards'], domain: 'kroger.com', country: 'US', defaultFormat: 'code128', brandColor: '#004990' },
   { id: 'us-safeway', name: 'Safeway', program: 'for U', aliases: ['safeway for u', 'safeway rewards'], domain: 'safeway.com', country: 'US', defaultFormat: 'code128', brandColor: '#CC0000' },
@@ -15,8 +15,8 @@ export const US: CatalogEntry[] = [
   { id: 'us-harris-teeter', name: 'Harris Teeter', program: 'VIC Card', aliases: ['vip card harris teeter'], domain: 'harristeeter.com', country: 'US', defaultFormat: 'code128' },
 
   // Pharmacy / Drug Stores
-  { id: 'us-cvs', name: 'CVS', program: 'ExtraCare', aliases: ['cvs pharmacy', 'cvs extracare', 'cvs caremark'], domain: 'cvs.com', country: 'US', defaultFormat: 'code128', brandColor: '#CC0000' },
-  { id: 'us-walgreens', name: 'Walgreens', program: 'myWalgreens', aliases: ['walgreens balance rewards', 'mywalgreens'], domain: 'walgreens.com', country: 'US', defaultFormat: 'code128', brandColor: '#E31837' },
+  { id: 'us-cvs', name: 'CVS', program: 'ExtraCare', programColor: '#CC0000', aliases: ['cvs pharmacy', 'cvs extracare', 'cvs caremark'], domain: 'cvs.com', country: 'US', defaultFormat: 'code128', brandColor: '#CC0000' },
+  { id: 'us-walgreens', name: 'Walgreens', program: 'myWalgreens', programColor: '#E31837', aliases: ['walgreens balance rewards', 'mywalgreens'], domain: 'walgreens.com', country: 'US', defaultFormat: 'code128', brandColor: '#E31837' },
   { id: 'us-rite-aid', name: 'Rite Aid', program: 'wellness+ Rewards', aliases: ['rite aid wellness plus'], domain: 'riteaid.com', country: 'US', defaultFormat: 'code128', brandColor: '#003087' },
 
   // Fuel / Convenience
@@ -42,15 +42,15 @@ export const US: CatalogEntry[] = [
   // DIY / Home
   { id: 'us-home-depot', name: 'The Home Depot', program: 'Pro Xtra', aliases: ['home depot', 'pro xtra'], domain: 'homedepot.com', country: 'US', defaultFormat: 'code128', brandColor: '#F96302' },
   { id: 'us-lowes', name: "Lowe's", program: 'MyLowe\'s Rewards', aliases: ['lowes', 'mylowe\'s rewards'], domain: 'lowes.com', country: 'US', defaultFormat: 'code128', brandColor: '#004990' },
-  { id: 'us-ikea', name: 'IKEA', program: 'Family', aliases: ['ikea family'], domain: 'ikea.com', country: 'US', defaultFormat: 'code128', brandColor: '#0058A3' },
+  { id: 'us-ikea', name: 'IKEA', program: 'Family', programColor: '#0058A3', aliases: ['ikea family'], domain: 'ikea.com', country: 'US', defaultFormat: 'code128', brandColor: '#0058A3' },
 
   // Travel / Airlines
-  { id: 'us-delta', name: 'Delta Air Lines', program: 'SkyMiles', aliases: ['delta skymiles', 'skymiles'], domain: 'delta.com', country: 'US', defaultFormat: 'aztec', brandColor: '#003366' },
+  { id: 'us-delta', name: 'Delta Air Lines', program: 'SkyMiles', programColor: '#003268', aliases: ['delta skymiles', 'skymiles'], domain: 'delta.com', country: 'US', defaultFormat: 'aztec', brandColor: '#003366' },
   { id: 'us-united', name: 'United Airlines', program: 'MileagePlus', aliases: ['mileageplus', 'united mileageplus'], domain: 'united.com', country: 'US', defaultFormat: 'aztec', brandColor: '#002244' },
   { id: 'us-american-airlines', name: 'American Airlines', program: 'AAdvantage', aliases: ['aadvantage', 'aa aadvantage'], domain: 'aa.com', country: 'US', defaultFormat: 'aztec', brandColor: '#0078D2' },
-  { id: 'us-southwest', name: 'Southwest Airlines', program: 'Rapid Rewards', aliases: ['rapid rewards', 'southwest rapid rewards'], domain: 'southwest.com', country: 'US', defaultFormat: 'aztec', brandColor: '#304CB2' },
-  { id: 'us-marriott', name: 'Marriott', program: 'Bonvoy', aliases: ['marriott bonvoy', 'bonvoy'], domain: 'marriott.com', country: 'US', defaultFormat: 'aztec', brandColor: '#AA0000' },
-  { id: 'us-hilton', name: 'Hilton', program: 'Honors', aliases: ['hilton honors'], domain: 'hilton.com', country: 'US', defaultFormat: 'aztec', brandColor: '#2D2D6B' },
+  { id: 'us-southwest', name: 'Southwest Airlines', program: 'Rapid Rewards', programColor: '#304CB2', aliases: ['rapid rewards', 'southwest rapid rewards'], domain: 'southwest.com', country: 'US', defaultFormat: 'aztec', brandColor: '#304CB2' },
+  { id: 'us-marriott', name: 'Marriott', program: 'Bonvoy', programColor: '#1C1C1C', aliases: ['marriott bonvoy', 'bonvoy'], domain: 'marriott.com', country: 'US', defaultFormat: 'aztec', brandColor: '#AA0000' },
+  { id: 'us-hilton', name: 'Hilton', program: 'Honors', programColor: '#104C97', aliases: ['hilton honors'], domain: 'hilton.com', country: 'US', defaultFormat: 'aztec', brandColor: '#2D2D6B' },
 
   // Coffee / Fast Food
   { id: 'us-starbucks', name: 'Starbucks', program: 'Rewards', aliases: ['starbucks rewards'], domain: 'starbucks.com', country: 'US', defaultFormat: 'qr', brandColor: '#006241' },

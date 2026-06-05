@@ -8,14 +8,14 @@ export const FR: CatalogEntry[] = [
   { id: 'fr-casino', name: 'Casino', aliases: ['geant casino', 'casino max'], domain: 'groupe-casino.fr', country: 'FR', defaultFormat: 'ean13' },
   { id: 'fr-monoprix', name: 'Monoprix', aliases: ['monoprix club'], domain: 'monoprix.fr', country: 'FR', defaultFormat: 'ean13' },
   { id: 'fr-franprix', name: 'Franprix', aliases: [], domain: 'franprix.fr', country: 'FR', defaultFormat: 'ean13' },
-  { id: 'fr-lidl', name: 'Lidl', program: 'Plus', aliases: ['lidl plus', 'lidl france'], domain: 'lidl.fr', country: 'FR', defaultFormat: 'ean13', brandColor: '#0050AA' },
+  { id: 'fr-lidl', name: 'Lidl', program: 'Plus', programColor: '#0050AA', aliases: ['lidl plus', 'lidl france'], domain: 'lidl.fr', country: 'FR', defaultFormat: 'ean13', brandColor: '#0050AA' },
   { id: 'fr-aldi', name: 'Aldi', aliases: ['aldi france'], domain: 'aldi.fr', country: 'FR', defaultFormat: 'ean13' },
   { id: 'fr-super-u', name: 'Super U', aliases: ['systeme u', 'systeme-u', 'u'], domain: 'magasins-u.com', country: 'FR', defaultFormat: 'ean13', brandColor: '#E2001A' },
   { id: 'fr-simply', name: 'Simply Market', aliases: ['simply'], domain: 'simply-market.fr', country: 'FR', defaultFormat: 'ean13' },
 
   // Pharmacy / Beauty / Health
   { id: 'fr-pharmacie-lafayette', name: 'Pharmacie Lafayette', aliases: ['grande pharmacie lafayette'], domain: 'pharmacies-lafayette.fr', country: 'FR', defaultFormat: 'ean13' },
-  { id: 'fr-sephora', name: 'Sephora', program: 'Beauty Insider', aliases: ['sephora beauty pass'], domain: 'sephora.fr', country: 'FR', defaultFormat: 'ean13', brandColor: '#000000' },
+  { id: 'fr-sephora', name: 'Sephora', program: 'Beauty Insider', programColor: '#000000', aliases: ['sephora beauty pass'], domain: 'sephora.fr', country: 'FR', defaultFormat: 'ean13', brandColor: '#000000' },
   { id: 'fr-yves-rocher', name: 'Yves Rocher', aliases: ['yves rocher club'], domain: 'yves-rocher.fr', country: 'FR', defaultFormat: 'ean13' },
 
   // Fuel
@@ -40,12 +40,12 @@ export const FR: CatalogEntry[] = [
   { id: 'fr-go-sport', name: 'Go Sport', aliases: ['gosport club'], domain: 'go-sport.com', country: 'FR', defaultFormat: 'ean13' },
 
   // DIY / Home
-  { id: 'fr-ikea', name: 'IKEA', program: 'Family', aliases: ['ikea family', 'ikea france'], domain: 'ikea.com', country: 'FR', defaultFormat: 'code128', brandColor: '#0058A3' },
+  { id: 'fr-ikea', name: 'IKEA', program: 'Family', programColor: '#0058A3', aliases: ['ikea family', 'ikea france'], domain: 'ikea.com', country: 'FR', defaultFormat: 'code128', brandColor: '#0058A3' },
   { id: 'fr-leroy-merlin', name: 'Leroy Merlin', aliases: ['leroy merlin carte'], domain: 'leroymerlin.fr', country: 'FR', defaultFormat: 'ean13', brandColor: '#009640' },
   { id: 'fr-castorama', name: 'Castorama', aliases: ['casto'], domain: 'castorama.fr', country: 'FR', defaultFormat: 'ean13', brandColor: '#0050AA' },
 
   // Travel / Airlines
-  { id: 'fr-air-france', name: 'Air France', program: 'Flying Blue', aliases: ['flying blue', 'air france klm'], domain: 'airfrance.fr', country: 'FR', defaultFormat: 'aztec', brandColor: '#003E87' },
+  { id: 'fr-air-france', name: 'Air France', program: 'Flying Blue', programColor: '#001E5A', programDomain: 'flyingblue.com', aliases: ['flying blue', 'air france klm'], domain: 'airfrance.fr', country: 'FR', defaultFormat: 'aztec', brandColor: '#003E87' },
   { id: 'fr-sncf', name: 'SNCF', program: 'Voyageur', aliases: ['sncf connect', 'voyageur', 'carte sncf'], domain: 'sncf.com', country: 'FR', defaultFormat: 'aztec', brandColor: '#E2001A' },
 
   // Coffee / Food
