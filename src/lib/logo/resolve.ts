@@ -15,11 +15,13 @@ export interface ResolveDeps {
 }
 
 export async function resolveLogoUrl(card: Card, d: ResolveDeps): Promise<string> {
-  // 1) user upload
+  // 1) user upload / hand-picked logo blob
   if (card.logo.blobRef) {
     const b = await d.getImage(card.logo.blobRef);
     if (b) return d.makeObjectUrl(b);
   }
+  // 1b) hand-picked logo kept as a remote URL (a source that wasn't fetchable as a blob)
+  if (card.logo.url) return card.logo.url;
   const domains = card.catalogId ? d.domainsFor(card.catalogId) : [];
   // 2) cached logo — program domain first, then store domain
   for (const domain of domains) {

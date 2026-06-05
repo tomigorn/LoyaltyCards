@@ -45,6 +45,16 @@ export async function resolveCardColor(card: Card): Promise<string> {
       } catch { /* ignore */ }
     }
   }
+  // 1b) a hand-picked logo blob — match the tile to it
+  if (card.logo.blobRef) {
+    const blob = await getImage(card.logo.blobRef);
+    if (blob) {
+      try {
+        const c = await extractDominantColor(blob);
+        if (c && c !== COLOR_FALLBACK) return c;
+      } catch { /* ignore */ }
+    }
+  }
   // 2-3) curated store branding
   const e: CatalogEntry | undefined = card.catalogId ? findCatalogById(card.catalogId) : undefined;
   if (e) {

@@ -1,5 +1,6 @@
 <script lang="ts">
   import PhotoField from '../components/PhotoField.svelte';
+  import LogoPicker from '../components/LogoPicker.svelte';
   import { putCard, deleteCard, putImage, deleteImage } from '../lib/db';
   import { loadCards } from '../lib/stores';
   import { logoDevFetcher } from '../lib/logo/fetch';
@@ -8,6 +9,24 @@
   let { card, ondone, ondeleted }:
     { card: Card; ondone: () => void; ondeleted: () => void } = $props();
   let draft = $state<Card>({ ...card });
+  let showPicker = $state(false);
+
+  // Hand-pick a logo from the multi-source search. Prefer storing a blob (offline +
+  // colour extraction); if the source can't be fetched (CORS), keep the remote URL.
+  async function pickLogo(url: string) {
+    showPicker = false;
+    if (draft.logo.blobRef) await deleteImage(draft.logo.blobRef);
+    try {
+      const res = await fetch(url);
+      if (res.ok) {
+        const key = crypto.randomUUID();
+        await putImage(key, await res.blob());
+        draft.logo = { source: 'uploaded', blobRef: key };
+        return;
+      }
+    } catch { /* CORS / network — fall back to the URL */ }
+    draft.logo = { source: 'fetched', url };
+  }
   async function save() {
     draft.updatedAt = Date.now();
     // $state proxies aren't structured-cloneable for IndexedDB — snapshot to a plain object.
@@ -42,9 +61,13 @@
 <label>Name<input bind:value={draft.storeName} /></label>
 <label>Brand color<input type="color" bind:value={draft.brandColor} /></label>
 <div class="logo">
+  <button onclick={() => showPicker = !showPicker}>🎨 Choose logo</button>
   <input type="file" accept="image/*" onchange={uploadLogo} />
-  <button onclick={fetchLogo}>🌐 Fetch logo online</button>
+  <button onclick={fetchLogo}>🌐 Fetch</button>
 </div>
+{#if showPicker}
+  <LogoPicker initial={draft.storeName} onpick={pickLogo} onclose={() => showPicker = false} />
+{/if}
 <label>Notes<textarea bind:value={draft.notes}></textarea></label>
 <PhotoField label="Front photo" bind:value={draft.frontPhotoRef} />
 <PhotoField label="Back photo" bind:value={draft.backPhotoRef} />

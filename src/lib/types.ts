@@ -4,7 +4,7 @@ export type BarcodeFormat =
   | 'qr' | 'aztec' | 'pdf417' | 'datamatrix';
 
 export type LogoSource = 'catalog' | 'fetched' | 'uploaded' | 'generated';
-export interface Logo { source: LogoSource; blobRef?: string; }
+export interface Logo { source: LogoSource; blobRef?: string; url?: string; }
 
 export type SortMode = 'lastUsed' | 'alpha' | 'added' | 'custom';
 
