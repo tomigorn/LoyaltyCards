@@ -4,6 +4,7 @@
   import { loadCards } from '../lib/stores';
   import { getAutoFetch, setAutoFetch } from '../lib/settings';
   import { clearFailedDomains } from '../lib/logo/fetch';
+  import AccountSection from '../components/AccountSection.svelte';
 
   let { onback }: { onback: () => void } = $props();
   let msg = $state('');
@@ -32,6 +33,7 @@
 </header>
 
 <div class="body">
+  <AccountSection />
   <section>
     <span class="lbl">Backup</span>
     <button class="btn" onclick={doExport}>⬇️ Export backup</button>

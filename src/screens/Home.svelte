@@ -6,6 +6,7 @@
   import { putCard } from '../lib/db';
   import { longpress } from '../lib/actions/longpress';
   import CardTile from '../components/CardTile.svelte';
+  import BackupBanner from '../components/BackupBanner.svelte';
   import type { Card, SortMode } from '../lib/types';
 
   let { onopen, onadd, onsettings }:
@@ -76,6 +77,7 @@
   </div>
   <div class="reorder-bar"><button class="done-btn" onclick={save}>Done ✓</button></div>
 {:else}
+    <BackupBanner onsettings={onsettings} />
   <div class="grid">
     {#each $filtered as card (card.id)}
       <div class="tile-wrap" use:longpress={{ onlongpress: enterReorder }} role="presentation">

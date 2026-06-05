@@ -6,6 +6,9 @@
   import Settings from './screens/Settings.svelte';
   import type { Card } from './lib/types';
   import { putCard } from './lib/db';
+  import { refreshSession } from './lib/auth/store';
+
+  refreshSession();
 
   type Screen = 'home' | 'checkout' | 'add' | 'detail' | 'settings';
   let screen = $state<Screen>('home');
