@@ -27,13 +27,13 @@
 
 {#if photoUrl}
   <button class="tile photo" onclick={() => onopen(card)}>
-    <img class="cardimg" src={photoUrl} alt={card.storeName} />
+    <img class="cardimg" src={photoUrl} alt={card.storeName} draggable="false" />
     <span class="nm over">{card.storeName}</span>
   </button>
 {:else}
   <button class="tile" style="background:{bg}" onclick={() => onopen(card)}>
     {#if logoUrl && !isTile}
-      <span class="chip"><img src={logoUrl} alt={card.storeName} /></span>
+      <span class="chip"><img src={logoUrl} alt={card.storeName} draggable="false" /></span>
     {/if}
     <span class="nm">{card.storeName}</span>
   </button>
@@ -43,6 +43,9 @@
   .tile{position:relative;width:100%;border:none;border-radius:14px;aspect-ratio:1.4;display:flex;
     flex-direction:column;align-items:center;justify-content:center;gap:7px;color:#fff;cursor:pointer;
     padding:8px;overflow:hidden}
+  /* logos/photos must not behave like draggable/long-pressable images (no browser image
+     menu, and the whole TILE stays the tap/drag target, not the image) */
+  .tile img{pointer-events:none;user-select:none;-webkit-user-drag:none;-webkit-touch-callout:none}
   .chip{background:#fff;border-radius:9px;padding:6px;display:flex;align-items:center;justify-content:center}
   .chip img{width:42px;height:42px;object-fit:contain;display:block}
   .nm{font-size:13px;font-weight:700;text-shadow:0 1px 2px rgba(0,0,0,.35)}
