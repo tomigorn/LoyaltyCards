@@ -10,4 +10,16 @@ describe('dominantHexFromPixels', () => {
   it('falls back to a neutral when all transparent', () => {
     expect(dominantHexFromPixels(new Uint8ClampedArray([0,0,0,0]))).toBe('#444444');
   });
+  it('uses a dark shade (not grey fallback) for black-on-white logos', () => {
+    // 2 black (text) + 2 white (background) → white ignored, black kept
+    const px = new Uint8ClampedArray([0,0,0,255, 0,0,0,255, 255,255,255,255, 255,255,255,255]);
+    expect(dominantHexFromPixels(px)).toBe('#000000');
+  });
+  it('prefers a saturated brand colour over more-frequent black text', () => {
+    const px = new Uint8ClampedArray([
+      255,102,0,255, 255,102,0,255, 255,102,0,255,   // 3 orange (saturated)
+      0,0,0,255, 0,0,0,255, 0,0,0,255, 0,0,0,255, 0,0,0,255, // 5 black
+    ]);
+    expect(dominantHexFromPixels(px)).toBe('#ff6600');
+  });
 });

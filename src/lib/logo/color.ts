@@ -1,23 +1,27 @@
 const FALLBACK = '#444444';
 
-/** Reduce RGBA pixels to the most frequent opaque colour (quantised), as hex. */
+/** Reduce RGBA pixels to a tile colour.
+ *  Prefers the most frequent *saturated* (brand) colour; if a logo is purely
+ *  black/white (no saturated colour), uses its dominant dark shade instead of a
+ *  flat grey fallback. Near-white pixels (logo backgrounds) are ignored. */
 export function dominantHexFromPixels(px: Uint8ClampedArray): string {
-  const counts = new Map<string, number>();
+  const chroma = new Map<string, number>();   // saturated brand colours
+  const dark = new Map<string, number>();     // dark/achromatic (e.g. black wordmarks)
   for (let i = 0; i < px.length; i += 4) {
-    const a = px[i + 3];
-    if (a < 200) continue;                       // skip transparent/near-transparent
-    // quantise to 5 bits/channel to group similar shades
-    const rq = px[i] & 0xf8, gq = px[i + 1] & 0xf8, bq = px[i + 2] & 0xf8;
-    // skip near-white and near-black (logos on white bg / outlines)
-    if (rq > 240 && gq > 240 && bq > 240) continue;
-    if (rq < 16 && gq < 16 && bq < 16) continue;
-    // use original values as key so we report the actual pixel colour
+    if (px[i + 3] < 200) continue;                       // transparent
     const r = px[i], g = px[i + 1], b = px[i + 2];
+    if (r > 240 && g > 240 && b > 240) continue;          // near-white background
     const key = `${r},${g},${b}`;
-    counts.set(key, (counts.get(key) ?? 0) + 1);
+    const sat = Math.max(r, g, b) - Math.min(r, g, b);
+    if (sat > 24) chroma.set(key, (chroma.get(key) ?? 0) + 1);
+    else if (r < 110 && g < 110 && b < 110) dark.set(key, (dark.get(key) ?? 0) + 1);
   }
-  let best = '', bestN = 0;
-  for (const [k, n] of counts) if (n > bestN) { bestN = n; best = k; }
+  const pick = (m: Map<string, number>) => {
+    let best = '', n = 0;
+    for (const [k, c] of m) if (c > n) { n = c; best = k; }
+    return best;
+  };
+  const best = pick(chroma) || pick(dark);   // saturated wins over dark text
   if (!best) return FALLBACK;
   const [r, g, b] = best.split(',').map(Number);
   return '#' + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join('');
