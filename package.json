@@ -31,6 +31,7 @@
     "@zxing/browser": "^0.2.0",
     "bwip-js": "^4.11.1",
     "idb": "^8.0.3",
+    "pocketbase": "^0.27.0",
     "svelte": "^5.56.2",
     "svelte-dnd-action": "^0.9.69",
     "tesseract.js": "^7.0.0"
