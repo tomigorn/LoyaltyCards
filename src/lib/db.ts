@@ -2,8 +2,12 @@ import { openDB, type IDBPDatabase } from 'idb';
 import type { Card } from './types';
 
 const DB_NAME = 'loyaltycards';
-const VERSION = 3;
+const VERSION = 4;
 let dbp: Promise<IDBPDatabase> | null = null;
+
+export type Mutation = { kind: 'put'; card: Card } | { kind: 'delete'; id: string };
+let mutationHook: ((m: Mutation) => void) | null = null;
+export function setMutationHook(fn: ((m: Mutation) => void) | null) { mutationHook = fn; }
 
 function open() {
   if (!dbp) {
@@ -20,17 +24,21 @@ function open() {
         // learned barcode prefixes → catalogId (self-learning brand detection, F5)
         if (!db.objectStoreNames.contains('prefixes'))
           db.createObjectStore('prefixes');
+        if (!db.objectStoreNames.contains('syncQueue'))
+          db.createObjectStore('syncQueue', { keyPath: 'cardId' });
       },
     });
   }
   return dbp;
 }
 
+export async function dbConn() { return open(); }
+
 export async function resetDB() {
   const db = await open();
   await db.clear('cards'); await db.clear('images');
 }
-export async function putCard(card: Card) { await (await open()).put('cards', card); }
+export async function putCard(card: Card) { await (await open()).put('cards', card); mutationHook?.({ kind: 'put', card }); }
 export async function getCard(id: string): Promise<Card | undefined> {
   return (await open()).get('cards', id);
 }
@@ -38,7 +46,7 @@ export async function getAllCards(): Promise<Card[]> {
   const all = (await (await open()).getAll('cards')) as Card[];
   return all.sort((a, b) => a.order - b.order);
 }
-export async function deleteCard(id: string) { await (await open()).delete('cards', id); }
+export async function deleteCard(id: string) { await (await open()).delete('cards', id); mutationHook?.({ kind: 'delete', id }); }
 export async function putImage(key: string, blob: Blob) { await (await open()).put('images', blob, key); }
 export async function getImage(key: string): Promise<Blob | undefined> {
   return (await open()).get('images', key);
