@@ -9,6 +9,7 @@ export const AT: CatalogEntry[] = [
   { id: 'at-penny', name: 'Penny Österreich', aliases: ['penny at', 'penny markt'], domain: 'penny.at', country: 'AT', defaultFormat: 'ean13', brandColor: '#CC071E' },
   { id: 'at-mpreis', name: 'MPreis', aliases: [], domain: 'mpreis.at', country: 'AT', defaultFormat: 'ean13' },
   { id: 'at-adeg', name: 'ADEG', aliases: ['adeg markt'], domain: 'adeg.at', country: 'AT', defaultFormat: 'ean13' },
+  { id: 'at-unimarkt', name: 'Unimarkt', aliases: ['unimarkt nah'], domain: 'unimarkt.at', country: 'AT', defaultFormat: 'ean13' },
 
   // Pharmacy / Drugstore / Health
   { id: 'at-dm', name: 'dm Österreich', program: 'Payback', aliases: ['dm drogerie', 'dm aktiv plus', 'dm austria'], domain: 'dm.at', country: 'AT', defaultFormat: 'ean13', brandColor: '#EF7C00' },
@@ -20,12 +21,16 @@ export const AT: CatalogEntry[] = [
   { id: 'at-shell', name: 'Shell', program: 'ClubSmart', aliases: ['shell station', 'shell clubsmart'], domain: 'shell.com', country: 'AT', defaultFormat: 'ean13' },
   { id: 'at-avanti', name: 'Avanti', aliases: ['avanti tankstelle'], domain: 'avanti.at', country: 'AT', defaultFormat: 'ean13' },
   { id: 'at-eni', name: 'Eni', aliases: ['eni station', 'agip'], domain: 'eni.com', country: 'AT', defaultFormat: 'ean13', brandColor: '#FFCC00' },
+  { id: 'at-omv', name: 'OMV', aliases: ['omv tankstelle', 'omv station'], domain: 'omv.at', country: 'AT', defaultFormat: 'ean13', brandColor: '#003C7D' },
+  { id: 'at-jet', name: 'Jet', aliases: ['jet tankstelle'], domain: 'jet.at', country: 'AT', defaultFormat: 'ean13' },
 
   // Fashion / Clothing
   { id: 'at-h-m', name: 'H&M', program: 'Member', aliases: ['h and m', 'hm', 'hm member'], domain: 'hm.com', country: 'AT', defaultFormat: 'code128' },
   { id: 'at-zara', name: 'Zara', aliases: ['zara austria'], domain: 'zara.com', country: 'AT', defaultFormat: 'code128' },
   { id: 'at-c-a', name: 'C&A', aliases: ['ca mode', 'c and a'], domain: 'c-and-a.com', country: 'AT', defaultFormat: 'ean13' },
   { id: 'at-deichmann', name: 'Deichmann', aliases: ['deichmann schuhe'], domain: 'deichmann.com', country: 'AT', defaultFormat: 'ean13' },
+  { id: 'at-peek-cloppenburg', name: 'Peek & Cloppenburg', aliases: ['peek cloppenburg', 'p&c'], domain: 'peek-cloppenburg.at', country: 'AT', defaultFormat: 'ean13' },
+  { id: 'at-kik', name: 'KiK', aliases: ['kik textil'], domain: 'kik.at', country: 'AT', defaultFormat: 'ean13' },
 
   // Electronics / Tech
   { id: 'at-mediamarkt', name: 'MediaMarkt', aliases: ['media markt', 'mediamarkt club'], domain: 'mediamarkt.at', country: 'AT', defaultFormat: 'ean13', brandColor: '#CC071E' },
@@ -36,6 +41,22 @@ export const AT: CatalogEntry[] = [
   { id: 'at-bauhaus', name: 'Bauhaus', aliases: ['bauhaus austria'], domain: 'bauhaus.at', country: 'AT', defaultFormat: 'ean13' },
   { id: 'at-obi', name: 'OBI', aliases: ['obi baumarkt'], domain: 'obi.at', country: 'AT', defaultFormat: 'ean13', brandColor: '#E2001A' },
   { id: 'at-hornbach', name: 'Hornbach', aliases: [], domain: 'hornbach.at', country: 'AT', defaultFormat: 'ean13', brandColor: '#F28C00' },
+  { id: 'at-lutz', name: 'XXXLutz', aliases: ['xxxlutz', 'lutz moebel'], domain: 'xxxlutz.at', country: 'AT', defaultFormat: 'ean13', brandColor: '#E2001A' },
+  { id: 'at-moemax', name: 'Mömax', aliases: ['moemax', 'momax'], domain: 'moemax.at', country: 'AT', defaultFormat: 'ean13' },
+
+  // Sports / Outdoor
+  { id: 'at-intersport', name: 'Intersport', aliases: ['intersport austria'], domain: 'intersport.at', country: 'AT', defaultFormat: 'ean13' },
+  { id: 'at-hervis', name: 'Hervis', aliases: ['hervis sports'], domain: 'hervis.at', country: 'AT', defaultFormat: 'ean13' },
+
+  // Books / Stationery
+  { id: 'at-thalia', name: 'Thalia', aliases: ['thalia buch'], domain: 'thalia.at', country: 'AT', defaultFormat: 'ean13' },
+  { id: 'at-libro', name: 'Libro', aliases: [], domain: 'libro.at', country: 'AT', defaultFormat: 'ean13' },
+
+  // Pet
+  { id: 'at-fressnapf', name: 'Fressnapf', aliases: ['fressnapf tierbedarf'], domain: 'fressnapf.at', country: 'AT', defaultFormat: 'ean13' },
+
+  // Telecom
+  { id: 'at-a1', name: 'A1', aliases: ['a1 telekom'], domain: 'a1.net', country: 'AT', defaultFormat: 'ean13', brandColor: '#E2001A' },
 
   // Travel / Airlines
   { id: 'at-austrian', name: 'Austrian Airlines', program: 'Miles & More', aliases: ['austrian', 'miles and more', 'aua'], domain: 'austrian.com', country: 'AT', defaultFormat: 'aztec', brandColor: '#CC071E' },

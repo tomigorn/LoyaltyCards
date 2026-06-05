@@ -13,16 +13,21 @@ export const CA: CatalogEntry[] = [
   { id: 'ca-food-basics', name: 'Food Basics', aliases: ['food basics canada'], domain: 'foodbasics.ca', country: 'CA', defaultFormat: 'code128' },
   { id: 'ca-no-frills', name: 'No Frills', program: 'PC Optimum', aliases: ['nofrills', 'pc optimum no frills'], domain: 'nofrills.ca', country: 'CA', defaultFormat: 'code128', brandColor: '#FFCC00' },
   { id: 'ca-walmart', name: 'Walmart Canada', aliases: ['walmart ca'], domain: 'walmart.ca', country: 'CA', defaultFormat: 'code128', brandColor: '#0071CE' },
+  { id: 'ca-freshco', name: 'FreshCo', program: 'Scene+', aliases: ['freshco scene'], domain: 'freshco.com', country: 'CA', defaultFormat: 'code128' },
+  { id: 'ca-save-on-foods', name: 'Save-On-Foods', program: 'More Rewards', aliases: ['save on foods', 'more rewards'], domain: 'saveonfoods.com', country: 'CA', defaultFormat: 'code128' },
+  { id: 'ca-longos', name: "Longo's", program: 'Thank You Rewards', aliases: ['longos rewards'], domain: 'longos.com', country: 'CA', defaultFormat: 'code128' },
 
   // Pharmacy / Health
   { id: 'ca-rexall', name: 'Rexall', program: 'Be Well', aliases: ['be well rexall', 'bewell'], domain: 'rexall.ca', country: 'CA', defaultFormat: 'code128' },
   { id: 'ca-jean-coutu', name: 'Jean Coutu', program: 'PC Optimum', aliases: ['jean coutu pcpoints', 'pcpoints jean coutu'], domain: 'jeancoutu.com', country: 'CA', defaultFormat: 'code128', brandColor: '#E2001A' },
+  { id: 'ca-london-drugs', name: 'London Drugs', aliases: ['london drugs lds'], domain: 'londondrugs.com', country: 'CA', defaultFormat: 'code128' },
 
   // Fuel / Gas
   { id: 'ca-petro-canada', name: 'Petro-Canada', program: 'Petro-Points', aliases: ['petropoints', 'petro canada'], domain: 'petro-canada.ca', country: 'CA', defaultFormat: 'code128', brandColor: '#CC0000' },
   { id: 'ca-esso', name: 'Esso', program: 'Extra', aliases: ['esso canada', 'esso extra'], domain: 'esso.com', country: 'CA', defaultFormat: 'code128' },
   { id: 'ca-shell', name: 'Shell Canada', program: 'Fuel Rewards', aliases: ['shell rewards ca'], domain: 'shell.com', country: 'CA', defaultFormat: 'code128' },
   { id: 'ca-husky', name: 'Husky', aliases: ['husky energy', 'husky rewards'], domain: 'huskyenergy.com', country: 'CA', defaultFormat: 'code128' },
+  { id: 'ca-canadian-tire-gas', name: 'Canadian Tire Gas+', program: 'Triangle Rewards', aliases: ['gas plus', 'ct gas'], domain: 'canadiantire.ca', country: 'CA', defaultFormat: 'code128', brandColor: '#CC0000' },
 
   // Fashion / Clothing
   { id: 'ca-h-m', name: 'H&M', program: 'Member', aliases: ['h and m', 'hm', 'hm member'], domain: 'hm.com', country: 'CA', defaultFormat: 'code128' },
@@ -30,15 +35,29 @@ export const CA: CatalogEntry[] = [
   { id: 'ca-reitmans', name: 'Reitmans', aliases: ['reitmans rewards'], domain: 'reitmans.com', country: 'CA', defaultFormat: 'code128' },
   { id: 'ca-sport-chek', name: 'Sport Chek', program: 'Triangle Rewards', aliases: ['sportchek', 'triangle rewards sport chek'], domain: 'sportchek.ca', country: 'CA', defaultFormat: 'code128', brandColor: '#CC0000' },
   { id: 'ca-marks', name: "Mark's", program: 'Triangle Rewards', aliases: ['marks work warehouse', 'triangle rewards marks'], domain: 'marks.com', country: 'CA', defaultFormat: 'code128' },
+  { id: 'ca-hudsons-bay', name: "Hudson's Bay", aliases: ['the bay', 'hbc'], domain: 'thebay.com', country: 'CA', defaultFormat: 'code128' },
+  { id: 'ca-lululemon', name: 'lululemon', aliases: ['lululemon membership'], domain: 'lululemon.com', country: 'CA', defaultFormat: 'code128', brandColor: '#D31334' },
 
   // Electronics / Tech
   { id: 'ca-best-buy', name: 'Best Buy Canada', program: 'My Best Buy', aliases: ['best buy ca', 'bestbuy canada'], domain: 'bestbuy.ca', country: 'CA', defaultFormat: 'code128', brandColor: '#0046BE' },
   { id: 'ca-staples', name: 'Staples', program: 'Connect', aliases: ['staples canada rewards'], domain: 'staples.ca', country: 'CA', defaultFormat: 'code128', brandColor: '#CC0000' },
+  { id: 'ca-the-source', name: 'The Source', aliases: ['source electronics'], domain: 'thesource.ca', country: 'CA', defaultFormat: 'code128' },
 
   // DIY / Home
   { id: 'ca-home-depot', name: 'The Home Depot Canada', program: 'Pro Xtra', aliases: ['home depot canada', 'home depot ca'], domain: 'homedepot.ca', country: 'CA', defaultFormat: 'code128', brandColor: '#F96302' },
   { id: 'ca-ikea', name: 'IKEA Canada', program: 'Family', aliases: ['ikea family', 'ikea ca'], domain: 'ikea.com', country: 'CA', defaultFormat: 'code128', brandColor: '#0058A3' },
   { id: 'ca-rona', name: 'RONA', aliases: ['rona rewards'], domain: 'rona.ca', country: 'CA', defaultFormat: 'code128', brandColor: '#CC0000' },
+  { id: 'ca-home-hardware', name: 'Home Hardware', aliases: ['home hardware stores'], domain: 'homehardware.ca', country: 'CA', defaultFormat: 'code128' },
+
+  // Restaurants / Coffee / Fast Food
+  { id: 'ca-second-cup', name: 'Second Cup', aliases: ['second cup rewards'], domain: 'secondcup.com', country: 'CA', defaultFormat: 'qr' },
+  { id: 'ca-harveys', name: "Harvey's", aliases: ['harveys rewards'], domain: 'harveys.ca', country: 'CA', defaultFormat: 'qr' },
+
+  // Books / Stationery
+  { id: 'ca-indigo', name: 'Indigo', program: 'Plum Rewards', aliases: ['chapters', 'indigo plum', 'coles'], domain: 'indigo.ca', country: 'CA', defaultFormat: 'code128' },
+
+  // Pet
+  { id: 'ca-petsmart', name: 'PetSmart', program: 'Treats', aliases: ['petsmart treats'], domain: 'petsmart.ca', country: 'CA', defaultFormat: 'code128' },
 
   // Travel / Airlines
   { id: 'ca-air-canada', name: 'Air Canada', program: 'Aeroplan', aliases: ['aeroplan', 'air canada aeroplan'], domain: 'aircanada.com', country: 'CA', defaultFormat: 'aztec', brandColor: '#CC0000' },

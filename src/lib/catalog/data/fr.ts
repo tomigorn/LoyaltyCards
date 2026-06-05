@@ -12,16 +12,22 @@ export const FR: CatalogEntry[] = [
   { id: 'fr-aldi', name: 'Aldi', aliases: ['aldi france'], domain: 'aldi.fr', country: 'FR', defaultFormat: 'ean13' },
   { id: 'fr-super-u', name: 'Super U', aliases: ['systeme u', 'systeme-u', 'u'], domain: 'magasins-u.com', country: 'FR', defaultFormat: 'ean13', brandColor: '#E2001A' },
   { id: 'fr-simply', name: 'Simply Market', aliases: ['simply'], domain: 'simply-market.fr', country: 'FR', defaultFormat: 'ean13' },
+  { id: 'fr-cora', name: 'Cora', aliases: ['cora hypermarche'], domain: 'cora.fr', country: 'FR', defaultFormat: 'ean13' },
+  { id: 'fr-grand-frais', name: 'Grand Frais', aliases: [], domain: 'grandfrais.com', country: 'FR', defaultFormat: 'ean13' },
+  { id: 'fr-biocoop', name: 'Biocoop', aliases: ['biocoop bio'], domain: 'biocoop.fr', country: 'FR', defaultFormat: 'ean13' },
 
   // Pharmacy / Beauty / Health
   { id: 'fr-pharmacie-lafayette', name: 'Pharmacie Lafayette', aliases: ['grande pharmacie lafayette'], domain: 'pharmacies-lafayette.fr', country: 'FR', defaultFormat: 'ean13' },
   { id: 'fr-sephora', name: 'Sephora', program: 'Beauty Insider', aliases: ['sephora beauty pass'], domain: 'sephora.fr', country: 'FR', defaultFormat: 'ean13', brandColor: '#000000' },
   { id: 'fr-yves-rocher', name: 'Yves Rocher', aliases: ['yves rocher club'], domain: 'yves-rocher.fr', country: 'FR', defaultFormat: 'ean13' },
+  { id: 'fr-marionnaud', name: 'Marionnaud', aliases: ['marionnaud parfumerie'], domain: 'marionnaud.fr', country: 'FR', defaultFormat: 'ean13' },
+  { id: 'fr-nocibe', name: 'Nocibé', aliases: ['nocibe parfumerie'], domain: 'nocibe.fr', country: 'FR', defaultFormat: 'ean13' },
 
   // Fuel
   { id: 'fr-totalenergies', name: 'TotalEnergies', aliases: ['total', 'total station', 'total club'], domain: 'totalenergies.com', country: 'FR', defaultFormat: 'ean13' },
   { id: 'fr-shell', name: 'Shell', program: 'ClubSmart', aliases: ['shell france', 'shell clubsmart'], domain: 'shell.com', country: 'FR', defaultFormat: 'ean13' },
   { id: 'fr-bp', name: 'BP', aliases: ['bp station'], domain: 'bp.com', country: 'FR', defaultFormat: 'ean13' },
+  { id: 'fr-esso', name: 'Esso', aliases: ['esso station'], domain: 'esso.fr', country: 'FR', defaultFormat: 'ean13' },
 
   // Fashion / Clothing / Shoes
   { id: 'fr-h-m', name: 'H&M', program: 'Member', aliases: ['h and m', 'hm', 'hm member'], domain: 'hm.com', country: 'FR', defaultFormat: 'code128' },
@@ -29,6 +35,9 @@ export const FR: CatalogEntry[] = [
   { id: 'fr-kiabi', name: 'Kiabi', aliases: ['kiabi club'], domain: 'kiabi.com', country: 'FR', defaultFormat: 'ean13', brandColor: '#E2001A' },
   { id: 'fr-jules', name: 'Jules', aliases: ['jules fidelite'], domain: 'jules.com', country: 'FR', defaultFormat: 'ean13' },
   { id: 'fr-lacoste', name: 'Lacoste', aliases: ['lacoste club'], domain: 'lacoste.com', country: 'FR', defaultFormat: 'code128' },
+  { id: 'fr-celio', name: 'Celio', aliases: ['celio club'], domain: 'celio.com', country: 'FR', defaultFormat: 'ean13' },
+  { id: 'fr-camaieu', name: 'Camaïeu', aliases: ['camaieu mode'], domain: 'camaieu.fr', country: 'FR', defaultFormat: 'ean13' },
+  { id: 'fr-galeries-lafayette', name: 'Galeries Lafayette', program: 'Mes Galeries', aliases: ['galeries lafayette fidelite'], domain: 'galerieslafayette.com', country: 'FR', defaultFormat: 'ean13' },
 
   // Electronics / Tech
   { id: 'fr-fnac', name: 'Fnac', program: 'Adhérent', aliases: ['fnac darty', 'fnac plus', 'carte fnac'], domain: 'fnac.com', country: 'FR', defaultFormat: 'ean13', brandColor: '#F7A600' },
@@ -38,11 +47,25 @@ export const FR: CatalogEntry[] = [
   // Sports / Outdoor
   { id: 'fr-decathlon', name: 'Decathlon', aliases: ['decathlon club'], domain: 'decathlon.fr', country: 'FR', defaultFormat: 'ean13', brandColor: '#0082C3' },
   { id: 'fr-go-sport', name: 'Go Sport', aliases: ['gosport club'], domain: 'go-sport.com', country: 'FR', defaultFormat: 'ean13' },
+  { id: 'fr-intersport', name: 'Intersport', aliases: ['intersport france'], domain: 'intersport.fr', country: 'FR', defaultFormat: 'ean13' },
 
   // DIY / Home
   { id: 'fr-ikea', name: 'IKEA', program: 'Family', aliases: ['ikea family', 'ikea france'], domain: 'ikea.com', country: 'FR', defaultFormat: 'code128', brandColor: '#0058A3' },
   { id: 'fr-leroy-merlin', name: 'Leroy Merlin', aliases: ['leroy merlin carte'], domain: 'leroymerlin.fr', country: 'FR', defaultFormat: 'ean13', brandColor: '#009640' },
   { id: 'fr-castorama', name: 'Castorama', aliases: ['casto'], domain: 'castorama.fr', country: 'FR', defaultFormat: 'ean13', brandColor: '#0050AA' },
+  { id: 'fr-conforama', name: 'Conforama', aliases: ['conforama meuble'], domain: 'conforama.fr', country: 'FR', defaultFormat: 'ean13' },
+  { id: 'fr-but', name: 'BUT', aliases: ['but meuble'], domain: 'but.fr', country: 'FR', defaultFormat: 'ean13' },
+  { id: 'fr-maisons-du-monde', name: 'Maisons du Monde', aliases: ['maisons du monde club'], domain: 'maisonsdumonde.com', country: 'FR', defaultFormat: 'ean13' },
+
+  // Books / Stationery / Culture
+  { id: 'fr-cultura', name: 'Cultura', aliases: ['cultura fidelite'], domain: 'cultura.com', country: 'FR', defaultFormat: 'ean13' },
+
+  // Pet
+  { id: 'fr-animalis', name: 'Animalis', aliases: ['animalis animalerie'], domain: 'animalis.com', country: 'FR', defaultFormat: 'ean13' },
+
+  // Restaurants / Food
+  { id: 'fr-mcdonalds', name: "McDonald's", program: 'MyMcDonald\'s Rewards', aliases: ['mcdonald', 'mcdonalds rewards'], domain: 'mcdonalds.com', country: 'FR', defaultFormat: 'qr' },
+  { id: 'fr-paul', name: 'PAUL', aliases: ['paul boulangerie'], domain: 'paul.fr', country: 'FR', defaultFormat: 'qr' },
 
   // Travel / Airlines
   { id: 'fr-air-france', name: 'Air France', program: 'Flying Blue', aliases: ['flying blue', 'air france klm'], domain: 'airfrance.fr', country: 'FR', defaultFormat: 'aztec', brandColor: '#003E87' },
