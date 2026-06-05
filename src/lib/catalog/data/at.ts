@@ -17,7 +17,7 @@ export const AT: CatalogEntry[] = [
 
   // Fuel
   { id: 'at-bp', name: 'BP Österreich', aliases: ['bp', 'bp station'], domain: 'bp.com', country: 'AT', defaultFormat: 'ean13' },
-  { id: 'at-shell', name: 'Shell', program: 'ClubSmart', aliases: ['shell station', 'shell clubsmart'], domain: 'shell.at', country: 'AT', defaultFormat: 'ean13' },
+  { id: 'at-shell', name: 'Shell', program: 'ClubSmart', aliases: ['shell station', 'shell clubsmart'], domain: 'shell.com', country: 'AT', defaultFormat: 'ean13' },
   { id: 'at-avanti', name: 'Avanti', aliases: ['avanti tankstelle'], domain: 'avanti.at', country: 'AT', defaultFormat: 'ean13' },
   { id: 'at-eni', name: 'Eni', aliases: ['eni station', 'agip'], domain: 'eni.com', country: 'AT', defaultFormat: 'ean13', brandColor: '#FFCC00' },
 
@@ -45,6 +45,6 @@ export const AT: CatalogEntry[] = [
   { id: 'at-payback', name: 'Payback', aliases: ['payback punkte', 'payback karte'], domain: 'payback.at', country: 'AT', defaultFormat: 'ean13', brandColor: '#005EB8' },
 
   // Coffee / Food
-  { id: 'at-starbucks', name: 'Starbucks', program: 'Rewards', aliases: ['starbucks rewards'], domain: 'starbucks.at', country: 'AT', defaultFormat: 'qr', brandColor: '#006241' },
-  { id: 'at-mcdonalds', name: "McDonald's", program: 'MyMcDonald\'s Rewards', aliases: ['mcdonald', 'mcdonalds rewards'], domain: 'mcdonalds.at', country: 'AT', defaultFormat: 'qr' },
+  { id: 'at-starbucks', name: 'Starbucks', program: 'Rewards', aliases: ['starbucks rewards'], domain: 'starbucks.com', country: 'AT', defaultFormat: 'qr', brandColor: '#006241' },
+  { id: 'at-mcdonalds', name: "McDonald's", program: 'MyMcDonald\'s Rewards', aliases: ['mcdonald', 'mcdonalds rewards'], domain: 'mcdonalds.com', country: 'AT', defaultFormat: 'qr' },
 ];

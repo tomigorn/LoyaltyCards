@@ -21,7 +21,7 @@ export const CA: CatalogEntry[] = [
   // Fuel / Gas
   { id: 'ca-petro-canada', name: 'Petro-Canada', program: 'Petro-Points', aliases: ['petropoints', 'petro canada'], domain: 'petro-canada.ca', country: 'CA', defaultFormat: 'code128', brandColor: '#CC0000' },
   { id: 'ca-esso', name: 'Esso', program: 'Extra', aliases: ['esso canada', 'esso extra'], domain: 'esso.com', country: 'CA', defaultFormat: 'code128' },
-  { id: 'ca-shell', name: 'Shell Canada', program: 'Fuel Rewards', aliases: ['shell rewards ca'], domain: 'shell.ca', country: 'CA', defaultFormat: 'code128' },
+  { id: 'ca-shell', name: 'Shell Canada', program: 'Fuel Rewards', aliases: ['shell rewards ca'], domain: 'shell.com', country: 'CA', defaultFormat: 'code128' },
   { id: 'ca-husky', name: 'Husky', aliases: ['husky energy', 'husky rewards'], domain: 'huskyenergy.com', country: 'CA', defaultFormat: 'code128' },
 
   // Fashion / Clothing
@@ -50,7 +50,7 @@ export const CA: CatalogEntry[] = [
   { id: 'ca-air-miles', name: 'AIR MILES', aliases: ['airmiles', 'air miles reward'], domain: 'airmiles.ca', country: 'CA', defaultFormat: 'code128', brandColor: '#003DA5' },
 
   // Coffee / Food
-  { id: 'ca-starbucks', name: 'Starbucks', program: 'Rewards', aliases: ['starbucks rewards', 'starbucks canada'], domain: 'starbucks.ca', country: 'CA', defaultFormat: 'qr', brandColor: '#006241' },
-  { id: 'ca-mcdonalds', name: "McDonald's", program: 'MyMcDonald\'s Rewards', aliases: ['mcdonald', 'mcdonalds rewards canada'], domain: 'mcdonalds.ca', country: 'CA', defaultFormat: 'qr' },
+  { id: 'ca-starbucks', name: 'Starbucks', program: 'Rewards', aliases: ['starbucks rewards', 'starbucks canada'], domain: 'starbucks.com', country: 'CA', defaultFormat: 'qr', brandColor: '#006241' },
+  { id: 'ca-mcdonalds', name: "McDonald's", program: 'MyMcDonald\'s Rewards', aliases: ['mcdonald', 'mcdonalds rewards canada'], domain: 'mcdonalds.com', country: 'CA', defaultFormat: 'qr' },
   { id: 'ca-a-w', name: 'A&W', program: 'A&W Rewards', aliases: ['aw canada', 'a and w', 'a w rewards'], domain: 'aw.ca', country: 'CA', defaultFormat: 'qr', brandColor: '#F7A600' },
 ];

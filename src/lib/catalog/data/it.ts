@@ -22,8 +22,8 @@ export const IT: CatalogEntry[] = [
 
   // Fuel
   { id: 'it-eni', name: 'Eni', program: 'Enilive Rewards', aliases: ['eni station', 'eni rewards', 'enilive'], domain: 'eni.com', country: 'IT', defaultFormat: 'ean13', brandColor: '#FFCC00' },
-  { id: 'it-totalenergies', name: 'TotalEnergies', aliases: ['total', 'total station'], domain: 'totalenergies.it', country: 'IT', defaultFormat: 'ean13' },
-  { id: 'it-shell', name: 'Shell', program: 'ClubSmart', aliases: ['shell station', 'shell clubsmart'], domain: 'shell.it', country: 'IT', defaultFormat: 'ean13' },
+  { id: 'it-totalenergies', name: 'TotalEnergies', aliases: ['total', 'total station'], domain: 'totalenergies.com', country: 'IT', defaultFormat: 'ean13' },
+  { id: 'it-shell', name: 'Shell', program: 'ClubSmart', aliases: ['shell station', 'shell clubsmart'], domain: 'shell.com', country: 'IT', defaultFormat: 'ean13' },
   { id: 'it-ip', name: 'IP', aliases: ['ip energie', 'ip stazione'], domain: 'ip-energia.it', country: 'IT', defaultFormat: 'ean13' },
 
   // Fashion / Clothing
@@ -47,6 +47,6 @@ export const IT: CatalogEntry[] = [
   { id: 'it-trenitalia', name: 'Trenitalia', program: 'CartaFRECCIA', aliases: ['trenitalia cartafreccia', 'cartafreccia'], domain: 'trenitalia.com', country: 'IT', defaultFormat: 'aztec', brandColor: '#CC071E' },
 
   // Coffee / Food
-  { id: 'it-starbucks', name: 'Starbucks', program: 'Rewards', aliases: ['starbucks rewards'], domain: 'starbucks.it', country: 'IT', defaultFormat: 'qr', brandColor: '#006241' },
-  { id: 'it-mcdonalds', name: "McDonald's", program: 'MyMcDonald\'s Rewards', aliases: ['mcdonald', 'mcdonalds rewards'], domain: 'mcdonalds.it', country: 'IT', defaultFormat: 'qr' },
+  { id: 'it-starbucks', name: 'Starbucks', program: 'Rewards', aliases: ['starbucks rewards'], domain: 'starbucks.com', country: 'IT', defaultFormat: 'qr', brandColor: '#006241' },
+  { id: 'it-mcdonalds', name: "McDonald's", program: 'MyMcDonald\'s Rewards', aliases: ['mcdonald', 'mcdonalds rewards'], domain: 'mcdonalds.com', country: 'IT', defaultFormat: 'qr' },
 ];

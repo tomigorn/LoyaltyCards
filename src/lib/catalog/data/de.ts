@@ -17,10 +17,10 @@ export const DE: CatalogEntry[] = [
   { id: 'de-budni', name: 'Budni', aliases: ['budnikowsky'], domain: 'budni.de', country: 'DE', defaultFormat: 'ean13' },
 
   // Fuel / Mobility
-  { id: 'de-shell', name: 'Shell', program: 'ClubSmart', aliases: ['shell clubsmart', 'shell station'], domain: 'shell.de', country: 'DE', defaultFormat: 'ean13' },
+  { id: 'de-shell', name: 'Shell', program: 'ClubSmart', aliases: ['shell clubsmart', 'shell station'], domain: 'shell.com', country: 'DE', defaultFormat: 'ean13' },
   { id: 'de-aral', name: 'Aral', program: 'Payback', aliases: ['aral payback'], domain: 'aral.de', country: 'DE', defaultFormat: 'ean13', brandColor: '#0050AA' },
-  { id: 'de-esso', name: 'Esso', aliases: ['esso card'], domain: 'esso.de', country: 'DE', defaultFormat: 'ean13' },
-  { id: 'de-totalenergies', name: 'TotalEnergies', aliases: ['total station', 'total'], domain: 'totalenergies.de', country: 'DE', defaultFormat: 'ean13' },
+  { id: 'de-esso', name: 'Esso', aliases: ['esso card'], domain: 'esso.com', country: 'DE', defaultFormat: 'ean13' },
+  { id: 'de-totalenergies', name: 'TotalEnergies', aliases: ['total station', 'total'], domain: 'totalenergies.com', country: 'DE', defaultFormat: 'ean13' },
 
   // Fashion / Clothing
   { id: 'de-h-m', name: 'H&M', program: 'Member', aliases: ['h and m', 'hm member', 'hm'], domain: 'hm.com', country: 'DE', defaultFormat: 'code128' },
@@ -50,6 +50,6 @@ export const DE: CatalogEntry[] = [
   { id: 'de-miles-more', name: 'Miles & More', aliases: ['miles more', 'miles and more'], domain: 'miles-and-more.com', country: 'DE', defaultFormat: 'aztec' },
 
   // Food / Coffee
-  { id: 'de-starbucks', name: 'Starbucks', program: 'Rewards', aliases: ['starbucks rewards'], domain: 'starbucks.de', country: 'DE', defaultFormat: 'qr', brandColor: '#006241' },
-  { id: 'de-mcdonalds', name: "McDonald's", program: 'MyMcDonald\'s Rewards', aliases: ['mcdonald', 'mcdonalds rewards', 'mymarcos'], domain: 'mcdonalds.de', country: 'DE', defaultFormat: 'qr' },
+  { id: 'de-starbucks', name: 'Starbucks', program: 'Rewards', aliases: ['starbucks rewards'], domain: 'starbucks.com', country: 'DE', defaultFormat: 'qr', brandColor: '#006241' },
+  { id: 'de-mcdonalds', name: "McDonald's", program: 'MyMcDonald\'s Rewards', aliases: ['mcdonald', 'mcdonalds rewards', 'mymarcos'], domain: 'mcdonalds.com', country: 'DE', defaultFormat: 'qr' },
 ];

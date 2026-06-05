@@ -16,7 +16,7 @@ export const CH: CatalogEntry[] = [
   { id: 'ch-zur-rose', name: 'Zur Rose', aliases: ['zur rose apotheke'], domain: 'zurrose.ch', country: 'CH', defaultFormat: 'ean13' },
 
   // Fuel / Mobility
-  { id: 'ch-shell', name: 'Shell', program: 'ClubSmart', aliases: ['shell clubsmart'], domain: 'shell.ch', country: 'CH', defaultFormat: 'ean13' },
+  { id: 'ch-shell', name: 'Shell', program: 'ClubSmart', aliases: ['shell clubsmart'], domain: 'shell.com', country: 'CH', defaultFormat: 'ean13' },
   { id: 'ch-avia', name: 'AVIA', aliases: [], domain: 'avia.ch', country: 'CH', defaultFormat: 'ean13' },
   { id: 'ch-agrola', name: 'Agrola', aliases: [], domain: 'agrola.ch', country: 'CH', defaultFormat: 'ean13' },
 
@@ -43,6 +43,6 @@ export const CH: CatalogEntry[] = [
 
   // Other notable loyalty programs
   { id: 'ch-starbucks', name: 'Starbucks', program: 'Rewards', aliases: ['starbucks rewards'], domain: 'starbucks.com', country: 'CH', defaultFormat: 'qr', brandColor: '#006241' },
-  { id: 'ch-mcdonalds', name: "McDonald's", program: 'MyMcDonald\'s Rewards', aliases: ['mcdonald', 'mymarcos', 'mcdonalds'], domain: 'mcdonalds.ch', country: 'CH', defaultFormat: 'qr' },
+  { id: 'ch-mcdonalds', name: "McDonald's", program: 'MyMcDonald\'s Rewards', aliases: ['mcdonald', 'mymarcos', 'mcdonalds'], domain: 'mcdonalds.com', country: 'CH', defaultFormat: 'qr' },
   { id: 'ch-galaxus', name: 'Galaxus', aliases: ['digitec galaxus'], domain: 'galaxus.ch', country: 'CH', defaultFormat: 'code128' },
 ];

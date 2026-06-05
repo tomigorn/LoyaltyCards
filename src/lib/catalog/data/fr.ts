@@ -19,8 +19,8 @@ export const FR: CatalogEntry[] = [
   { id: 'fr-yves-rocher', name: 'Yves Rocher', aliases: ['yves rocher club'], domain: 'yves-rocher.fr', country: 'FR', defaultFormat: 'ean13' },
 
   // Fuel
-  { id: 'fr-totalenergies', name: 'TotalEnergies', aliases: ['total', 'total station', 'total club'], domain: 'totalenergies.fr', country: 'FR', defaultFormat: 'ean13' },
-  { id: 'fr-shell', name: 'Shell', program: 'ClubSmart', aliases: ['shell france', 'shell clubsmart'], domain: 'shell.fr', country: 'FR', defaultFormat: 'ean13' },
+  { id: 'fr-totalenergies', name: 'TotalEnergies', aliases: ['total', 'total station', 'total club'], domain: 'totalenergies.com', country: 'FR', defaultFormat: 'ean13' },
+  { id: 'fr-shell', name: 'Shell', program: 'ClubSmart', aliases: ['shell france', 'shell clubsmart'], domain: 'shell.com', country: 'FR', defaultFormat: 'ean13' },
   { id: 'fr-bp', name: 'BP', aliases: ['bp station'], domain: 'bp.com', country: 'FR', defaultFormat: 'ean13' },
 
   // Fashion / Clothing / Shoes
@@ -49,5 +49,5 @@ export const FR: CatalogEntry[] = [
   { id: 'fr-sncf', name: 'SNCF', program: 'Voyageur', aliases: ['sncf connect', 'voyageur', 'carte sncf'], domain: 'sncf.com', country: 'FR', defaultFormat: 'aztec', brandColor: '#E2001A' },
 
   // Coffee / Food
-  { id: 'fr-starbucks', name: 'Starbucks', program: 'Rewards', aliases: ['starbucks rewards'], domain: 'starbucks.fr', country: 'FR', defaultFormat: 'qr', brandColor: '#006241' },
+  { id: 'fr-starbucks', name: 'Starbucks', program: 'Rewards', aliases: ['starbucks rewards'], domain: 'starbucks.com', country: 'FR', defaultFormat: 'qr', brandColor: '#006241' },
 ];
