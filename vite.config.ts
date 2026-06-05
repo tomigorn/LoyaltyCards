@@ -18,7 +18,13 @@ export default defineConfig({
           { src: 'icon-512.png', sizes: '512x512', type: 'image/png' },
         ],
       },
-      workbox: { globPatterns: ['**/*.{js,css,html,png,svg,woff2}'] },
+      workbox: {
+        // Exclude large tesseract assets from precache — they are lazy-loaded
+        // and will be cached at runtime on first OCR use.
+        globPatterns: ['**/*.{js,css,html,png,svg,woff2}'],
+        globIgnores: ['tesseract/**'],
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
+      },
     }),
   ],
   test: {
