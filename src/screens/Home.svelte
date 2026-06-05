@@ -98,7 +98,10 @@
   .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px 24px}
   .pad-bottom{padding-bottom:96px}                /* clear the fixed Done bar */
   .tile-wrap{display:contents}
-  .drag-wrap{display:block}                       /* real grid cell; tile fills it (width:100%) */
+  /* real grid cell; the whole tile is the drag handle on touch (not just the logo) */
+  .drag-wrap{display:block;touch-action:none;-webkit-user-drag:none;user-select:none}
+  .drag-wrap :global(.tile){touch-action:none}
+  .drag-wrap :global(img){pointer-events:none;-webkit-user-drag:none;user-select:none}
   .add{aspect-ratio:1.4;border-radius:14px;border:1px dashed #3a3a42;background:#161618;
     color:#9a9aa4;font-size:28px;cursor:pointer}
   /* iOS/Android-style wiggle while reordering (on the tile, not the dnd-moved wrapper) */
