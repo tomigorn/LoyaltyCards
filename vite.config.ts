@@ -22,7 +22,7 @@ export default defineConfig({
         // Exclude large tesseract assets from precache — they are lazy-loaded
         // and will be cached at runtime on first OCR use.
         globPatterns: ['**/*.{js,css,html,png,svg,woff2}'],
-        globIgnores: ['tesseract/**'],
+        globIgnores: ['tess/**'],
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
       },
     }),

@@ -46,14 +46,14 @@ export function suggestShopsFromText(text: string): CatalogEntry[] {
 
 /**
  * Use Tesseract.js (lazy-loaded) to OCR a Blob/File and return the raw text.
- * All assets are served from /tesseract/ for offline + CSP-clean operation.
+ * All assets are served from /tess/ for offline + CSP-clean operation.
  */
 export async function recognizeText(blob: Blob): Promise<string> {
   const { createWorker } = await import('tesseract.js');
   const worker = await createWorker('eng', 1, {
-    workerPath: '/tesseract/worker.min.js',
-    corePath: '/tesseract/',
-    langPath: '/tesseract/',
+    workerPath: '/tess/worker.min.js',
+    corePath: '/tess/',
+    langPath: '/tess/',
   });
   try {
     const { data } = await worker.recognize(blob);
