@@ -17,7 +17,7 @@ export function toRemote(card: Card, owner: string): RemoteCardData {
   };
 }
 
-export function fromRemote(r: Partial<RemoteCardData> & Record<string, unknown>): Card {
+export function fromRemote(r: RemoteCardData | (Partial<RemoteCardData> & Record<string, unknown>)): Card {
   return {
     id: String(r.cardId), storeName: String(r.storeName ?? ''), barcodeValue: String(r.barcodeValue ?? ''),
     barcodeFormat: (r.barcodeFormat as Card['barcodeFormat']) ?? 'code128',
