@@ -28,3 +28,32 @@ export async function refreshSession(): Promise<void> {
 export function logout(): void {
   pb.authStore.clear();
 }
+
+export async function totpRequired(identity: string): Promise<boolean> {
+  const res = await pb.send('/api/loyalty/totp/required', { method: 'POST', body: { identity } });
+  return !!(res as { required?: boolean }).required;
+}
+
+/** Log in with username/email + password. If the account has 2FA, a `code` is required and
+ *  the request goes through the custom TOTP login route (which the backend's guard enforces). */
+export async function loginPassword(identity: string, password: string, code?: string): Promise<void> {
+  if (await totpRequired(identity)) {
+    const res = await pb.send('/api/loyalty/totp/login', {
+      method: 'POST',
+      body: { identity, password, code: code ?? '' },
+    });
+    const r = res as { token: string; record: any };
+    pb.authStore.save(r.token, r.record);
+  } else {
+    await pb.collection(USERS).authWithPassword(identity, password);
+  }
+}
+
+export async function loginGoogle(): Promise<void> {
+  await pb.collection(USERS).authWithOAuth2({ provider: 'google' });
+}
+
+export async function signup(email: string, password: string): Promise<void> {
+  await pb.collection(USERS).create({ email, password, passwordConfirm: password });
+  await pb.collection(USERS).authWithPassword(email, password);
+}
