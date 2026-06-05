@@ -10,7 +10,8 @@ export interface ResolveDeps {
   fetchLogo: (domain: string) => Promise<Blob | null>;
   extractColor: (blob: Blob) => Promise<string>;
   autoFetchEnabled: () => boolean;
-  domainFor: (catalogId: string) => string | undefined;
+  /** Ordered domains to try for the logo, e.g. [programDomain, storeDomain]. */
+  domainsFor: (catalogId: string) => string[];
 }
 
 export async function resolveLogoUrl(card: Card, d: ResolveDeps): Promise<string> {
@@ -19,14 +20,15 @@ export async function resolveLogoUrl(card: Card, d: ResolveDeps): Promise<string
     const b = await d.getImage(card.logo.blobRef);
     if (b) return d.makeObjectUrl(b);
   }
-  // catalog-linked domain
-  const domain = card.catalogId ? d.domainFor(card.catalogId) : undefined;
-  if (domain) {
-    // 2) cached shop logo
+  const domains = card.catalogId ? d.domainsFor(card.catalogId) : [];
+  // 2) cached logo — program domain first, then store domain
+  for (const domain of domains) {
     const cached = await d.getLogo(domain);
     if (cached) return d.makeObjectUrl(cached);
-    // 3) auto-fetch
-    if (d.autoFetchEnabled()) {
+  }
+  // 3) auto-fetch — program domain first, fall back to store domain
+  if (d.autoFetchEnabled()) {
+    for (const domain of domains) {
       const fetched = await d.fetchLogo(domain);
       if (fetched) {
         await d.putLogo(domain, fetched);

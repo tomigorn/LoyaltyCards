@@ -17,7 +17,7 @@ const deps = (over: Partial<ResolveDeps> = {}): ResolveDeps => ({
   fetchLogo: async () => null,
   extractColor: async () => '#000000',
   autoFetchEnabled: () => true,
-  domainFor: () => undefined,
+  domainsFor: () => [],
   ...over,
 });
 
@@ -30,7 +30,7 @@ describe('resolveLogoUrl', () => {
   it('2) uses a cached shop logo when catalog-linked', async () => {
     const card = { ...base, catalogId: 'ch-migros' };
     const url = await resolveLogoUrl(card, deps({
-      domainFor: () => 'migros.ch',
+      domainsFor: () => ['migros.ch'],
       getLogo: async (d) => d === 'migros.ch' ? new Blob(['x']) : undefined,
       makeObjectUrl: () => 'blob://cached',
     }));
@@ -40,13 +40,27 @@ describe('resolveLogoUrl', () => {
     const card = { ...base, catalogId: 'ch-migros' };
     let put = '';
     const url = await resolveLogoUrl(card, deps({
-      domainFor: () => 'migros.ch',
+      domainsFor: () => ['migros.ch'],
       fetchLogo: async () => new Blob(['x']),
       putLogo: async (d) => { put = d; },
       makeObjectUrl: () => 'blob://fetched',
     }));
     expect(url).toBe('blob://fetched');
     expect(put).toBe('migros.ch');
+  });
+  it('prefers the program domain, falling back to the store domain', async () => {
+    const card = { ...base, catalogId: 'ch-migros' };
+    const tried: string[] = [];
+    let put = '';
+    const url = await resolveLogoUrl(card, deps({
+      domainsFor: () => ['cumulus.ch', 'migros.ch'],   // program first, then store
+      fetchLogo: async (d) => { tried.push(d); return d === 'migros.ch' ? new Blob(['x']) : null; },
+      putLogo: async (d) => { put = d; },
+      makeObjectUrl: () => 'blob://store',
+    }));
+    expect(tried).toEqual(['cumulus.ch', 'migros.ch']); // program tried first
+    expect(put).toBe('migros.ch');                      // cached under the one that worked
+    expect(url).toBe('blob://store');
   });
   it('4) falls back to a generated tile', async () => {
     const url = await resolveLogoUrl(base, deps({ autoFetchEnabled: () => false }));
@@ -56,7 +70,7 @@ describe('resolveLogoUrl', () => {
     const card = { ...base, catalogId: 'ch-migros' };
     let fetched = false;
     const url = await resolveLogoUrl(card, deps({
-      domainFor: () => 'migros.ch',
+      domainsFor: () => ['migros.ch'],
       autoFetchEnabled: () => false,
       fetchLogo: async () => { fetched = true; return new Blob(['x']); },
     }));

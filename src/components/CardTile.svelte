@@ -1,20 +1,16 @@
 <script lang="ts">
   import type { Card } from '../lib/types';
-  import { resolveCardLogo } from '../lib/logo/resolveCard';
-  import { getLogoColor } from '../lib/db';
-  import { findCatalogById } from '../lib/catalog/catalog';
+  import { resolveCardLogo, resolveCardColor } from '../lib/logo/resolveCard';
   let { card, onopen }: { card: Card; onopen: (c: Card) => void } = $props();
   let url = $state('');
-  let extractedColor = $state<string | undefined>(undefined);
-  const bg = $derived(card.brandColor || extractedColor || '#2a2a30');
+  let bg = $state('#2a2a30');
   $effect(() => {
     let made = '';
-    resolveCardLogo(card).then(u => { url = u; made = u; });
-    // resolve tile background colour: brandColor wins, else extracted colour for the shop
-    if (!card.brandColor && card.catalogId) {
-      const dom = findCatalogById(card.catalogId)?.domain;
-      if (dom) getLogoColor(dom).then(c => { if (c) extractedColor = c; });
-    }
+    resolveCardColor(card).then(c => { bg = c; });          // program colour / cached
+    resolveCardLogo(card).then(u => {
+      url = u; made = u;
+      resolveCardColor(card).then(c => { bg = c; });         // re-resolve once a fetched logo's colour is cached
+    });
     return () => { if (made.startsWith('blob:')) URL.revokeObjectURL(made); };
   });
   const isTile = $derived(url.startsWith('data:')); // generated tile → no white chip
