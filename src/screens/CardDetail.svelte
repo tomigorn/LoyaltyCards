@@ -4,15 +4,20 @@
   import { putCard, deleteCard, putImage, deleteImage } from '../lib/db';
   import { loadCards } from '../lib/stores';
   import { logoDevFetcher } from '../lib/logo/fetch';
+  import { resolveCardLogo } from '../lib/logo/resolveCard';
   import { findCatalogById } from '../lib/catalog/catalog';
   import type { Card } from '../lib/types';
   let { card, ondone, ondeleted }:
     { card: Card; ondone: () => void; ondeleted: () => void } = $props();
   let draft = $state<Card>({ ...card });
   let showPicker = $state(false);
+  let logoUrl = $state('');
+  $effect(() => {
+    let made = '';
+    resolveCardLogo($state.snapshot(draft) as Card).then(u => { logoUrl = u; made = u; });
+    return () => { if (made.startsWith('blob:')) URL.revokeObjectURL(made); };
+  });
 
-  // Hand-pick a logo from the multi-source search. Prefer storing a blob (offline +
-  // colour extraction); if the source can't be fetched (CORS), keep the remote URL.
   async function pickLogo(url: string) {
     showPicker = false;
     if (draft.logo.blobRef) await deleteImage(draft.logo.blobRef);
@@ -27,19 +32,6 @@
     } catch { /* CORS / network — fall back to the URL */ }
     draft.logo = { source: 'fetched', url };
   }
-  async function save() {
-    draft.updatedAt = Date.now();
-    // $state proxies aren't structured-cloneable for IndexedDB — snapshot to a plain object.
-    await putCard($state.snapshot(draft) as Card);
-    await loadCards();
-    ondone();
-  }
-  async function remove() {
-    if (card.logo.blobRef) await deleteImage(card.logo.blobRef);
-    if (card.frontPhotoRef) await deleteImage(card.frontPhotoRef);
-    if (card.backPhotoRef) await deleteImage(card.backPhotoRef);
-    await deleteCard(card.id); await loadCards(); ondeleted();
-  }
   async function uploadLogo(e: Event) {
     const file = (e.target as HTMLInputElement).files?.[0]; if (!file) return;
     if (draft.logo.blobRef) await deleteImage(draft.logo.blobRef);
@@ -49,38 +41,111 @@
   async function fetchLogo() {
     const domain = draft.catalogId ? findCatalogById(draft.catalogId)?.domain
       : draft.storeName.trim().toLowerCase().replace(/\s+/g, '') + '.com';
-    if (!domain) { alert('No domain to fetch from.'); return; }
+    if (!domain) return;
     const blob = await logoDevFetcher.fetchLogo(domain);
     if (!blob) { alert('No logo found online.'); return; }
     if (draft.logo.blobRef) await deleteImage(draft.logo.blobRef);
     const key = crypto.randomUUID(); await putImage(key, blob);
     draft.logo = { source: 'fetched', blobRef: key };
   }
+  async function save() {
+    draft.updatedAt = Date.now();
+    await putCard($state.snapshot(draft) as Card);   // snapshot: $state isn't clone-able for IndexedDB
+    await loadCards();
+    ondone();
+  }
+  async function remove() {
+    for (const ref of [card.logo.blobRef, card.frontPhotoRef, card.backPhotoRef]) if (ref) await deleteImage(ref);
+    await deleteCard(card.id); await loadCards(); ondeleted();
+  }
+  const isTile = $derived(logoUrl.startsWith('data:'));
 </script>
-<header><button onclick={ondone}>← Back</button><h2>Edit</h2></header>
-<label>Name<input bind:value={draft.storeName} /></label>
-<label>Brand color<input type="color" bind:value={draft.brandColor} /></label>
-<div class="logo">
-  <button onclick={() => showPicker = !showPicker}>🎨 Choose logo</button>
-  <input type="file" accept="image/*" onchange={uploadLogo} />
-  <button onclick={fetchLogo}>🌐 Fetch</button>
+
+<header>
+  <button class="back" onclick={ondone} aria-label="Back">‹</button>
+  <h2>Edit card</h2>
+</header>
+
+<div class="body">
+  <label class="field">
+    <span class="lbl">Name</span>
+    <input class="text" bind:value={draft.storeName} />
+  </label>
+
+  <div class="field">
+    <span class="lbl">Logo</span>
+    <div class="logo-row">
+      <span class="logo-prev" style="background:{isTile ? '#2a2a30' : '#fff'}">
+        {#if logoUrl && !isTile}<img src={logoUrl} alt="logo" />{:else}<span class="ph">🏷️</span>{/if}
+      </span>
+      <div class="logo-actions">
+        <button class="btn" onclick={() => showPicker = !showPicker}>🎨 Choose</button>
+        <label class="btn">⬆️ Upload<input type="file" accept="image/*" onchange={uploadLogo} hidden /></label>
+        <button class="btn" onclick={fetchLogo}>🌐 Fetch</button>
+      </div>
+    </div>
+  </div>
+  {#if showPicker}
+    <LogoPicker initial={draft.storeName} onpick={pickLogo} onclose={() => showPicker = false} />
+  {/if}
+
+  <label class="field swatch">
+    <span class="lbl">Brand colour</span>
+    <span class="dot" style="background:{draft.brandColor}"></span>
+    <input type="color" bind:value={draft.brandColor} hidden />
+  </label>
+
+  <label class="field">
+    <span class="lbl">Notes</span>
+    <textarea class="text" rows="2" bind:value={draft.notes}></textarea>
+  </label>
+
+  <PhotoField label="Front photo" bind:value={draft.frontPhotoRef} />
+  <PhotoField label="Back photo" bind:value={draft.backPhotoRef} />
+
+  <button class="toggle" onclick={() => draft.favorite = !draft.favorite}>
+    <span>Favourite</span>
+    <span class="star" class:on={draft.favorite}>{draft.favorite ? '★' : '☆'}</span>
+  </button>
+
+  <button class="btn primary" onclick={save}>Save</button>
+  <button class="del" onclick={remove}>Delete card</button>
 </div>
-{#if showPicker}
-  <LogoPicker initial={draft.storeName} onpick={pickLogo} onclose={() => showPicker = false} />
-{/if}
-<label>Notes<textarea bind:value={draft.notes}></textarea></label>
-<PhotoField label="Front photo" bind:value={draft.frontPhotoRef} />
-<PhotoField label="Back photo" bind:value={draft.backPhotoRef} />
-<label class="row"><input type="checkbox" bind:checked={draft.favorite} /> Favorite</label>
-<button class="save" onclick={save}>Save</button>
-<button class="del" onclick={remove}>Delete card</button>
+
 <style>
-  header{display:flex;gap:12px;align-items:center;padding:14px 16px}
-  label{display:block;margin:10px 16px}.row{display:flex;gap:8px;align-items:center}
-  input:not([type]),input[type=text],textarea{width:100%;padding:10px;border-radius:10px;
-    border:1px solid #2a2a30;background:#161618;color:#eee}
-  .logo{display:flex;gap:8px;margin:10px 16px}
-  .save{display:block;width:calc(100% - 32px);margin:10px 16px;padding:14px;border:none;
-    border-radius:12px;background:#2a6df4;color:#fff}
-  .del{display:block;margin:6px 16px;background:none;border:none;color:#f66}
+  header{display:flex;align-items:center;gap:6px;padding:12px 12px 6px}
+  .back{background:none;border:none;color:#e6e6ec;font-size:30px;line-height:1;cursor:pointer;
+    width:40px;height:40px;border-radius:10px}
+  .back:active{background:#1a1a20}
+  h2{font-size:19px;margin:0}
+  .body{display:flex;flex-direction:column;gap:16px;padding:8px 16px 40px}
+  .field{display:block}
+  .lbl{display:block;color:#9a9aa6;font-size:13px;margin:0 2px 6px}
+  .text{width:100%;padding:12px;border-radius:12px;border:1px solid #2a2a30;background:#161618;
+    color:#eee;font-size:15px;font-family:inherit}
+  textarea.text{resize:vertical}
+  .btn{display:flex;align-items:center;justify-content:center;gap:6px;padding:13px;border-radius:12px;
+    border:1px solid #33333a;background:#1a1a20;color:#e6e6ec;font-size:15px;cursor:pointer;
+    -webkit-tap-highlight-color:transparent}
+  .btn:active{background:#23232b}
+  .btn.primary{background:#2a6df4;border:none;font-weight:600;padding:15px;font-size:16px;margin-top:6px}
+  /* logo row */
+  .logo-row{display:flex;gap:12px;align-items:stretch}
+  .logo-prev{flex:0 0 64px;width:64px;height:64px;border-radius:14px;display:flex;align-items:center;
+    justify-content:center;overflow:hidden}
+  .logo-prev img{max-width:80%;max-height:80%;object-fit:contain}
+  .logo-prev .ph{font-size:24px;filter:grayscale(1);opacity:.6}
+  .logo-actions{flex:1;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+  .logo-actions .btn{padding:0;height:64px;flex-direction:column;font-size:13px;gap:4px}
+  /* colour swatch */
+  .swatch{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;
+    border-radius:12px;border:1px solid #2a2a30;background:#161618;cursor:pointer}
+  .swatch .lbl{margin:0;color:#e6e6ec;font-size:15px}
+  .dot{width:34px;height:34px;border-radius:50%;border:2px solid #3a3a42}
+  /* favourite */
+  .toggle{display:flex;align-items:center;justify-content:space-between;padding:14px;border-radius:12px;
+    border:1px solid #2a2a30;background:#161618;color:#e6e6ec;font-size:15px;cursor:pointer}
+  .star{font-size:22px;color:#666}
+  .star.on{color:#ffcf33}
+  .del{background:none;border:none;color:#f66;padding:10px;font-size:15px;cursor:pointer}
 </style>
