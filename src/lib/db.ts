@@ -2,7 +2,7 @@ import { openDB, type IDBPDatabase } from 'idb';
 import type { Card } from './types';
 
 const DB_NAME = 'loyaltycards';
-const VERSION = 2;
+const VERSION = 3;
 let dbp: Promise<IDBPDatabase> | null = null;
 
 function open() {
@@ -17,6 +17,9 @@ function open() {
           db.createObjectStore('logos');
         if (!db.objectStoreNames.contains('logoColors'))
           db.createObjectStore('logoColors');
+        // learned barcode prefixes → catalogId (self-learning brand detection, F5)
+        if (!db.objectStoreNames.contains('prefixes'))
+          db.createObjectStore('prefixes');
       },
     });
   }
@@ -57,4 +60,15 @@ export async function putLogoColor(domain: string, hex: string) { await (await o
 export async function clearLogoCache() {
   const db = await open();
   await db.clear('logos'); await db.clear('logoColors');
+}
+
+// Self-learned barcode prefix → catalogId map (F5). Keyed by the prefix string.
+export async function putPrefix(prefix: string, catalogId: string) {
+  await (await open()).put('prefixes', catalogId, prefix);
+}
+export async function getAllPrefixes(): Promise<{ prefix: string; catalogId: string }[]> {
+  const db = await open();
+  const keys = (await db.getAllKeys('prefixes')) as string[];
+  const vals = (await db.getAll('prefixes')) as string[];
+  return keys.map((prefix, i) => ({ prefix, catalogId: vals[i] }));
 }

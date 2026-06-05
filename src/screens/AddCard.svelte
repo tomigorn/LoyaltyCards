@@ -4,6 +4,7 @@
   import { FORMATS, FORMAT_LABELS, validateBarcode } from '../lib/barcode/formats';
   import { findCatalogEntry, findCatalogById, displayName } from '../lib/catalog/catalog';
   import { detectBrand } from '../lib/barcode/detect';
+  import { loadLearnedPrefixes, rememberPrefix } from '../lib/barcode/learned';
   import { putCard, getAllCards } from '../lib/db';
   import { loadCards } from '../lib/stores';
   import type { BarcodeFormat, Card, CatalogEntry } from '../lib/types';
@@ -17,6 +18,9 @@
   let catalogId = $state<string | undefined>(undefined);
   let brandColor = $state<string | undefined>(undefined);
   let picked = $state(false);
+
+  // Load the user's self-learned barcode→brand prefixes so detect() can suggest a shop.
+  loadLearnedPrefixes();
 
   // OCR state
   let ocrReading = $state(false);
@@ -52,6 +56,16 @@
   // so a changed value is re-validated from scratch.
   $effect(() => { value; format; warn = ''; });
 
+  // Manual entry: if the user types a number we recognise (from a learned/curated prefix)
+  // and hasn't named a shop yet, suggest the brand. Non-destructive — never overrides a
+  // shop the user already chose or typed.
+  $effect(() => {
+    if (mode === 'manual' && !picked && !storeName.trim() && value.replace(/\D/g, '').length >= 7) {
+      const detected = detectBrand(value);
+      if (detected) { storeName = displayName(detected); catalogId = detected.id; brandColor = detected.brandColor; }
+    }
+  });
+
   async function save() {
     if (!storeName.trim()) { err = 'Enter a store name'; return; }
     if (!value.trim()) { err = 'Enter a number'; return; }
@@ -72,7 +86,10 @@
       logo: { source: cat ? 'catalog' : 'generated' }, catalogId: cat?.id, notes: '',
       favorite: false, order, createdAt: now, updatedAt: now,
     };
-    await putCard(card); await loadCards(); ondone();
+    await putCard(card);
+    // Learn this barcode's prefix → brand so a future card from the same retailer auto-detects.
+    if (cat?.id) await rememberPrefix(value, cat.id);
+    await loadCards(); ondone();
   }
 
   function triggerPhotoInput() {
