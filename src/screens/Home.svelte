@@ -34,13 +34,17 @@
   function handleConsider(e: CustomEvent<DndEvent<Card>>) { items = e.detail.items; }
   function handleFinalize(e: CustomEvent<DndEvent<Card>>) { items = e.detail.items; }
 
-  // The Done button is the single, explicit save point.
+  // The Done button is the single, explicit save point. svelte-dnd-action's item
+  // objects aren't structured-cloneable (IndexedDB put throws), so we take only the new
+  // id ORDER from them and persist the clean card objects from the store.
   async function save() {
-    // Snapshot the final order BEFORE touching state, then exit reorder mode so the
-    // live dnd-zone is unmounted and can't revert `items` while we persist.
-    const ordered = items.map((c, i) => ({ ...c, order: i }));
+    const orderedIds = items.map(c => c.id);
     reorderMode = false;
-    for (const c of ordered) await putCard(c);
+    const byId = new Map(get(cards).map(c => [c.id, c]));
+    for (let i = 0; i < orderedIds.length; i++) {
+      const c = byId.get(orderedIds[i]);
+      if (c && c.order !== i) await putCard({ ...c, order: i });
+    }
     await loadCards();
   }
 
