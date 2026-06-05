@@ -1,11 +1,12 @@
 <script lang="ts">
   import { get } from 'svelte/store';
   import { dndzone, type DndEvent } from 'svelte-dnd-action';
-  import { filtered, query, loadCards, sortMode, setSort } from '../lib/stores';
+  import { filtered, query, cards, loadCards, sortMode, setSort } from '../lib/stores';
+  import { sortCards } from '../lib/sort';
   import { putCard } from '../lib/db';
   import { longpress } from '../lib/actions/longpress';
   import CardTile from '../components/CardTile.svelte';
-  import type { Card } from '../lib/types';
+  import type { Card, SortMode } from '../lib/types';
 
   let { onopen, onadd, onsettings }:
     { onopen: (c: Card) => void; onadd: () => void; onsettings: () => void } = $props();
@@ -16,84 +17,63 @@
   let items = $state<Card[]>([]);
 
   async function enterReorder() {
+    query.set('');                                   // reorder the full list, not a filtered subset
     if (get(sortMode) !== 'custom') {
       // seed custom order from the current visual order so nothing jumps
-      const list = get(filtered);
+      const list = sortCards(get(cards), get(sortMode));
       for (let i = 0; i < list.length; i++) {
         if (list[i].order !== i) await putCard({ ...list[i], order: i });
       }
       await loadCards();
       setSort('custom');
     }
-    items = get(filtered).map(c => ({ ...c }));   // working copy for dndzone (needs `id`)
+    items = sortCards(get(cards), 'custom').map(c => ({ ...c }));
     reorderMode = true;
   }
 
-  function handleConsider(e: CustomEvent<DndEvent<Card>>) {
-    items = e.detail.items;
-  }
+  function handleConsider(e: CustomEvent<DndEvent<Card>>) { items = e.detail.items; }
+  function handleFinalize(e: CustomEvent<DndEvent<Card>>) { items = e.detail.items; }
 
-  async function handleFinalize(e: CustomEvent<DndEvent<Card>>) {
-    items = e.detail.items;
+  // The Done button is the single, explicit save point.
+  async function save() {
     for (let i = 0; i < items.length; i++) {
-      if (items[i].order !== i) {
-        items[i] = { ...items[i], order: i };
-        await putCard(items[i]);
-      }
+      if (items[i].order !== i) { items[i] = { ...items[i], order: i }; await putCard(items[i]); }
     }
     await loadCards();
-  }
-
-  function doneReorder() {
     reorderMode = false;
   }
 
-  function handleSortChange(e: Event) {
-    setSort((e.target as HTMLSelectElement).value as import('../lib/types').SortMode);
-  }
-
-  // no-op for reorder mode taps
+  function handleSortChange(e: Event) { setSort((e.target as HTMLSelectElement).value as SortMode); }
   function noop(_c: Card) {}
 </script>
 
+<!-- Header + search stay identical in both modes so nothing shifts -->
+<header>
+  <h1>Cards</h1>
+  <div class="header-right">
+    <select class="sort-select" value={$sortMode} onchange={handleSortChange} aria-label="Sort order">
+      <option value="lastUsed">Last used</option>
+      <option value="alpha">A–Z</option>
+      <option value="added">Date added</option>
+      <option value="custom">Custom</option>
+    </select>
+    <button class="icon" onclick={onsettings} aria-label="Settings">⚙️</button>
+  </div>
+</header>
+<input class="search" placeholder="🔍 Search…" bind:value={$query} />
+
 {#if reorderMode}
-  <header>
-    <h1>Cards</h1>
-    <button class="done-btn" onclick={doneReorder}>Done ✓</button>
-  </header>
-  <div
-    class="grid"
-    use:dndzone={{ items, flipDurationMs: 150 }}
-    onconsider={handleConsider}
-    onfinalize={handleFinalize}
-  >
+  <div class="grid pad-bottom" use:dndzone={{ items, flipDurationMs: 150 }}
+       onconsider={handleConsider} onfinalize={handleFinalize}>
     {#each items as card (card.id)}
-      <div class="drag-wrap">
-        <CardTile {card} onopen={noop} />
-      </div>
+      <div class="drag-wrap"><CardTile {card} onopen={noop} /></div>
     {/each}
   </div>
+  <div class="reorder-bar"><button class="done-btn" onclick={save}>Done ✓</button></div>
 {:else}
-  <header>
-    <h1>Cards</h1>
-    <div class="header-right">
-      <select class="sort-select" value={$sortMode} onchange={handleSortChange} aria-label="Sort order">
-        <option value="lastUsed">Last used</option>
-        <option value="alpha">A–Z</option>
-        <option value="added">Date added</option>
-        <option value="custom">Custom</option>
-      </select>
-      <button class="icon" onclick={onsettings} aria-label="Settings">⚙️</button>
-    </div>
-  </header>
-  <input class="search" placeholder="🔍 Search…" bind:value={$query} />
   <div class="grid">
     {#each $filtered as card (card.id)}
-      <div
-        class="tile-wrap"
-        use:longpress={{ onlongpress: enterReorder }}
-        role="presentation"
-      >
+      <div class="tile-wrap" use:longpress={{ onlongpress: enterReorder }} role="presentation">
         <CardTile {card} {onopen} />
       </div>
     {/each}
@@ -111,14 +91,17 @@
   .search{margin:0 16px 12px;width:calc(100% - 32px);padding:10px 12px;border-radius:10px;
     border:1px solid #2a2a30;background:#161618;color:#eee}
   .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px 24px}
+  .pad-bottom{padding-bottom:96px}                /* clear the fixed Done bar */
   .tile-wrap{display:contents}
-  .drag-wrap{display:block}              /* a real grid cell; the tile fills it (width:100%) */
+  .drag-wrap{display:block}                       /* real grid cell; tile fills it (width:100%) */
   .add{aspect-ratio:1.4;border-radius:14px;border:1px dashed #3a3a42;background:#161618;
     color:#9a9aa4;font-size:28px;cursor:pointer}
   /* iOS/Android-style wiggle while reordering (on the tile, not the dnd-moved wrapper) */
   @keyframes wiggle { 0%,100%{transform:rotate(-1deg)} 50%{transform:rotate(1deg)} }
   .drag-wrap :global(.tile){ animation: wiggle 0.26s ease-in-out infinite; transform-origin:center }
   .drag-wrap:nth-child(odd) :global(.tile){ animation-delay:-0.13s }
-  .done-btn{background:#3a7bd5;color:#fff;border:none;border-radius:10px;
-    padding:8px 18px;font-size:15px;font-weight:600;cursor:pointer}
+  .reorder-bar{position:fixed;left:0;right:0;bottom:0;padding:12px 16px;
+    background:linear-gradient(transparent,#0b0b0d 45%);display:flex;justify-content:center}
+  .done-btn{width:100%;max-width:360px;background:#2a6df4;color:#fff;border:none;border-radius:12px;
+    padding:14px;font-size:16px;font-weight:600;cursor:pointer}
 </style>
