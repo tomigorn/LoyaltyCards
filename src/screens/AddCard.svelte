@@ -109,31 +109,30 @@
       const { detectFromImage } = await import('../lib/barcode/scan');
       const { recognizeText, suggestShopsFromText } = await import('../lib/ocr/ocr');
 
-      // 1) Decode the barcode/QR straight from the image (captures the card number + format).
-      const scanned = await detectFromImage(file).catch(() => null);
-      if (scanned) { value = scanned.value; format = scanned.format; formatTouched = true; }
-
-      // 2) OCR the shop name from the same image.
-      const text = await recognizeText(file).catch(() => '');
-      const suggestions = suggestShopsFromText(text);
-
-      const firstLine = () => {
-        const l = text.split(/\r?\n/).map(s => s.trim()).find(s => /[a-zA-Z]{3,}/.test(s));
+      const fillShop = (text: string) => {
+        if (storeName) return;
+        const s = suggestShopsFromText(text);
+        if (s.length > 0) { pick(s[0]); return; }
+        const l = text.split(/\r?\n/).map((x) => x.trim()).find((x) => /[a-zA-Z]{3,}/.test(x));
         if (l) storeName = l.replace(/[^a-zA-Z0-9 &'-]/g, '').trim().slice(0, 50);
       };
 
+      // 1) Decode the barcode/QR straight from the image (the card number + format).
+      const scanned = await detectFromImage(file).catch(() => null);
       if (scanned) {
-        // We have the code — go straight to the form with it filled; apply the best shop guess.
-        if (suggestions.length > 0) pick(suggestions[0]); else firstLine();
+        // Got the code — show the form immediately; read the shop name in the background.
+        value = scanned.value; format = scanned.format; formatTouched = true;
         mode = 'manual';
-      } else if (suggestions.length > 0) {
-        ocrSuggestions = suggestions; ocrReading = false;   // no code; pick a shop, then manual
-      } else {
-        firstLine();
-        mode = 'manual';
+        recognizeText(file).then(fillShop).catch(() => {});
+        return;
       }
+
+      // 2) No code — fall back to OCR for the shop name.
+      const text = await recognizeText(file).catch(() => '');
+      const suggestions = suggestShopsFromText(text);
+      if (suggestions.length > 0) { ocrSuggestions = suggestions; ocrReading = false; }
+      else { fillShop(text); mode = 'manual'; }
     } catch {
-      // Everything failed — fall through to manual entry.
       mode = 'manual';
     }
   }
