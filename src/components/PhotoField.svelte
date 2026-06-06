@@ -29,7 +29,7 @@
   {#if url}<img class="preview" src={url} alt={label} />{/if}
   <label class="btn">
     {url ? 'Replace photo' : `Add ${label.toLowerCase()}`}
-    <input type="file" accept="image/*" capture="environment" onchange={onPick} hidden />
+    <input type="file" accept="image/*" onchange={onPick} hidden />
   </label>
 </div>
 <style>

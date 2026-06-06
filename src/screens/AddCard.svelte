@@ -138,8 +138,10 @@
 
 <div class="body">
 {#if mode === 'choose'}
-  <!-- hidden file input for photo capture (inside choose so it's absent in manual mode) -->
-  <input type="file" accept="image/*" capture="environment" style="display:none"
+  <!-- hidden file input (inside choose so it's absent in manual mode). No `capture` so it
+       opens the normal picker — pick an existing photo (or take one); live scanning is the
+       "Scan barcode" option. -->
+  <input type="file" accept="image/*" style="display:none"
     bind:this={photoInput} onchange={onPhotoSelected} />
   <button class="opt" onclick={() => mode = 'scan'}>
     <span class="ic">
@@ -149,7 +151,7 @@
   <button class="opt" onclick={triggerPhotoInput}>
     <span class="ic">
       <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M21 16l-5-5L5 20"/></svg>
-    </span><span class="t"><b>Photo of card</b><small>Read the shop name from a photo</small></span><span class="ch">›</span>
+    </span><span class="t"><b>Photo of card</b><small>Pick a photo — reads the shop name from it</small></span><span class="ch">›</span>
   </button>
   <button class="opt" onclick={() => mode = 'manual'}>
     <span class="ic">
