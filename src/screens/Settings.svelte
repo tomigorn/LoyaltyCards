@@ -5,6 +5,7 @@
   import { getAutoFetch, setAutoFetch } from '../lib/settings';
   import { clearFailedDomains } from '../lib/logo/fetch';
   import AccountSection from '../components/AccountSection.svelte';
+  import { APP_VERSION } from '../lib/version';
 
   let { onback }: { onback: () => void } = $props();
   let msg = $state('');
@@ -49,6 +50,8 @@
     </button>
     <button class="btn" onclick={clearLogos}>🗑️ Clear logo cache</button>
   </section>
+
+  <p class="version">LoyaltyCards v{APP_VERSION}</p>
 </div>
 
 <style>
@@ -71,4 +74,5 @@
   .switch.on{background:#2a6df4}
   .knob{position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:left .15s}
   .switch.on .knob{left:21px}
+  .version{color:#5a5a64;font-size:12px;text-align:center;margin:8px 0 0}
 </style>
