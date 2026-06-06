@@ -1,7 +1,7 @@
 <script lang="ts">
   import BarcodeView from '../components/BarcodeView.svelte';
   import { getImage } from '../lib/db';
-  import type { Card } from '../lib/types';
+  import type { BarcodeFormat, Card } from '../lib/types';
   let { card, onback, onedit }:
     { card: Card; onback: () => void; onedit: () => void } = $props();
   let showTip = $state(localStorage.getItem('brightnessTipSeen') !== '1');
@@ -11,6 +11,15 @@
     return () => wake?.release().catch(() => {});
   });
   function dismissTip() { showTip = false; localStorage.setItem('brightnessTipSeen', '1'); }
+
+  // Tap the code to switch between QR and a linear barcode of the same number — some tills
+  // read one symbology but not the other.
+  const is2d = (f: BarcodeFormat) => f === 'qr' || f === 'aztec' || f === 'datamatrix';
+  const altFormat: BarcodeFormat = $derived(is2d(card.barcodeFormat) ? 'code128' : 'qr');
+  let showAlt = $state(false);
+  const displayFormat: BarcodeFormat = $derived(showAlt ? altFormat : card.barcodeFormat);
+  function toggleFormat() { showAlt = !showAlt; }
+  const kind = (f: BarcodeFormat) => (is2d(f) ? 'QR code' : 'barcode');
 
   // Card photos (front/back). The back often holds a signature strip, terms, a service
   // number or a second barcode — handy to glance at right at the till.
@@ -23,22 +32,31 @@
     return () => { for (const u of made) URL.revokeObjectURL(u); };
   });
 </script>
-<div class="sheet" onclick={onback} role="button" tabindex="0"
-     onkeydown={(e) => e.key === 'Escape' && onback()}>
+
+<svelte:window onkeydown={(e) => { if (e.key === 'Escape') onback(); }} />
+
+<div class="sheet">
+  <button class="back" onclick={onback} aria-label="Back">‹</button>
+  <button class="edit" onclick={onedit}>Edit</button>
+
   <div class="name">{card.storeName}</div>
-  <BarcodeView value={card.barcodeValue} format={card.barcodeFormat} />
-  <div class="num">{card.barcodeValue}</div>
+
+  <button class="code" onclick={toggleFormat} aria-label="Switch code format">
+    <BarcodeView value={card.barcodeValue} format={displayFormat} />
+    <div class="num">{card.barcodeValue}</div>
+    <div class="switch">Showing {kind(displayFormat)} — tap to switch</div>
+  </button>
+
   {#if showTip}
-    <div class="tip" onclick={(e) => { e.stopPropagation(); dismissTip(); }} role="button" tabindex="0"
+    <div class="tip" onclick={dismissTip} role="button" tabindex="0"
          onkeydown={() => {}}>Turn your screen brightness up for best scanning. (tap to dismiss)</div>
   {/if}
   {#if frontUrl || backUrl}
-    <div class="photos" onclick={(e) => e.stopPropagation()} role="presentation">
+    <div class="photos">
       {#if frontUrl}<button class="photo-btn" onclick={() => viewing = 'front'}>Front of card</button>{/if}
       {#if backUrl}<button class="photo-btn" onclick={() => viewing = 'back'}>Back of card</button>{/if}
     </div>
   {/if}
-  <button class="edit" onclick={(e) => { e.stopPropagation(); onedit(); }}>Edit</button>
 </div>
 {#if viewing}
   <div class="viewer" onclick={() => viewing = ''} role="button" tabindex="0"
@@ -50,8 +68,14 @@
 <style>
   .sheet{position:fixed;inset:0;background:#fff;color:#111;display:flex;flex-direction:column;
     align-items:center;justify-content:center;gap:16px;padding:24px}
+  .back{position:fixed;top:8px;left:6px;background:none;border:none;color:#111;font-size:34px;
+    line-height:1;cursor:pointer;width:44px;height:44px;border-radius:10px}
+  .back:active{background:#eee}
   .name{align-self:flex-start;font-weight:800;font-size:20px}
-  .num{font-family:ui-monospace,monospace;letter-spacing:3px;font-size:18px}
+  .code{display:flex;flex-direction:column;align-items:center;gap:10px;background:none;border:none;
+    padding:0;cursor:pointer}
+  .num{font-family:ui-monospace,monospace;letter-spacing:3px;font-size:18px;color:#111}
+  .switch{color:#888;font-size:13px}
   .tip{background:#fff3cd;color:#664d03;padding:10px 14px;border-radius:10px;font-size:14px;max-width:90vw}
   .photos{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
   .photo-btn{background:#f1f1f4;color:#222;border:1px solid #e0e0e6;border-radius:12px;
