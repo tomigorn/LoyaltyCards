@@ -13,14 +13,17 @@ export function toBwipId(format: BarcodeFormat): string { return BCID[format]; }
 export function renderToCanvas(
   canvas: HTMLCanvasElement, format: BarcodeFormat, value: string,
 ) {
+  // Matrix codes (QR/Aztec/Data Matrix) have no bar "height" — bwip-js rejects the option
+  // entirely (even `height: undefined`), so it must be OMITTED for them, not set to undefined.
+  const is2d = format === 'qr' || format === 'aztec' || format === 'datamatrix';
   bwipjs.toCanvas(canvas, {
     bcid: toBwipId(format),
     text: value,
     scale: 3,
-    height: format === 'qr' || format === 'aztec' || format === 'datamatrix' ? undefined : 14,
     includetext: false,
     backgroundcolor: 'FFFFFF',
     paddingwidth: 10,
     paddingheight: 10,
+    ...(is2d ? {} : { height: 14 }),
   });
 }
