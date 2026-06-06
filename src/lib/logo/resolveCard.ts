@@ -1,5 +1,5 @@
 import { resolveLogoUrl } from './resolve';
-import { getImage, getLogo, putLogo, putLogoColor, getLogoColor } from '../db';
+import { getImage, getLogo, putLogo, putLogoColor, getLogoColor, getCard, putCard } from '../db';
 import { generateTile } from './tile';
 import { logoDevFetcher } from './fetch';
 import { extractDominantColor } from './color';
@@ -29,21 +29,35 @@ export function resolveCardLogo(card: Card): Promise<string> {
 const NEUTRAL = '#2a2a30';
 const COLOR_FALLBACK = '#444444';   // value extractDominantColor returns when it finds nothing
 
+// Cache the colour we extract from a local blob onto the card's synced `bgColor` field, so
+// other devices (which don't have the photo/logo blob) render the same colour. Guarded so we
+// persist at most once per card per session, and never clobber a concurrent edit.
+const persistedBg = new Set<string>();
+async function persistBg(card: Card, color: string): Promise<void> {
+  if (card.bgColor === color || persistedBg.has(card.id)) return;
+  persistedBg.add(card.id);
+  try {
+    const fresh = await getCard(card.id);
+    if (fresh && fresh.bgColor !== color) await putCard({ ...fresh, bgColor: color, updatedAt: Date.now() });
+  } catch { /* ignore */ }
+}
+
 /** Tile background colour. Priority:
- *  1) the user's own front card photo (the real card — most accurate),
- *  2) the curated store brand colour,
- *  3) the colour extracted from the store logo,
+ *  0) explicit user override (`tileColor`),
+ *  1) the user's own front card photo (the real card — most accurate); cached to `bgColor`,
+ *  1b) a hand-picked logo blob; cached to `bgColor`,
+ *  2) a colour previously resolved & synced from another device (`bgColor`),
+ *  3) the curated store brand colour / extracted store-logo colour,
  *  4) the card's own colour / neutral. */
 export async function resolveCardColor(card: Card): Promise<string> {
-  // 0) explicit user override always wins
   if (card.tileColor) return card.tileColor;
-  // 1) front card photo
+  // 1) front card photo (only present on the device that holds the blob)
   if (card.frontPhotoRef) {
     const blob = await getImage(card.frontPhotoRef);
     if (blob) {
       try {
         const c = await extractDominantColor(blob);
-        if (c && c !== COLOR_FALLBACK) return c;
+        if (c && c !== COLOR_FALLBACK) { await persistBg(card, c); return c; }
       } catch { /* ignore */ }
     }
   }
@@ -53,11 +67,13 @@ export async function resolveCardColor(card: Card): Promise<string> {
     if (blob) {
       try {
         const c = await extractDominantColor(blob);
-        if (c && c !== COLOR_FALLBACK) return c;
+        if (c && c !== COLOR_FALLBACK) { await persistBg(card, c); return c; }
       } catch { /* ignore */ }
     }
   }
-  // 2-3) curated store branding
+  // 2) a previously-resolved colour synced from a device that had the blob
+  if (card.bgColor) return card.bgColor;
+  // 3) curated store branding (deterministic across devices)
   const e: CatalogEntry | undefined = card.catalogId ? findCatalogById(card.catalogId) : undefined;
   if (e) {
     if (e.brandColor) return e.brandColor;

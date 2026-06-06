@@ -25,6 +25,8 @@ export interface Card {
   lastUsedAt?: number;
   catalogId?: string;        // links a card to a CatalogEntry.id
   tileColor?: string;        // explicit user override for the tile background colour
+  bgColor?: string;          // resolved/cached tile background colour, synced so photo- and
+                             // logo-derived colours match across devices that lack the blob
 }
 
 export interface CatalogEntry {
