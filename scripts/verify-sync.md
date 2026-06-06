@@ -1,3 +1,77 @@
+# Sync Verification — Result (image sync two-context, 2026-06-06)
+
+**Outcome: GREEN — photo tile visible on Context B after image upload on Context A.**
+
+---
+
+## Image Sync Verification
+
+### Bug Found and Fixed
+
+**Root cause:** Migration 3 (`3_card_images.go`) added `frontPhoto`, `backPhoto`, and `logoImage` as file fields, but never added the companion text fields `frontPhotoRef`, `backPhotoRef`, and `logoBlobRef`. These UUID fields are written by `toRemote()` and are essential: `pullImages()` in `engine.ts` reads `remote['frontPhotoRef']` as the IndexedDB key for each downloaded blob. Without the fields in PocketBase, the value was `undefined`, the early-exit guard `if (!ref || !file) continue` fired, and no images were ever downloaded on B.
+
+**Fix (backend):** Added migration `4_image_ref_fields.go` in `LoyaltyCards-Sync/migrations/` — adds all three text ref fields. Rebuilt `loyaltycards-sync:local` image.
+
+**No changes to PWA sync engine code were required.** The engine already correctly sends and reads these fields; the schema gap was the only defect.
+
+### Verification Run (2026-06-06)
+
+**Environment:**
+- Backend image: `loyaltycards-sync:local` (rebuilt with migration 4)
+- PWA: `VITE_SYNC_URL=http://localhost:8091 npm run build` + `npx vite preview --port 4173`
+- Playwright spec: `e2e-live/photo-sync.spec.ts` (two isolated browser contexts)
+
+**Commands:**
+```bash
+# 1. Ephemeral backend (rebuilt image)
+docker rm -f pb-e2e 2>/dev/null
+docker run -d --name pb-e2e -p 8091:8090 \
+  -e PB_ADMIN_EMAIL=a@b.c -e PB_ADMIN_PASSWORD=password123456 \
+  loyaltycards-sync:local
+sleep 6
+# health check → 200
+
+# 2. Build + preview
+VITE_SYNC_URL=http://localhost:8091 npm run build
+npx vite preview --port 4173 &
+# preview check → 200
+
+# 3. Two-context photo sync test
+npx playwright test e2e-live/photo-sync.spec.ts --config e2e-live/playwright.config.ts
+
+# 4. Tear down
+docker rm -f pb-e2e
+pkill -f "vite preview"
+```
+
+**Test result:**
+```
+Running 1 test using 1 worker
+
+signUp done for photo...@example.com
+addCard done: PhotoStore
+Front photo set via file input
+Context A: photo tile visible — upload succeeded
+Waiting for A to push to PocketBase...
+PB cards after A push: {"items":[{...,"frontPhoto":"front_photo_v79ueeu3vn.jpg",...}],"totalItems":1}
+PB record frontPhoto field: front_photo_v79ueeu3vn.jpg
+logIn done for photo...@example.com
+Waiting for B to pull from PocketBase...
+Context B: img.cardimg is visible — image sync confirmed   ← PRIMARY ASSERTION PASSED
+
+1 passed (24.8s)
+```
+
+**Assertions verified:**
+
+| # | Assertion | Result |
+|---|-----------|--------|
+| 1 | Context A: `img.cardimg` visible after setting front photo and saving | PASS |
+| 2 | PocketBase record has `frontPhoto` file field populated | PASS |
+| 3 | Context B (fresh storage, same account): `img.cardimg` visible after login + pull | PASS (primary assertion) |
+
+---
+
 # Sync Verification — Result (autodate fix, 2026-06-05)
 
 **Outcome: GREEN — all assertions passed.**
