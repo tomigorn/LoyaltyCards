@@ -1,6 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import 'fake-indexeddb/auto';
 
+// Stub global fetch so pullImages doesn't error in engine tests (no real blobs needed here).
+vi.stubGlobal('fetch', vi.fn(async () => ({ ok: false, blob: async () => new Blob() })));
+
 const records: any[] = []; // fake remote store
 const collection = {
   getFullList: vi.fn(async () => records.slice()),
@@ -13,7 +16,7 @@ const collection = {
   update: vi.fn(async (id: string, data: any) => { const r = records.find((x) => x.id === id); Object.assign(r, data); return r; }),
   subscribe: vi.fn(async () => () => {}),
 };
-vi.mock('../auth/client', () => ({ USERS: 'users', pb: { collection: () => collection, authStore: { record: { id: 'owner1' } } } }));
+vi.mock('../auth/client', () => ({ USERS: 'users', pb: { collection: () => collection, authStore: { record: { id: 'owner1' } }, files: { getToken: vi.fn(async () => 'engine-test-token'), getURL: vi.fn(() => 'https://fake/url') } } }));
 
 import { putCard, getAllCards, getCard, setMutationHook } from '../db';
 import { enqueue, listQueue } from './queue';

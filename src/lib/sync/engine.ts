@@ -3,6 +3,7 @@ import { getAllCards, getCard, putCard, deleteCard, setMutationHook, getMutation
 import { listQueue, removeFromQueue, enqueue } from './queue';
 import { toRemote, fromRemote } from './map';
 import { mergeDecision } from './merge';
+import { buildImageUploads, pullImages } from './images';
 
 const CARDS = 'cards';
 const CURSOR_KEY = 'syncCursor';
@@ -31,8 +32,9 @@ export async function push(): Promise<void> {
         const card = await getCard(op.cardId);
         if (!card) { await removeFromQueue(op.cardId); continue; } // deleted locally before flush
         const data = toRemote(card, owner);
-        if (remote) await pb.collection(CARDS).update(remote.id, data);
-        else await pb.collection(CARDS).create(data);
+        const files = await buildImageUploads(card, remote as Record<string, unknown> | null);
+        if (remote) await pb.collection(CARDS).update(remote.id, { ...data, ...files });
+        else await pb.collection(CARDS).create({ ...data, ...files });
       }
       await removeFromQueue(op.cardId);
     } catch {
@@ -50,12 +52,17 @@ export async function pull(): Promise<void> {
   const savedHook = getMutationHook();
   applyingRemote = true;
   setMutationHook(null);
+  let fileToken: string | null = null;
   try {
     for (const rec of records) {
       const local = await getCard(String((rec as any).cardId));
       const { action } = mergeDecision(local, { clientUpdatedAt: Number((rec as any).clientUpdatedAt), deleted: !!(rec as any).deleted });
-      if (action === 'upsert') await putCard(fromRemote(rec as any));
-      else if (action === 'delete') await deleteCard(String((rec as any).cardId));
+      if (action === 'upsert') {
+        await putCard(fromRemote(rec as any));
+        // Download any image blobs this device is missing. Fetch the token lazily once per pull run.
+        if (!fileToken) fileToken = await pb.files.getToken();
+        await pullImages(rec as Record<string, any>, fileToken);
+      } else if (action === 'delete') await deleteCard(String((rec as any).cardId));
       const upd = String((rec as any).updated || '');
       if (upd > (localStorage.getItem(CURSOR_KEY) ?? '')) localStorage.setItem(CURSOR_KEY, upd);
     }
