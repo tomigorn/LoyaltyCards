@@ -7,7 +7,7 @@
 
 {#if !$isLoggedIn && !dismissed}
   <div class="banner">
-    <span class="txt">⚠️ Your cards aren't backed up — they're only on this device.</span>
+    <span class="txt">Your cards aren't backed up — they're only on this device.</span>
     <button class="act" onclick={onsettings}>Log in</button>
     <button class="x" aria-label="Dismiss" onclick={dismiss}>✕</button>
   </div>

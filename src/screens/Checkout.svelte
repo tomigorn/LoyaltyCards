@@ -30,12 +30,12 @@
   <div class="num">{card.barcodeValue}</div>
   {#if showTip}
     <div class="tip" onclick={(e) => { e.stopPropagation(); dismissTip(); }} role="button" tabindex="0"
-         onkeydown={() => {}}>☀️ Turn your screen brightness up for best scanning. (tap to dismiss)</div>
+         onkeydown={() => {}}>Turn your screen brightness up for best scanning. (tap to dismiss)</div>
   {/if}
   {#if frontUrl || backUrl}
     <div class="photos" onclick={(e) => e.stopPropagation()} role="presentation">
-      {#if frontUrl}<button class="photo-btn" onclick={() => viewing = 'front'}>🪪 Front of card</button>{/if}
-      {#if backUrl}<button class="photo-btn" onclick={() => viewing = 'back'}>🔄 Back of card</button>{/if}
+      {#if frontUrl}<button class="photo-btn" onclick={() => viewing = 'front'}>Front of card</button>{/if}
+      {#if backUrl}<button class="photo-btn" onclick={() => viewing = 'back'}>Back of card</button>{/if}
     </div>
   {/if}
   <button class="edit" onclick={(e) => { e.stopPropagation(); onedit(); }}>Edit</button>

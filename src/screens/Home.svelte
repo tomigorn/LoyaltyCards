@@ -63,10 +63,15 @@
       <option value="added">Date added</option>
       <option value="custom">Custom</option>
     </select>
-    <button class="icon" onclick={onsettings} aria-label="Settings">⚙️</button>
+    <button class="icon" onclick={onsettings} aria-label="Settings">
+      <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="3.2"/>
+        <path d="M19.4 13.5a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.9 1.2V20a2 2 0 1 1-4 0v-.2a1.7 1.7 0 0 0-2.9-1.2l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0-1.2-2.9H4a2 2 0 1 1 0-4h.2a1.7 1.7 0 0 0 1.2-2.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 2.9-1.2V4a2 2 0 1 1 4 0v.2a1.7 1.7 0 0 0 2.9 1.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9z"/>
+      </svg>
+    </button>
   </div>
 </header>
-<input class="search" placeholder="🔍 Search…" bind:value={$query} />
+<input class="search" placeholder="Search…" bind:value={$query} />
 
 {#if reorderMode}
   <div class="grid pad-bottom" use:dndzone={{ items, flipDurationMs: 150, dropTargetStyle: {} }}
@@ -75,7 +80,7 @@
       <div class="drag-wrap"><CardTile {card} onopen={noop} /></div>
     {/each}
   </div>
-  <div class="reorder-bar"><button class="done-btn" onclick={save}>Done ✓</button></div>
+  <div class="reorder-bar"><button class="done-btn" onclick={save}>Done</button></div>
 {:else}
     <BackupBanner onsettings={onsettings} />
   <div class="grid">
@@ -92,7 +97,9 @@
   header{display:flex;justify-content:space-between;align-items:center;padding:14px 16px}
   h1{font-size:20px;margin:0}
   .header-right{display:flex;align-items:center;gap:8px}
-  .icon{background:none;border:none;font-size:18px;cursor:pointer}
+  .icon{background:none;border:none;cursor:pointer;color:#c9c9d2;display:grid;place-items:center;
+    width:34px;height:34px;border-radius:8px;padding:0}
+  .icon:active{background:#1a1a20}
   .sort-select{background:#1e1e24;color:#ccc;border:1px solid #3a3a42;border-radius:8px;
     padding:5px 8px;font-size:13px;cursor:pointer}
   .search{margin:0 16px 12px;width:calc(100% - 32px);padding:10px 12px;border-radius:10px;

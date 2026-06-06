@@ -81,12 +81,12 @@
     <span class="lbl">Logo</span>
     <div class="logo-row">
       <span class="logo-prev" style="background:{isTile ? '#2a2a30' : '#fff'}">
-        {#if logoUrl && !isTile}<img src={logoUrl} alt="logo" />{:else}<span class="ph">🏷️</span>{/if}
+        {#if logoUrl && !isTile}<img src={logoUrl} alt="logo" />{:else}<span class="ph"></span>{/if}
       </span>
       <div class="logo-actions">
-        <button class="btn" onclick={() => showPicker = !showPicker}>🎨 Choose</button>
-        <label class="btn">⬆️ Upload<input type="file" accept="image/*" onchange={uploadLogo} hidden /></label>
-        <button class="btn" onclick={fetchLogo}>🌐 Fetch</button>
+        <button class="btn" onclick={() => showPicker = !showPicker}>Choose</button>
+        <label class="btn">Upload<input type="file" accept="image/*" onchange={uploadLogo} hidden /></label>
+        <button class="btn" onclick={fetchLogo}>Fetch</button>
       </div>
     </div>
   </div>
@@ -97,7 +97,7 @@
   <div class="field swatch">
     <span class="lbl">Tile colour</span>
     <div class="swatch-right">
-      {#if draft.tileColor}<button class="auto" onclick={resetTileColor}>↺ Auto</button>{/if}
+      {#if draft.tileColor}<button class="auto" onclick={resetTileColor}>Auto</button>{/if}
       <label class="dot-btn" aria-label="Pick tile colour">
         <span class="dot" style="background:{effColor}"></span>
         <input type="color" value={draft.tileColor ?? effColor} oninput={setTileColor} hidden />

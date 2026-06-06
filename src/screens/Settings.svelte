@@ -11,7 +11,7 @@
   let msg = $state('');
   let autoFetch = $state(getAutoFetch());
   function toggleAuto() { autoFetch = !autoFetch; setAutoFetch(autoFetch); }
-  async function clearLogos() { await clearLogoCache(); clearFailedDomains(); msg = 'Logo cache cleared ✓'; }
+  async function clearLogos() { await clearLogoCache(); clearFailedDomains(); msg = 'Logo cache cleared'; }
 
   async function doExport() {
     const json = await exportBackup();
@@ -24,7 +24,7 @@
   }
   async function doImport(e: Event) {
     const file = (e.target as HTMLInputElement).files?.[0]; if (!file) return;
-    try { await importBackup(await file.text(), 'replace'); await loadCards(); msg = 'Imported ✓'; }
+    try { await importBackup(await file.text(), 'replace'); await loadCards(); msg = 'Imported'; }
     catch (err) { msg = 'Import failed: ' + (err as Error).message; }
   }
 </script>
@@ -37,8 +37,8 @@
   <AccountSection />
   <section>
     <span class="lbl">Backup</span>
-    <button class="btn" onclick={doExport}>⬇️ Export backup</button>
-    <label class="btn">⬆️ Import backup<input type="file" accept="application/json" onchange={doImport} hidden /></label>
+    <button class="btn" onclick={doExport}>Export backup</button>
+    <label class="btn">Import backup<input type="file" accept="application/json" onchange={doImport} hidden /></label>
     {#if msg}<p class="msg">{msg}</p>{/if}
   </section>
 
@@ -48,7 +48,7 @@
       <span>Auto-fetch logos</span>
       <span class="switch" class:on={autoFetch}><span class="knob"></span></span>
     </button>
-    <button class="btn" onclick={clearLogos}>🗑️ Clear logo cache</button>
+    <button class="btn" onclick={clearLogos}>Clear logo cache</button>
   </section>
 
   <p class="version">LoyaltyCards v{APP_VERSION}</p>

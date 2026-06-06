@@ -142,20 +142,26 @@
   <input type="file" accept="image/*" capture="environment" style="display:none"
     bind:this={photoInput} onchange={onPhotoSelected} />
   <button class="opt" onclick={() => mode = 'scan'}>
-    <span class="ic">📷</span><span class="t"><b>Scan barcode</b><small>Point the camera at the card</small></span><span class="ch">›</span>
+    <span class="ic">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7V5a1 1 0 0 1 1-1h2M17 4h2a1 1 0 0 1 1 1v2M20 17v2a1 1 0 0 1-1 1h-2M7 20H5a1 1 0 0 1-1-1v-2"/><path d="M4 12h16"/></svg>
+    </span><span class="t"><b>Scan barcode</b><small>Point the camera at the card</small></span><span class="ch">›</span>
   </button>
   <button class="opt" onclick={triggerPhotoInput}>
-    <span class="ic">🖼️</span><span class="t"><b>Photo of card</b><small>Read the shop name from a photo</small></span><span class="ch">›</span>
+    <span class="ic">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M21 16l-5-5L5 20"/></svg>
+    </span><span class="t"><b>Photo of card</b><small>Read the shop name from a photo</small></span><span class="ch">›</span>
   </button>
   <button class="opt" onclick={() => mode = 'manual'}>
-    <span class="ic">⌨️</span><span class="t"><b>Enter manually</b><small>Type the name &amp; number</small></span><span class="ch">›</span>
+    <span class="ic">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M6 14h.01M18 14h.01M9.5 14h5"/></svg>
+    </span><span class="t"><b>Enter manually</b><small>Type the name &amp; number</small></span><span class="ch">›</span>
   </button>
 {:else if mode === 'scan'}
   <ScannerView onresult={onScan} />
-  <button class="btn" onclick={() => mode = 'manual'}>⌨️ Enter manually instead</button>
+  <button class="btn" onclick={() => mode = 'manual'}>Enter manually instead</button>
 {:else if mode === 'ocr'}
   {#if ocrReading}
-    <p class="ocr-status">📷 Reading card…</p>
+    <p class="ocr-status">Reading card…</p>
   {:else}
     <span class="lbl">Found possible matches — tap one</span>
     <div class="list">
@@ -184,7 +190,7 @@
     </select>
   </label>
   {#if err}<p class="err">{err}</p>{/if}
-  {#if warn}<p class="warn">⚠️ {warn}</p>{/if}
+  {#if warn}<p class="warn">{warn}</p>{/if}
   <button class="btn primary" onclick={save}>{warn ? 'Save anyway' : 'Save'}</button>
 {/if}
 </div>
@@ -209,7 +215,7 @@
   .opt{display:flex;align-items:center;gap:14px;padding:16px;border-radius:14px;border:1px solid #2a2a30;
     background:#161618;color:#e6e6ec;cursor:pointer;text-align:left;-webkit-tap-highlight-color:transparent}
   .opt:active{background:#1e1e24}
-  .opt .ic{font-size:24px;width:30px;text-align:center}
+  .opt .ic{width:28px;display:flex;align-items:center;justify-content:center;color:#b9b9c4}
   .opt .t{flex:1;display:flex;flex-direction:column;gap:2px}
   .opt .t b{font-size:16px}
   .opt .t small{color:#8a8a94;font-size:13px}

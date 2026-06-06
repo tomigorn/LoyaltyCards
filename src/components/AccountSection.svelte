@@ -43,7 +43,7 @@
     }});
   }
   async function finish2fa() {
-    try { await confirmTotp(enrollCode.trim()); enroll = null; enrollCode = ''; twoFAMsg = 'Two-factor enabled ✓'; }
+    try { await confirmTotp(enrollCode.trim()); enroll = null; enrollCode = ''; twoFAMsg = 'Two-factor enabled'; }
     catch (e) { twoFAMsg = (e as Error).message || 'Wrong code'; }
   }
   let disableCode = $state('');

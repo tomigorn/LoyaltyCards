@@ -32,7 +32,7 @@ test('long-press reorder persists after Done and reload', async ({ page }) => {
   const afterDrag = await names(page);
   expect(afterDrag).not.toEqual(before);                 // the reorder moved a card
 
-  await page.getByRole('button', { name: 'Done ✓' }).click();
+  await page.getByRole('button', { name: 'Done' }).click();
   await page.reload();
   await expect.poll(() => names(page)).toEqual(afterDrag); // survived the reload
 });
