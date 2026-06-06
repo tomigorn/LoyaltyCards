@@ -10,6 +10,13 @@ test('logged-out shows the backup banner; login flow reaches the logged-in panel
       body: JSON.stringify({ token: 'tok', record: { id: 'u1', email: 'me@example.com' } }) }));
   await page.route('**/api/loyalty/totp/required', (route) =>
     route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ required: false }) }));
+  // Logged-in panel checks account type + (for email accounts) starts mandatory 2FA setup.
+  await page.route('**/api/collections/_externalAuths/**', (route) =>
+    route.fulfill({ status: 200, contentType: 'application/json',
+      body: JSON.stringify({ page: 1, perPage: 200, totalItems: 0, totalPages: 1, items: [] }) }));
+  await page.route('**/api/loyalty/totp/setup', (route) =>
+    route.fulfill({ status: 200, contentType: 'application/json',
+      body: JSON.stringify({ secret: 'TESTSECRET', otpauthUrl: 'otpauth://totp/x?secret=TESTSECRET' }) }));
 
   await page.goto('/');
   // Banner visible when logged out

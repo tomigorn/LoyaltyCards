@@ -1,11 +1,11 @@
 import { writable, derived, type Readable } from 'svelte/store';
 import { pb, USERS } from './client';
 
-export interface Account { id: string; email: string; username?: string; }
+export interface Account { id: string; email: string; username?: string; totpEnabled: boolean; }
 
 function currentRecord(): Account | null {
   const r = pb.authStore.record as any;
-  return r ? { id: r.id, email: r.email, username: r.username } : null;
+  return r ? { id: r.id, email: r.email, username: r.username, totpEnabled: !!r.totpEnabled } : null;
 }
 
 export const account = writable<Account | null>(currentRecord());
@@ -91,6 +91,25 @@ export async function completeGoogleLogin(): Promise<boolean> {
     window.history.replaceState({}, '', window.location.pathname);
   }
   return true;
+}
+
+/** Whether the CURRENT account is linked to Google. Google accounts have 2FA/password handled
+ *  by Google, so we never show our own 2FA or password rules for them. */
+export async function googleLinked(): Promise<boolean> {
+  const rec = pb.authStore.record;
+  if (!rec) return false;
+  try {
+    const auths = await pb.collection(USERS).listExternalAuths(rec.id);
+    return auths.some((a) => (a as { provider?: string }).provider === 'google');
+  } catch {
+    return false;
+  }
+}
+
+/** After enabling 2FA (or any self-update), refresh the cached auth record so `account` reflects it. */
+export async function refreshAccount(): Promise<void> {
+  if (!pb.authStore.isValid) return;
+  try { await pb.collection(USERS).authRefresh(); } catch { /* offline */ }
 }
 
 /** Whether a Google OAuth2 provider is actually configured on the backend. The UI only shows

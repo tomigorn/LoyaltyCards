@@ -1,11 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
-import { writable } from 'svelte/store';
 
 // Define mocks; vi.mock factory references module-level vars via closure after hoisting.
-// We use vi.hoisted to create the store objects so they exist when vi.mock runs.
-const { mockAccount, mockIsLoggedIn, mockLoginPassword, mockLoginGoogle, mockSignup, mockLogout, mockTotpRequired, mockGoogleEnabled } = vi.hoisted(() => {
-  // Minimal writable-compatible store (no svelte import needed in hoisted context)
+const { mockAccount, mockIsLoggedIn, mockLoginPassword, mockLoginGoogle, mockSignup, mockLogout,
+        mockTotpRequired, mockGoogleEnabled, mockGoogleLinked, mockStartTotp } = vi.hoisted(() => {
   function makeStore<T>(init: T) {
     let val = init;
     const subs: Array<(v: T) => void> = [];
@@ -24,6 +22,8 @@ const { mockAccount, mockIsLoggedIn, mockLoginPassword, mockLoginGoogle, mockSig
     mockLogout: vi.fn(),
     mockTotpRequired: vi.fn().mockResolvedValue(false),
     mockGoogleEnabled: vi.fn().mockResolvedValue(true),
+    mockGoogleLinked: vi.fn().mockResolvedValue(false),
+    mockStartTotp: vi.fn().mockResolvedValue({ secret: 'S', otpauthUrl: 'otpauth://x' }),
   };
 });
 
@@ -35,10 +35,11 @@ vi.mock('../lib/auth/store', () => ({
   signup: mockSignup,
   logout: mockLogout,
   totpRequired: mockTotpRequired,
-  startTotp: vi.fn(),
-  confirmTotp: vi.fn(),
-  disableTotp: vi.fn(),
+  startTotp: mockStartTotp,
+  confirmTotp: vi.fn().mockResolvedValue(undefined),
   googleEnabled: mockGoogleEnabled,
+  googleLinked: mockGoogleLinked,
+  refreshAccount: vi.fn().mockResolvedValue(undefined),
 }));
 
 import AccountSection from './AccountSection.svelte';
@@ -49,6 +50,7 @@ beforeEach(() => {
   mockLoginPassword.mockClear();
   mockLogout.mockClear();
   mockGoogleEnabled.mockResolvedValue(true);
+  mockGoogleLinked.mockResolvedValue(false);
 });
 
 describe('AccountSection', () => {
@@ -70,7 +72,7 @@ describe('AccountSection', () => {
     expect(screen.queryByText(/Continue with Google/i)).toBeNull();
   });
 
-  it('calls loginPassword on submit', async () => {
+  it('calls loginPassword on submit (login mode)', async () => {
     render(AccountSection);
     await fireEvent.input(screen.getByPlaceholderText(/email/i), { target: { value: 'a@b.c' } });
     await fireEvent.input(screen.getByPlaceholderText(/password/i), { target: { value: 'pw' } });
@@ -79,10 +81,38 @@ describe('AccountSection', () => {
   });
 
   it('shows account + logout when logged in', () => {
-    mockAccount.set({ id: 'u1', email: 'a@b.c' });
+    mockAccount.set({ id: 'u1', email: 'a@b.c', totpEnabled: true });
     mockIsLoggedIn.set(true);
     render(AccountSection);
     expect(screen.getByText('a@b.c')).toBeTruthy();
     expect(screen.getByRole('button', { name: /Log out/i })).toBeTruthy();
+  });
+
+  it('a Google account shows no 2FA setup', async () => {
+    mockGoogleLinked.mockResolvedValue(true);
+    mockAccount.set({ id: 'u1', email: 'g@b.c', totpEnabled: false });
+    mockIsLoggedIn.set(true);
+    render(AccountSection);
+    expect(await screen.findByText(/Signed in with Google/i)).toBeTruthy();
+    expect(screen.queryByText(/Set up two-factor/i)).toBeNull();
+  });
+
+  it('an email account without 2FA is forced to set it up', async () => {
+    mockGoogleLinked.mockResolvedValue(false);
+    mockAccount.set({ id: 'u1', email: 'e@b.c', totpEnabled: false });
+    mockIsLoggedIn.set(true);
+    render(AccountSection);
+    expect(await screen.findByText(/Set up two-factor authentication/i)).toBeTruthy();
+  });
+
+  it('signup requires a minimum-length password', async () => {
+    render(AccountSection);
+    await fireEvent.click(screen.getByRole('button', { name: /Create an account/i }));
+    await fireEvent.input(screen.getByPlaceholderText(/email/i), { target: { value: 'a@b.c' } });
+    await fireEvent.input(screen.getByPlaceholderText(/password/i), { target: { value: 'short' } });
+    const createBtn = screen.getByRole('button', { name: /Create account/i }) as HTMLButtonElement;
+    expect(createBtn.disabled).toBe(true);
+    await fireEvent.input(screen.getByPlaceholderText(/password/i), { target: { value: 'longenough10' } });
+    expect((screen.getByRole('button', { name: /Create account/i }) as HTMLButtonElement).disabled).toBe(false);
   });
 });
