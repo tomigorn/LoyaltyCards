@@ -12,6 +12,38 @@ export function mapDetectedFormat(s: string): BarcodeFormat | undefined {
 
 export interface ScanResult { value: string; format: BarcodeFormat; }
 
+/** Decode a single barcode/QR from a STILL image (a picked photo or screenshot of a digital
+ *  card). Returns null if no code is found. Native BarcodeDetector first, then @zxing/browser. */
+export async function detectFromImage(file: Blob): Promise<ScanResult | null> {
+  // @ts-expect-error BarcodeDetector is not in the TS DOM lib yet
+  if (typeof window.BarcodeDetector !== 'undefined') {
+    try {
+      // @ts-expect-error runtime API
+      const detector = new window.BarcodeDetector();
+      const bitmap = await createImageBitmap(file);
+      const codes = await detector.detect(bitmap);
+      bitmap.close?.();
+      if (codes.length) {
+        const f = mapDetectedFormat(codes[0].format);
+        if (f) return { value: codes[0].rawValue, format: f };
+      }
+    } catch { /* fall through to zxing */ }
+  }
+  try {
+    const { BrowserMultiFormatReader } = await import('@zxing/browser');
+    const { BarcodeFormat: ZxingFormat } = await import('@zxing/library');
+    const reader = new BrowserMultiFormatReader();
+    const url = URL.createObjectURL(file);
+    try {
+      const res = await reader.decodeFromImageUrl(url);
+      const keyName = ZxingFormat[res.getBarcodeFormat()]?.toLowerCase() as string | undefined;
+      const fmt = keyName ? mapDetectedFormat(keyName) : undefined;
+      if (fmt) return { value: res.getText(), format: fmt };
+    } finally { URL.revokeObjectURL(url); }
+  } catch { /* no code found in the image */ }
+  return null;
+}
+
 /** Start scanning from a <video> element. Returns a stop() function.
  *  Uses native BarcodeDetector when available, else @zxing/browser. */
 export async function startScan(

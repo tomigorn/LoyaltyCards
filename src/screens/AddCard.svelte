@@ -106,22 +106,34 @@
     ocrSuggestions = [];
 
     try {
+      const { detectFromImage } = await import('../lib/barcode/scan');
       const { recognizeText, suggestShopsFromText } = await import('../lib/ocr/ocr');
-      const text = await recognizeText(file);
+
+      // 1) Decode the barcode/QR straight from the image (captures the card number + format).
+      const scanned = await detectFromImage(file).catch(() => null);
+      if (scanned) { value = scanned.value; format = scanned.format; formatTouched = true; }
+
+      // 2) OCR the shop name from the same image.
+      const text = await recognizeText(file).catch(() => '');
       const suggestions = suggestShopsFromText(text);
 
-      if (suggestions.length > 0) {
-        ocrSuggestions = suggestions;
-        ocrReading = false;
+      const firstLine = () => {
+        const l = text.split(/\r?\n/).map(s => s.trim()).find(s => /[a-zA-Z]{3,}/.test(s));
+        if (l) storeName = l.replace(/[^a-zA-Z0-9 &'-]/g, '').trim().slice(0, 50);
+      };
+
+      if (scanned) {
+        // We have the code — go straight to the form with it filled; apply the best shop guess.
+        if (suggestions.length > 0) pick(suggestions[0]); else firstLine();
+        mode = 'manual';
+      } else if (suggestions.length > 0) {
+        ocrSuggestions = suggestions; ocrReading = false;   // no code; pick a shop, then manual
       } else {
-        // No useful matches — pre-fill storeName with first plausible line
-        const firstLine = text.split(/\r?\n/).map(l => l.trim())
-          .find(l => /[a-zA-Z]{3,}/.test(l));
-        if (firstLine) storeName = firstLine.replace(/[^a-zA-Z0-9 &'-]/g, '').trim().slice(0, 50);
+        firstLine();
         mode = 'manual';
       }
     } catch {
-      // OCR failed — fall through to manual
+      // Everything failed — fall through to manual entry.
       mode = 'manual';
     }
   }
@@ -151,7 +163,7 @@
   <button class="opt" onclick={triggerPhotoInput}>
     <span class="ic">
       <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M21 16l-5-5L5 20"/></svg>
-    </span><span class="t"><b>Photo of card</b><small>Pick a photo — reads the shop name from it</small></span><span class="ch">›</span>
+    </span><span class="t"><b>Photo of card</b><small>Pick a photo — reads its barcode/QR and shop</small></span><span class="ch">›</span>
   </button>
   <button class="opt" onclick={() => mode = 'manual'}>
     <span class="ic">
