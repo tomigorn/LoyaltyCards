@@ -4,7 +4,7 @@ import { writable } from 'svelte/store';
 
 // Define mocks; vi.mock factory references module-level vars via closure after hoisting.
 // We use vi.hoisted to create the store objects so they exist when vi.mock runs.
-const { mockAccount, mockIsLoggedIn, mockLoginPassword, mockLoginGoogle, mockSignup, mockLogout, mockTotpRequired } = vi.hoisted(() => {
+const { mockAccount, mockIsLoggedIn, mockLoginPassword, mockLoginGoogle, mockSignup, mockLogout, mockTotpRequired, mockGoogleEnabled } = vi.hoisted(() => {
   // Minimal writable-compatible store (no svelte import needed in hoisted context)
   function makeStore<T>(init: T) {
     let val = init;
@@ -23,6 +23,7 @@ const { mockAccount, mockIsLoggedIn, mockLoginPassword, mockLoginGoogle, mockSig
     mockSignup: vi.fn().mockResolvedValue(undefined),
     mockLogout: vi.fn(),
     mockTotpRequired: vi.fn().mockResolvedValue(false),
+    mockGoogleEnabled: vi.fn().mockResolvedValue(true),
   };
 });
 
@@ -37,6 +38,7 @@ vi.mock('../lib/auth/store', () => ({
   startTotp: vi.fn(),
   confirmTotp: vi.fn(),
   disableTotp: vi.fn(),
+  googleEnabled: mockGoogleEnabled,
 }));
 
 import AccountSection from './AccountSection.svelte';
@@ -46,13 +48,26 @@ beforeEach(() => {
   mockIsLoggedIn.set(false);
   mockLoginPassword.mockClear();
   mockLogout.mockClear();
+  mockGoogleEnabled.mockResolvedValue(true);
 });
 
 describe('AccountSection', () => {
-  it('shows login options when logged out', () => {
+  it('shows the email/password form when logged out', () => {
     render(AccountSection);
-    expect(screen.getByText(/Continue with Google/i)).toBeTruthy();
     expect(screen.getByPlaceholderText(/email/i)).toBeTruthy();
+    expect(screen.getByPlaceholderText(/password/i)).toBeTruthy();
+  });
+
+  it('shows the Google button only when the provider is configured', async () => {
+    mockGoogleEnabled.mockResolvedValue(true);
+    render(AccountSection);
+    expect(await screen.findByText(/Continue with Google/i)).toBeTruthy();
+  });
+
+  it('hides the Google button when the provider is not configured', () => {
+    mockGoogleEnabled.mockResolvedValue(false);
+    render(AccountSection);
+    expect(screen.queryByText(/Continue with Google/i)).toBeNull();
   });
 
   it('calls loginPassword on submit', async () => {

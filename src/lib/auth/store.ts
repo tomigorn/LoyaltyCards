@@ -53,6 +53,18 @@ export async function loginGoogle(): Promise<void> {
   await pb.collection(USERS).authWithOAuth2({ provider: 'google' });
 }
 
+/** Whether a Google OAuth2 provider is actually configured on the backend. The UI only shows
+ *  the Google button when this is true, so we never present a button that can't work. */
+export async function googleEnabled(): Promise<boolean> {
+  try {
+    const m = await pb.collection(USERS).listAuthMethods();
+    const providers = ((m as { oauth2?: { providers?: Array<{ name?: string }> } }).oauth2?.providers) ?? [];
+    return providers.some((p) => p?.name === 'google');
+  } catch {
+    return false;
+  }
+}
+
 export async function signup(email: string, password: string): Promise<void> {
   await pb.collection(USERS).create({ email, password, passwordConfirm: password });
   await pb.collection(USERS).authWithPassword(email, password);

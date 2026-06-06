@@ -1,12 +1,23 @@
 <script lang="ts">
   import { account, isLoggedIn, loginPassword, loginGoogle, signup, logout,
-           totpRequired, startTotp, confirmTotp, disableTotp } from '../lib/auth/store';
+           totpRequired, startTotp, confirmTotp, disableTotp, googleEnabled } from '../lib/auth/store';
   import * as bwipjs from 'bwip-js/browser';
 
   let mode = $state<'login' | 'signup'>('login');
   let email = $state(''); let password = $state(''); let code = $state('');
   let need2fa = $state(false);
   let busy = $state(false); let err = $state('');
+
+  // Only offer Google when the backend actually has the provider configured — otherwise the
+  // button opens an empty OAuth popup that flashes and fails. Appears automatically once set up.
+  let showGoogle = $state(false);
+  googleEnabled().then((v) => { showGoogle = v; });
+
+  async function doGoogle() {
+    err = '';
+    try { await loginGoogle(); }
+    catch (e) { err = 'Google sign-in failed: ' + ((e as Error).message || 'unavailable'); }
+  }
 
   async function submit() {
     busy = true; err = '';
@@ -66,8 +77,10 @@
     </details>
     <button class="btn" onclick={logout}>Log out</button>
   {:else}
-    <button class="btn google" onclick={loginGoogle}>Continue with Google</button>
-    <div class="or">or</div>
+    {#if showGoogle}
+      <button class="btn google" onclick={doGoogle}>Continue with Google</button>
+      <div class="or">or</div>
+    {/if}
     <input class="text" placeholder="email" bind:value={email} autocomplete="username" />
     <input class="text" placeholder="password" type="password" bind:value={password} autocomplete="current-password" />
     {#if need2fa}<input class="text" placeholder="2FA code" bind:value={code} inputmode="numeric" />{/if}
