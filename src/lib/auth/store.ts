@@ -49,8 +49,48 @@ export async function loginPassword(identity: string, password: string, code?: s
   }
 }
 
+const OAUTH_PENDING = 'pb_oauth_pending';
+
+// The callback Google returns the user to. MUST exactly match an "Authorized redirect URI"
+// registered on the Google OAuth client, and the value passed to authWithOAuth2Code below.
+function oauthRedirectUrl(): string {
+  return window.location.origin + '/';
+}
+
+/** Start Google sign-in via a full-page redirect (reliable in installed PWAs, unlike popups).
+ *  We stash the PKCE verifier + state in localStorage (shared between the PWA and the browser
+ *  on Android) so whichever context Google returns to can complete the exchange. */
 export async function loginGoogle(): Promise<void> {
-  await pb.collection(USERS).authWithOAuth2({ provider: 'google' });
+  const methods = await pb.collection(USERS).listAuthMethods();
+  const providers = (methods as { oauth2?: { providers?: Array<{ name: string; state: string; authURL: string; codeVerifier: string }> } }).oauth2?.providers ?? [];
+  const google = providers.find((p) => p.name === 'google');
+  if (!google) throw new Error('Google sign-in is not configured');
+  const redirectUrl = oauthRedirectUrl();
+  localStorage.setItem(OAUTH_PENDING, JSON.stringify({
+    provider: google.name, codeVerifier: google.codeVerifier, state: google.state, redirectUrl,
+  }));
+  // PB's authURL ends with `redirect_uri=`; append our callback.
+  window.location.href = google.authURL + redirectUrl;
+}
+
+/** If the current URL carries an OAuth `code` from a Google redirect, complete the login.
+ *  Returns true if it handled a callback. Call once at app startup. */
+export async function completeGoogleLogin(): Promise<boolean> {
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get('code');
+  const state = params.get('state');
+  const raw = localStorage.getItem(OAUTH_PENDING);
+  if (!code || !raw) return false;
+  localStorage.removeItem(OAUTH_PENDING);
+  const saved = JSON.parse(raw) as { provider: string; codeVerifier: string; state: string; redirectUrl: string };
+  if (state !== saved.state) throw new Error('OAuth state mismatch');
+  try {
+    await pb.collection(USERS).authWithOAuth2Code(saved.provider, code, saved.codeVerifier, saved.redirectUrl);
+  } finally {
+    // strip the OAuth params so a refresh doesn't retry a now-consumed code
+    window.history.replaceState({}, '', window.location.pathname);
+  }
+  return true;
 }
 
 /** Whether a Google OAuth2 provider is actually configured on the backend. The UI only shows

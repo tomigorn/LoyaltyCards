@@ -6,10 +6,14 @@
   import Settings from './screens/Settings.svelte';
   import type { Card } from './lib/types';
   import { putCard } from './lib/db';
-  import { refreshSession } from './lib/auth/store';
+  import { refreshSession, completeGoogleLogin } from './lib/auth/store';
   import { startSync } from './lib/sync/start';
 
-  refreshSession();
+  // Complete a returning Google OAuth redirect first (if any), then validate the session.
+  (async () => {
+    try { await completeGoogleLogin(); } catch (e) { console.warn('OAuth completion failed', e); }
+    await refreshSession();
+  })();
   startSync();
 
   type Screen = 'home' | 'checkout' | 'add' | 'detail' | 'settings';

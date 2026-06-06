@@ -3,7 +3,7 @@ import { get } from 'svelte/store';
 
 // Mock the client module so no real network/localStorage is touched.
 // Use vi.hoisted so authStore is available inside the vi.mock factory.
-const { authStore, authRefresh, authWithPassword, authWithOAuth2, create, send } = vi.hoisted(() => {
+const { authStore, authRefresh, authWithPassword, authWithOAuth2, authWithOAuth2Code, listAuthMethods, create, send } = vi.hoisted(() => {
   const authStore = {
     record: null as any,
     token: '',
@@ -16,16 +16,18 @@ const { authStore, authRefresh, authWithPassword, authWithOAuth2, create, send }
   const authRefresh = vi.fn().mockResolvedValue({});
   const authWithPassword = vi.fn().mockResolvedValue({});
   const authWithOAuth2 = vi.fn().mockResolvedValue({});
+  const authWithOAuth2Code = vi.fn().mockResolvedValue({});
+  const listAuthMethods = vi.fn().mockResolvedValue({ oauth2: { providers: [] } });
   const create = vi.fn().mockResolvedValue({ id: 'u1' });
   const send = vi.fn();
-  return { authStore, authRefresh, authWithPassword, authWithOAuth2, create, send };
+  return { authStore, authRefresh, authWithPassword, authWithOAuth2, authWithOAuth2Code, listAuthMethods, create, send };
 });
 
 vi.mock('./client', () => ({
   USERS: 'users',
   pb: {
     authStore,
-    collection: () => ({ authRefresh, authWithPassword, authWithOAuth2, create }),
+    collection: () => ({ authRefresh, authWithPassword, authWithOAuth2, authWithOAuth2Code, listAuthMethods, create }),
     send,
   },
 }));
@@ -68,7 +70,7 @@ describe('auth store', () => {
 import { loginGoogle, loginPassword, signup, totpRequired } from './store';
 
 describe('auth store — login', () => {
-  beforeEach(() => { authStore.clear(); send.mockReset(); authWithPassword.mockClear(); authWithOAuth2.mockClear(); create.mockClear(); });
+  beforeEach(() => { authStore.clear(); send.mockReset(); authWithPassword.mockClear(); authWithOAuth2.mockClear(); authWithOAuth2Code.mockClear(); listAuthMethods.mockReset(); create.mockClear(); localStorage.clear(); });
 
   it('totpRequired posts the identity and returns the flag', async () => {
     send.mockResolvedValueOnce({ required: true });
@@ -92,9 +94,18 @@ describe('auth store — login', () => {
     expect(authStore.isValid).toBe(true);
   });
 
-  it('loginGoogle calls authWithOAuth2 google', async () => {
+  it('loginGoogle stores PKCE state when google is configured (redirect flow)', async () => {
+    listAuthMethods.mockResolvedValueOnce({ oauth2: { providers: [
+      { name: 'google', state: 'st', authURL: 'https://accounts.google/auth?redirect_uri=', codeVerifier: 'ver' },
+    ] } });
     await loginGoogle();
-    expect(authWithOAuth2).toHaveBeenCalledWith({ provider: 'google' });
+    const pending = JSON.parse(localStorage.getItem('pb_oauth_pending')!);
+    expect(pending).toMatchObject({ provider: 'google', codeVerifier: 'ver', state: 'st' });
+  });
+
+  it('loginGoogle throws when google is not configured', async () => {
+    listAuthMethods.mockResolvedValueOnce({ oauth2: { providers: [] } });
+    await expect(loginGoogle()).rejects.toThrow(/not configured/i);
   });
 
   it('signup creates the user then logs in', async () => {
@@ -126,5 +137,39 @@ describe('auth store — TOTP management', () => {
     send.mockResolvedValueOnce({ enabled: false });
     await disableTotp('123456');
     expect(send).toHaveBeenCalledWith('/api/loyalty/totp/disable', expect.objectContaining({ method: 'POST', body: { code: '123456' } }));
+  });
+});
+
+import { completeGoogleLogin, googleEnabled } from './store';
+
+describe('auth store — Google redirect completion', () => {
+  beforeEach(() => {
+    authStore.clear(); localStorage.clear(); authWithOAuth2Code.mockClear(); listAuthMethods.mockReset();
+    window.history.replaceState({}, '', '/');
+  });
+
+  it('returns false when the URL carries no code', async () => {
+    expect(await completeGoogleLogin()).toBe(false);
+    expect(authWithOAuth2Code).not.toHaveBeenCalled();
+  });
+
+  it('exchanges the code via authWithOAuth2Code when state matches', async () => {
+    localStorage.setItem('pb_oauth_pending', JSON.stringify({ provider: 'google', codeVerifier: 'ver', state: 'st', redirectUrl: 'http://localhost/' }));
+    window.history.replaceState({}, '', '/?code=abc&state=st');
+    expect(await completeGoogleLogin()).toBe(true);
+    expect(authWithOAuth2Code).toHaveBeenCalledWith('google', 'abc', 'ver', 'http://localhost/');
+  });
+
+  it('throws on state mismatch', async () => {
+    localStorage.setItem('pb_oauth_pending', JSON.stringify({ provider: 'google', codeVerifier: 'ver', state: 'st', redirectUrl: 'http://localhost/' }));
+    window.history.replaceState({}, '', '/?code=abc&state=WRONG');
+    await expect(completeGoogleLogin()).rejects.toThrow(/state mismatch/i);
+  });
+
+  it('googleEnabled reflects whether the provider is configured', async () => {
+    listAuthMethods.mockResolvedValueOnce({ oauth2: { providers: [{ name: 'google' }] } });
+    expect(await googleEnabled()).toBe(true);
+    listAuthMethods.mockResolvedValueOnce({ oauth2: { providers: [] } });
+    expect(await googleEnabled()).toBe(false);
   });
 });
