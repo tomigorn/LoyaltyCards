@@ -1,7 +1,8 @@
 <script lang="ts">
   import PhotoField from '../components/PhotoField.svelte';
   import LogoPicker from '../components/LogoPicker.svelte';
-  import { putCard, deleteCard, putImage, deleteImage } from '../lib/db';
+  import { putCard, deleteCard, deleteImage } from '../lib/db';
+  import { storeImage } from '../lib/image';
   import { loadCards } from '../lib/stores';
   import { logoDevFetcher } from '../lib/logo/fetch';
   import { resolveCardLogo, resolveCardColor } from '../lib/logo/resolveCard';
@@ -29,8 +30,7 @@
     try {
       const res = await fetch(url);
       if (res.ok) {
-        const key = crypto.randomUUID();
-        await putImage(key, await res.blob());
+        const key = await storeImage(await res.blob());
         draft.logo = { source: 'uploaded', blobRef: key };
         return;
       }
@@ -40,7 +40,7 @@
   async function uploadLogo(e: Event) {
     const file = (e.target as HTMLInputElement).files?.[0]; if (!file) return;
     if (draft.logo.blobRef) await deleteImage(draft.logo.blobRef);
-    const key = crypto.randomUUID(); await putImage(key, file);
+    const key = await storeImage(file);
     draft.logo = { source: 'uploaded', blobRef: key };
   }
   async function fetchLogo() {
@@ -50,7 +50,7 @@
     const blob = await logoDevFetcher.fetchLogo(domain);
     if (!blob) { alert('No logo found online.'); return; }
     if (draft.logo.blobRef) await deleteImage(draft.logo.blobRef);
-    const key = crypto.randomUUID(); await putImage(key, blob);
+    const key = await storeImage(blob);
     draft.logo = { source: 'fetched', blobRef: key };
   }
   async function save() {
