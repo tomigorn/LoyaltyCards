@@ -3,3 +3,10 @@ node_modules/
 dist/
 test-results/
 playwright-report/
+
+# AI working files
+docs/working/
+docs/superpowers/
+.claude/settings.local.json
+CLAUDE.local.md
+AGENTS.md
